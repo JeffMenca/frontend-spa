@@ -1,0 +1,238 @@
+@import "tailwindcss";
+
+/* Tailwind v4: dark variant responds to .dark class on <html> (used by next-themes) */
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  /* ── Brand colors ── */
+  --color-primary: #0b57d0;
+  --color-primary-hover: #1b66d0;
+  --color-primary-active: #0a45a6;
+  --color-primary-disabled-bg: #e5edff;
+  --color-primary-disabled-text: #a8c7fa;
+  --color-link: #1a0dab;
+  --color-warning: #fbbc04;
+  --color-warning-bg: #fef7e0;
+  --color-warning-text: #8b6914;
+  --color-hover-blue: #a3c9ff;
+  --color-focus-ring: #a8c7fa;
+  --color-pale-blue: #e5edff;
+  --color-soft-blue: #d3e3fd;
+
+  /* ── Neutral scale ── */
+  --color-text-primary-black: #1f1f1f;
+  --color-text-primary: #3c4043;
+  --color-text-secondary: #70757a;
+  --color-text-tertiary: #636363;
+  --color-text-light: #474747;
+  --color-white: #ffffff;
+  --color-surface: #f8f9fa;
+  --color-border: #d2d2d2;
+  --color-border-hover: #b9bdbe;
+  --color-error: #d33b27;
+  --color-surface-hover: #f1f3f4;
+  --color-surface-active: #e8eaed;
+
+  /* ── Typography ── */
+  --font-sans: var(--font-google-sans), -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-secondary: var(--font-roboto), system-ui, sans-serif;
+  --font-mono: ui-monospace, "Courier New", monospace;
+
+  /* ── Spacing (8 px base) ── */
+  --spacing-1: 4px;
+  --spacing-2: 8px;
+  --spacing-3: 12px;
+  --spacing-4: 16px;
+  --spacing-5: 20px;
+  --spacing-6: 24px;
+  --spacing-7: 28px;
+  --spacing-8: 32px;
+  --spacing-14: 56px;
+  --spacing-15: 60px;
+  --spacing-18: 72px;
+  --spacing-50: 200px;
+  --spacing-100: 400px;
+
+  /* ── Border radius ── */
+  --radius-none: 0;
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 24px;
+  --radius-full: 9999px;
+  --radius-circle: 50%;
+
+  /* ── Elevation / Shadows ── */
+  --shadow-raised: 0 1px 2px rgba(31, 31, 31, 0.08);
+  --shadow-elevated: 0 2px 4px rgba(31, 31, 31, 0.1);
+  --shadow-high: 0 4px 8px rgba(31, 31, 31, 0.12);
+  --shadow-top: 0 8px 16px rgba(31, 31, 31, 0.15);
+
+  /* ── Layout ── */
+  --container-max: 1440px;
+
+  /* ── Named animations ── */
+  --animate-fade-in: fade-in 0.35s ease-out both;
+  --animate-fade-in-up: fade-in-up 0.4s ease-out both;
+  --animate-fade-in-down: fade-in-down 0.4s ease-out both;
+  --animate-slide-in-left: slide-in-left 0.3s ease-out both;
+  --animate-scale-in: scale-in 0.25s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  --animate-pulse-soft: pulse-soft 2s ease-in-out infinite;
+}
+
+/* ── Keyframe definitions ── */
+@keyframes fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes fade-in-up {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fade-in-down {
+  from { opacity: 0; transform: translateY(-12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slide-in-left {
+  from { opacity: 0; transform: translateX(-20px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes scale-in {
+  from { opacity: 0; transform: scale(0.92); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+@keyframes pulse-soft {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.6; }
+}
+
+/* ── Stagger delay helpers ── */
+.delay-75  { animation-delay: 75ms; }
+.delay-150 { animation-delay: 150ms; }
+.delay-225 { animation-delay: 225ms; }
+.delay-300 { animation-delay: 300ms; }
+.delay-450 { animation-delay: 450ms; }
+
+@layer base {
+  html {
+    font-family: var(--font-sans);
+    color: var(--color-text-primary-black);
+    background-color: var(--color-white);
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+
+  body {
+    min-height: 100vh;
+  }
+
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-focus-ring);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+
+  a {
+    color: var(--color-link);
+    font-family: var(--font-secondary);
+  }
+}
+
+/* ── shadcn/ui CSS variable bridge (light) ── */
+:root {
+  /*
+   * --color-primary-text = primary color used AS TEXT on a surface.
+   * Light mode: same dark blue works on white/gray surfaces.
+   * Dark mode (overridden below): lighter blue for legibility on dark surfaces.
+   */
+  --color-primary-text: #0b57d0;
+
+  --background: var(--color-white);
+  --foreground: var(--color-text-primary-black);
+  --card: var(--color-white);
+  --card-foreground: var(--color-text-primary-black);
+  --popover: var(--color-white);
+  --popover-foreground: var(--color-text-primary-black);
+  --primary: var(--color-primary);
+  --primary-foreground: #ffffff;
+  --secondary: var(--color-surface);
+  --secondary-foreground: var(--color-text-primary-black);
+  --muted: var(--color-surface);
+  --muted-foreground: var(--color-text-secondary);
+  --accent: var(--color-soft-blue);
+  --accent-foreground: var(--color-primary);
+  --destructive: var(--color-error);
+  --destructive-foreground: #ffffff;
+  --border: var(--color-border);
+  --input: var(--color-border);
+  --ring: var(--color-focus-ring);
+  --radius: var(--radius-md);
+}
+
+/* ── shadcn/ui CSS variable bridge (dark) ── */
+.dark {
+  /*
+   * Primary stays dark blue (#1a73e8) so that text-primary-foreground (#ffffff)
+   * always has at least 4.5:1 contrast — avoids white-on-light-blue unreadability.
+   * Links and focus rings use the lighter Google-dark blue (#8ab4f8) for legibility
+   * against the dark surfaces.
+   */
+  --color-white: #202124;
+  --color-surface: #28292d;
+  --color-text-primary-black: #e8eaed;
+  --color-text-primary: #c8cacc;
+  --color-text-secondary: #9aa0a6;
+  --color-text-tertiary: #8c8c8c;
+  --color-text-light: #a8a8a8;
+  --color-border: #3c4043;
+  --color-border-hover: #5f6368;
+  --color-primary: #1a73e8;
+  --color-primary-hover: #1b6fd4;
+  --color-primary-active: #1560c0;
+  --color-link: #8ab4f8;
+  --color-primary-text: #8ab4f8;
+  --color-pale-blue: #1a2d4a;
+  --color-soft-blue: #1a2840;
+  --color-surface-hover: #35363b;
+  --color-surface-active: #3f4043;
+  --color-error: #f28b82;
+  --color-focus-ring: #8ab4f8;
+  --color-warning: #fdd663;
+  --color-warning-bg: #2a1f00;
+  --color-warning-text: #fdd663;
+  --shadow-raised: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow-elevated: 0 2px 4px rgba(0, 0, 0, 0.4);
+  --shadow-high: 0 4px 8px rgba(0, 0, 0, 0.5);
+  --shadow-top: 0 8px 16px rgba(0, 0, 0, 0.6);
+
+  /* shadcn bridge */
+  --background: #202124;
+  --foreground: #e8eaed;
+  --card: #28292d;
+  --card-foreground: #e8eaed;
+  --popover: #2d2e33;
+  --popover-foreground: #e8eaed;
+  --primary: #1a73e8;
+  --primary-foreground: #ffffff;
+  --secondary: #35363b;
+  --secondary-foreground: #e8eaed;
+  --muted: #35363b;
+  --muted-foreground: #9aa0a6;
+  --accent: #1a2d4a;
+  --accent-foreground: #8ab4f8;
+  --destructive: #f28b82;
+  --destructive-foreground: #ffffff;
+  --border: #3c4043;
+  --input: #3c4043;
+  --ring: #8ab4f8;
+}

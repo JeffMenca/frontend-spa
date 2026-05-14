@@ -1,0 +1,44 @@
+import type { Metadata } from "next";
+import { DM_Sans, Roboto } from "next/font/google";
+import "@/styles/globals.css";
+import { Toaster } from "@/components/ui/sonner";
+import { ThemeProvider } from "@/components/providers/ThemeProvider";
+
+const dmSans = DM_Sans({
+  subsets: ["latin"],
+  variable: "--font-google-sans",
+  display: "swap",
+});
+
+const roboto = Roboto({
+  subsets: ["latin"],
+  weight: ["400", "500", "700"],
+  variable: "--font-roboto",
+  display: "swap",
+});
+
+export const metadata: Metadata = {
+  title: "Code n Bugs — Gestion de congresos",
+  description: "Plataforma multi-tenant para la gestion de congresos academicos.",
+};
+
+interface RootLayoutProps {
+  children: React.ReactNode;
+}
+
+export default function RootLayout({ children }: RootLayoutProps): React.ReactElement {
+  return (
+    <html
+      lang="es"
+      className={`${dmSans.variable} ${roboto.variable}`}
+      suppressHydrationWarning
+    >
+      <body>
+        <ThemeProvider>
+          {children}
+          <Toaster position="top-right" richColors />
+        </ThemeProvider>
+      </body>
+    </html>
+  );
+}
