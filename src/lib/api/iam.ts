@@ -55,7 +55,7 @@ export async function getUserById(id: string, token: string): Promise<UserData> 
 
 export async function updateUser(
   id: string,
-  data: Partial<UserData>,
+  data: unknown,
   token: string,
 ): Promise<UserData> {
   return apiFetch(`${IAM_URL}/users/${id}`, UserSchema, {

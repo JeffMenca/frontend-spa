@@ -1,5 +1,7 @@
+import "server-only";
+
 import { NextResponse } from "next/server";
-import { logoutUser } from "@/lib/api/iam";
+import { activeIam } from "@/lib/api/active-iam";
 import { clearAuthCookies } from "@/lib/auth/cookies";
 import { cookies } from "next/headers";
 
@@ -9,7 +11,8 @@ export async function POST(): Promise<NextResponse> {
     const token = cookieStore.get("access_token")?.value;
 
     if (token !== undefined && token !== "") {
-      await logoutUser(token).catch(() => {
+      // TODO(backend-swap): iam POST /auth/logout (port 8081)
+      await activeIam.logoutUser(token).catch(() => {
         // Ignore errors from IAM logout — clear cookies regardless
       });
     }

@@ -11,18 +11,16 @@ import {
   type TopUpData,
   type PaymentData,
 } from "@/lib/validators/wallet";
+import {
+  SystemConfigSchema,
+  type SystemConfigData,
+} from "@/lib/validators/system-config";
 import { z } from "zod";
 
 const WALLET_URL =
   process.env["WALLET_INTERNAL_URL"] ??
   process.env["NEXT_PUBLIC_WALLET_URL"] ??
   "http://localhost:8083";
-
-const SystemConfigSchema = z.object({
-  commissionPercent: z.number().min(0).max(100),
-  updatedBy: z.string().uuid().nullable(),
-  updatedAt: z.string().nullable(),
-});
 
 // --- Wallet ---
 
@@ -70,19 +68,37 @@ export async function listPayments(
 
 // --- System Config ---
 
-export async function getSystemConfig(
-  token: string,
-): Promise<z.infer<typeof SystemConfigSchema>> {
+export async function getSystemConfig(token: string): Promise<SystemConfigData> {
   return apiFetch(`${WALLET_URL}/system/config`, SystemConfigSchema, { token });
 }
 
 export async function updateSystemConfig(
   commissionPercent: number,
   token: string,
-): Promise<z.infer<typeof SystemConfigSchema>> {
+): Promise<SystemConfigData> {
   return apiFetch(`${WALLET_URL}/system/config`, SystemConfigSchema, {
     method: "PUT",
     body: { commissionPercent },
     token,
+  });
+}
+
+export async function registerPayment(
+  data: unknown,
+  token: string,
+  idempotencyKey: string,
+): Promise<PaymentData> {
+  return apiFetch(`${WALLET_URL}/payments/register`, PaymentSchema, {
+    method: "POST",
+    body: data,
+    token,
+    idempotencyKey,
+  });
+}
+
+export async function createWallet(userId: string): Promise<WalletBalanceData> {
+  return apiFetch(`${WALLET_URL}/wallets`, WalletBalanceSchema, {
+    method: "POST",
+    body: { userId },
   });
 }

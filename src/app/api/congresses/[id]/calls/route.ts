@@ -1,9 +1,43 @@
-import { NextResponse } from "next/server";
+import "server-only";
 
-export async function GET(): Promise<NextResponse> {
-  return NextResponse.json({ message: "Not implemented" }, { status: 501 });
+import { NextRequest, NextResponse } from "next/server";
+import { cookies } from "next/headers";
+import { getSession } from "@/lib/auth/session";
+import { activeConference } from "@/lib/api/active-conference";
+import { unauthorizedResponse, internalErrorResponse } from "@/lib/api/responses";
+
+async function getToken(): Promise<string | null> {
+  const cookieStore = await cookies();
+  return cookieStore.get("access_token")?.value ?? null;
 }
 
-export async function POST(): Promise<NextResponse> {
-  return NextResponse.json({ message: "Not implemented" }, { status: 501 });
+export async function GET(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> },
+): Promise<NextResponse> {
+  const { id } = await params;
+  try {
+    const queryParams = new URL(request.url).searchParams;
+    // TODO(backend-swap): conference GET /congresses/{id}/calls (port 8082)
+    return NextResponse.json(await activeConference.listCalls(id, queryParams));
+  } catch {
+    return internalErrorResponse();
+  }
+}
+
+export async function POST(
+  _request: NextRequest,
+  { params }: { params: Promise<{ id: string }> },
+): Promise<NextResponse> {
+  const session = await getSession();
+  if (session === null) return unauthorizedResponse();
+  const token = await getToken();
+  if (token === null) return unauthorizedResponse();
+  const { id } = await params;
+  try {
+    // TODO(backend-swap): conference POST /congresses/{id}/calls (port 8082)
+    return NextResponse.json(await activeConference.createCall(id, token), { status: 201 });
+  } catch {
+    return internalErrorResponse();
+  }
 }

@@ -1,13 +1,61 @@
-import { NextResponse } from "next/server";
+import "server-only";
 
-export async function GET(): Promise<NextResponse> {
-  return NextResponse.json({ message: "Not implemented" }, { status: 501 });
+import { NextRequest, NextResponse } from "next/server";
+import { cookies } from "next/headers";
+import { getSession } from "@/lib/auth/session";
+import { activeConference } from "@/lib/api/active-conference";
+import { unauthorizedResponse, internalErrorResponse } from "@/lib/api/responses";
+
+async function getToken(): Promise<string | null> {
+  const cookieStore = await cookies();
+  return cookieStore.get("access_token")?.value ?? null;
 }
 
-export async function PUT(): Promise<NextResponse> {
-  return NextResponse.json({ message: "Not implemented" }, { status: 501 });
+export async function GET(
+  _request: NextRequest,
+  { params }: { params: Promise<{ id: string }> },
+): Promise<NextResponse> {
+  const { id } = await params;
+  try {
+    // TODO(backend-swap): conference GET /rooms/{id} (port 8082)
+    return NextResponse.json(await activeConference.getRoom(id));
+  } catch {
+    return internalErrorResponse();
+  }
 }
 
-export async function DELETE(): Promise<NextResponse> {
-  return NextResponse.json({ message: "Not implemented" }, { status: 501 });
+export async function PUT(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> },
+): Promise<NextResponse> {
+  const session = await getSession();
+  if (session === null) return unauthorizedResponse();
+  const token = await getToken();
+  if (token === null) return unauthorizedResponse();
+  const { id } = await params;
+  try {
+    const body: unknown = await request.json();
+    // TODO(backend-swap): conference PUT /rooms/{id} (port 8082)
+    return NextResponse.json(await activeConference.updateRoom(id, body, token));
+  } catch {
+    return internalErrorResponse();
+  }
+}
+
+export async function DELETE(
+  _request: NextRequest,
+  { params }: { params: Promise<{ id: string }> },
+): Promise<NextResponse> {
+  const session = await getSession();
+  if (session === null) return unauthorizedResponse();
+  const token = await getToken();
+  if (token === null) return unauthorizedResponse();
+  const { id } = await params;
+  try {
+    // TODO(backend-swap): conference DELETE /rooms/{id} (port 8082)
+    await activeConference.deleteRoom(id, token);
+    return new NextResponse(null, { status: 204 });
+  } catch {
+    return internalErrorResponse();
+  }
 }

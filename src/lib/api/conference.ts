@@ -1,6 +1,6 @@
 import "server-only";
 
-import { apiFetch } from "./client";
+import { apiFetch, apiFetchBinary } from "./client";
 import {
   InstitutionSchema,
   InstitutionListSchema,
@@ -44,6 +44,33 @@ import {
   type AttendanceData,
   type AttendanceListData,
 } from "@/lib/validators/attendance";
+import { CallSchema, CallListSchema, type CallData, type CallListData } from "@/lib/validators/call";
+import {
+  CommitteeMemberSchema,
+  CommitteeMemberListSchema,
+  type CommitteeMemberData,
+  type CommitteeMemberListData,
+} from "@/lib/validators/committee";
+import {
+  DiplomaSchema,
+  DiplomaListSchema,
+  type DiplomaData,
+  type DiplomaListData,
+} from "@/lib/validators/diploma";
+import {
+  ParticipantReportSchema,
+  AttendanceByActivityReportSchema,
+  WorkshopReservationReportSchema,
+  EarningsByCongressReportSchema,
+  EarningsReportSchema,
+  CongressesByInstitutionReportSchema,
+  type ParticipantReportData,
+  type AttendanceByActivityReportData,
+  type WorkshopReservationReportData,
+  type EarningsByCongressReportData,
+  type EarningsReportData,
+  type CongressesByInstitutionReportData,
+} from "@/lib/validators/reports";
 import { z } from "zod";
 
 const CONFERENCE_URL =
@@ -352,6 +379,156 @@ export async function listAttendance(
   return apiFetch(
     `${CONFERENCE_URL}/attendance?${params.toString()}`,
     AttendanceListSchema,
+    { token },
+  );
+}
+
+// --- Calls ---
+
+export async function listCalls(
+  congressId: string,
+  params: URLSearchParams,
+): Promise<CallListData> {
+  return apiFetch(
+    `${CONFERENCE_URL}/congresses/${congressId}/calls?${params.toString()}`,
+    CallListSchema,
+  );
+}
+
+export async function createCall(congressId: string, token: string): Promise<CallData> {
+  return apiFetch(`${CONFERENCE_URL}/congresses/${congressId}/calls`, CallSchema, {
+    method: "POST",
+    token,
+  });
+}
+
+export async function closeCall(callId: string, token: string): Promise<CallData> {
+  return apiFetch(`${CONFERENCE_URL}/calls/${callId}/close`, CallSchema, {
+    method: "PATCH",
+    token,
+  });
+}
+
+// --- Scientific Committee ---
+
+export async function getCommitteeMembers(
+  congressId: string,
+  token: string,
+): Promise<CommitteeMemberListData> {
+  return apiFetch(
+    `${CONFERENCE_URL}/congresses/${congressId}/committee`,
+    CommitteeMemberListSchema,
+    { token },
+  );
+}
+
+export async function addCommitteeMember(
+  congressId: string,
+  data: unknown,
+  token: string,
+): Promise<CommitteeMemberData> {
+  return apiFetch(`${CONFERENCE_URL}/congresses/${congressId}/committee`, CommitteeMemberSchema, {
+    method: "POST",
+    body: data,
+    token,
+  });
+}
+
+export async function removeCommitteeMember(
+  congressId: string,
+  userId: string,
+  token: string,
+): Promise<void> {
+  await apiFetch(
+    `${CONFERENCE_URL}/congresses/${congressId}/committee/${userId}`,
+    z.unknown(),
+    { method: "DELETE", token },
+  );
+}
+
+// --- Diplomas ---
+
+export async function getDiplomasByUser(
+  userId: string,
+  token: string,
+): Promise<DiplomaListData> {
+  return apiFetch(`${CONFERENCE_URL}/users/${userId}/diplomas`, DiplomaListSchema, { token });
+}
+
+export async function getDiploma(id: string, token: string): Promise<DiplomaData> {
+  return apiFetch(`${CONFERENCE_URL}/diplomas/${id}`, DiplomaSchema, { token });
+}
+
+export async function downloadDiploma(id: string, token: string): Promise<ArrayBuffer> {
+  return apiFetchBinary(`${CONFERENCE_URL}/diplomas/${id}/download`, { token });
+}
+
+// --- Reports (CongressAdmin) ---
+
+export async function getParticipantReport(
+  token: string,
+  params: URLSearchParams,
+): Promise<ParticipantReportData> {
+  return apiFetch(
+    `${CONFERENCE_URL}/reports/participants?${params.toString()}`,
+    ParticipantReportSchema,
+    { token },
+  );
+}
+
+export async function getAttendanceByActivityReport(
+  token: string,
+  params: URLSearchParams,
+): Promise<AttendanceByActivityReportData> {
+  return apiFetch(
+    `${CONFERENCE_URL}/reports/attendance-by-activity?${params.toString()}`,
+    AttendanceByActivityReportSchema,
+    { token },
+  );
+}
+
+export async function getWorkshopReservationReport(
+  token: string,
+  params: URLSearchParams,
+): Promise<WorkshopReservationReportData> {
+  return apiFetch(
+    `${CONFERENCE_URL}/reports/workshop-reservations?${params.toString()}`,
+    WorkshopReservationReportSchema,
+    { token },
+  );
+}
+
+export async function getEarningsByCongressReport(
+  token: string,
+  params: URLSearchParams,
+): Promise<EarningsByCongressReportData> {
+  return apiFetch(
+    `${CONFERENCE_URL}/reports/earnings-by-congress?${params.toString()}`,
+    EarningsByCongressReportSchema,
+    { token },
+  );
+}
+
+// --- Reports (SystemAdmin) ---
+
+export async function getPlatformEarningsReport(
+  token: string,
+  params: URLSearchParams,
+): Promise<EarningsReportData> {
+  return apiFetch(
+    `${CONFERENCE_URL}/reports/earnings?${params.toString()}`,
+    EarningsReportSchema,
+    { token },
+  );
+}
+
+export async function getCongressesByInstitutionReport(
+  token: string,
+  params: URLSearchParams,
+): Promise<CongressesByInstitutionReportData> {
+  return apiFetch(
+    `${CONFERENCE_URL}/reports/congresses-by-institution?${params.toString()}`,
+    CongressesByInstitutionReportSchema,
     { token },
   );
 }

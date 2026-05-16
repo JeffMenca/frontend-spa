@@ -1,5 +1,7 @@
+import "server-only";
+
 import { NextRequest, NextResponse } from "next/server";
-import { loginUser, getMe } from "@/lib/api/iam";
+import { activeIam } from "@/lib/api/active-iam";
 import { setAuthCookies } from "@/lib/auth/cookies";
 import { LoginRequestSchema } from "@/lib/validators/auth";
 import { ProblemDetailSchema } from "@/lib/validators/error";
@@ -22,8 +24,10 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       );
     }
 
-    const tokens = await loginUser(parsed.data);
-    const profile = await getMe(tokens.accessToken);
+    // TODO(backend-swap): iam POST /auth/login (port 8081)
+    const tokens = await activeIam.loginUser(parsed.data);
+    // TODO(backend-swap): iam GET /users/me (port 8081)
+    const profile = await activeIam.getMe(tokens.accessToken);
 
     await setAuthCookies(tokens.accessToken, tokens.refreshToken);
 
