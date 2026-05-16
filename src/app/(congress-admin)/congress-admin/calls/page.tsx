@@ -1,10 +1,42 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { redirect } from "next/navigation";
+import { PageHeader } from "@/components/ui/page-header";
+import { CallsPageClient } from "@/components/domain/CallsPageClient";
+import { CongressListSchema } from "@/lib/validators/congress";
+import { getSession } from "@/lib/auth/session";
 
-export default function CallsPage(): React.ReactElement {
+const BASE = process.env["NEXT_PUBLIC_APP_URL"] ?? "http://localhost:3000";
+
+export default async function CallsPage(): Promise<React.ReactElement> {
+  const session = await getSession();
+  if (session === null) redirect("/login");
+
+  const res = await fetch(`${BASE}/api/congresses`, { cache: "no-store" });
+  if (res.status === 401) redirect("/login");
+
+  const raw: unknown = await res.json();
+  const parsed = CongressListSchema.safeParse(raw);
+
+  if (!parsed.success) {
+    return (
+      <div className="flex flex-col gap-6" data-testid="congress-admin-calls-page">
+        <PageHeader
+          title="Convocatorias"
+          description="Gestiona las convocatorias de tus congresos."
+        />
+        <p className="font-secondary text-sm text-[var(--color-error)]">
+          Error al cargar los congresos. Intenta de nuevo mas tarde.
+        </p>
+      </div>
+    );
+  }
+
   return (
-    <div data-testid="congress-admin-calls-page">
-      <h1 style={{ fontFamily: "var(--font-sans)", fontSize: "32px", fontWeight: 500, marginBottom: "24px", color: "var(--color-text-primary-black)" }}>Convocatorias</h1>
-      <Card><CardHeader><CardTitle>Gestion de convocatorias</CardTitle></CardHeader><CardContent><p style={{ fontFamily: "var(--font-secondary)", fontSize: "14px", color: "var(--color-text-secondary)" }}>Convocatorias en construccion.</p></CardContent></Card>
+    <div className="flex flex-col gap-6" data-testid="congress-admin-calls-page">
+      <PageHeader
+        title="Convocatorias"
+        description="Gestiona las convocatorias de tus congresos."
+      />
+      <CallsPageClient congresses={parsed.data.items} />
     </div>
   );
 }

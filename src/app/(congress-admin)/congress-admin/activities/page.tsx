@@ -1,10 +1,20 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { redirect } from "next/navigation";
+import { getSession } from "@/lib/auth/session";
+import { ActivitiesPageClient } from "@/components/domain/ActivitiesPageClient";
+import { CongressListSchema } from "@/lib/validators/congress";
 
-export default function ActivitiesPage(): React.ReactElement {
-  return (
-    <div data-testid="congress-admin-activities-page">
-      <h1 style={{ fontFamily: "var(--font-sans)", fontSize: "32px", fontWeight: 500, marginBottom: "24px", color: "var(--color-text-primary-black)" }}>Actividades</h1>
-      <Card><CardHeader><CardTitle>Gestion de actividades</CardTitle></CardHeader><CardContent><p style={{ fontFamily: "var(--font-secondary)", fontSize: "14px", color: "var(--color-text-secondary)" }}>Gestion de actividades en construccion.</p></CardContent></Card>
-    </div>
-  );
+const BASE = process.env["NEXT_PUBLIC_APP_URL"] ?? "http://localhost:3000";
+
+export default async function ActivitiesPage(): Promise<React.ReactElement> {
+  const session = await getSession();
+  if (session === null) redirect("/login");
+
+  const res = await fetch(`${BASE}/api/congresses`, { cache: "no-store" });
+  if (res.status === 401) redirect("/login");
+
+  const raw: unknown = await res.json();
+  const parsed = CongressListSchema.safeParse(raw);
+  const congresses = parsed.success ? parsed.data.items : [];
+
+  return <ActivitiesPageClient congresses={congresses} />;
 }
