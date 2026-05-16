@@ -98,7 +98,7 @@ export function InstitutionsPageClient({
                   </td>
                   <td className="px-4 py-3">
                     {inst.active ? (
-                      <span className="inline-flex items-center rounded-full bg-green-600 px-2 py-0.5 text-xs font-medium text-white">
+                      <span className="inline-flex items-center rounded-full bg-[var(--color-success)] px-2 py-0.5 text-xs font-medium text-white">
                         Activa
                       </span>
                     ) : (

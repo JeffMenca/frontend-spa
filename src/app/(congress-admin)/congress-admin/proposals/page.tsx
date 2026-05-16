@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { PageHeader } from "@/components/ui/page-header";
 import { ProposalsAdminPageClient } from "@/components/domain/ProposalsAdminPageClient";
 import { CongressListSchema } from "@/lib/validators/congress";
+import { UserSchema } from "@/lib/validators/user";
 import { getSession } from "@/lib/auth/session";
 
 const BASE = process.env["NEXT_PUBLIC_APP_URL"] ?? "http://localhost:3000";
@@ -23,14 +24,8 @@ export default async function ProposalsPage(): Promise<React.ReactElement> {
   ]);
 
   const congressesParsed = CongressListSchema.safeParse(congressesRaw);
-
-  const userId =
-    typeof meRaw === "object" &&
-    meRaw !== null &&
-    "id" in meRaw &&
-    typeof (meRaw as Record<string, unknown>)["id"] === "string"
-      ? ((meRaw as Record<string, unknown>)["id"] as string)
-      : session.userId;
+  const meParsed = UserSchema.safeParse(meRaw);
+  const userId = meParsed.success ? meParsed.data.id : session.userId;
 
   if (!congressesParsed.success) {
     return (

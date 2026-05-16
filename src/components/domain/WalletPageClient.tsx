@@ -140,7 +140,7 @@ export function WalletPageClient({ wallet, transactions }: WalletPageClientProps
                       <td
                         className={
                           isTopUp
-                            ? "px-4 py-3 font-medium text-green-600 dark:text-green-400"
+                            ? "px-4 py-3 font-medium text-[var(--color-success-text)]"
                             : "px-4 py-3 font-medium text-[var(--color-error)]"
                         }
                       >

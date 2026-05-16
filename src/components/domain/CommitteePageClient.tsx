@@ -22,6 +22,7 @@ import {
   type CommitteeMemberData,
   type AddCommitteeMemberData,
 } from "@/lib/validators/committee";
+import { ProblemDetailSchema } from "@/lib/validators/error";
 import { type CongressData } from "@/lib/validators/congress";
 import { formatDate } from "@/lib/utils/format";
 import { useToast } from "@/hooks/useToast";
@@ -96,14 +97,8 @@ export function CommitteePageClient({
       });
       if (!res.ok) {
         const body: unknown = await res.json();
-        const msg =
-          typeof body === "object" &&
-          body !== null &&
-          "title" in body &&
-          typeof (body as Record<string, unknown>)["title"] === "string"
-            ? String((body as Record<string, unknown>)["title"])
-            : "Error al agregar el miembro.";
-        toast.error(msg);
+        const parsed = ProblemDetailSchema.safeParse(body);
+        toast.error(parsed.success ? parsed.data.detail : "Error al agregar el miembro.");
         return;
       }
       toast.success("Miembro agregado al comite.");
@@ -227,7 +222,7 @@ export function CommitteePageClient({
                       setMemberToRemove(member);
                       setRemoveDialogOpen(true);
                     }}
-                    className="min-h-[44px] border-red-200 text-red-600 hover:bg-red-50 hover:border-red-300"
+                    className="min-h-[44px] border-[var(--color-error)] text-[var(--color-error)] hover:bg-[var(--color-error)]/10"
                     data-testid="remove-member-button"
                   >
                     <Trash2 size={16} strokeWidth={1.5} />
@@ -317,7 +312,7 @@ export function CommitteePageClient({
             <Button
               onClick={() => void handleRemoveMember()}
               disabled={mutating}
-              className="min-h-[44px] bg-red-600 text-white hover:bg-red-700"
+              className="min-h-[44px] bg-[var(--color-error)] text-white hover:bg-[var(--color-error)]/90"
               data-testid="remove-member-confirm"
             >
               Quitar miembro

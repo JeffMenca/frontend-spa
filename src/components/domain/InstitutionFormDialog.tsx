@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { CreateInstitutionSchema, type InstitutionData, type CreateInstitutionData } from "@/lib/validators/institution";
+import { ProblemDetailSchema } from "@/lib/validators/error";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -79,8 +80,9 @@ export function InstitutionFormDialog({
     if (res.ok) {
       onSuccess();
     } else {
-      const body = await res.json() as { message?: string };
-      setServerError(body.message ?? "Error al guardar la institucion.");
+      const body: unknown = await res.json();
+      const parsed = ProblemDetailSchema.safeParse(body);
+      setServerError(parsed.success ? parsed.data.detail : "Error al guardar la institucion.");
     }
   };
 

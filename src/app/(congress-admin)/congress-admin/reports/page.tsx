@@ -73,7 +73,7 @@ export default function CongressAdminReportsPage(): React.ReactElement {
       }
     };
     void loadCongresses();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- toast is a stable reference from useToast, safe to omit
   }, []);
 
   const handleSearch = useCallback(async () => {
@@ -132,7 +132,7 @@ export default function CongressAdminReportsPage(): React.ReactElement {
     }
   }, [activeTab, selectedCongressId, toast]);
 
-  const handleExportHtml = () => {
+  const handleExportHtml = (): void => {
     const base = activeTab === "participants"
       ? `/api/reports/participants?congressId=${encodeURIComponent(selectedCongressId)}&format=html`
       : activeTab === "attendance"
@@ -159,7 +159,7 @@ export default function CongressAdminReportsPage(): React.ReactElement {
       key: "participationTypes",
       header: "Tipos de participacion",
       render: (value) =>
-        Array.isArray(value) ? (value as string[]).join(", ") : String(value),
+        Array.isArray(value) ? value.join(", ") : String(value),
     },
   ];
 

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Trash2 } from "lucide-react";
+import { ProblemDetailSchema } from "@/lib/validators/error";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -38,9 +39,10 @@ export function DeleteInstitutionDialog({
       setOpen(false);
       onSuccess();
     } else {
-      const body = await res.json() as { message?: string };
+      const body: unknown = await res.json();
+      const parsed = ProblemDetailSchema.safeParse(body);
       setError(
-        body.message ?? "No se puede eliminar la institucion. Puede que tenga congresos asociados.",
+        parsed.success ? parsed.data.detail : "No se puede eliminar la institucion. Puede que tenga congresos asociados.",
       );
     }
   };

@@ -6,6 +6,7 @@ import { Megaphone } from "lucide-react";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Button } from "@/components/ui/button";
 import { CallListSchema, type CallData } from "@/lib/validators/call";
+import { ProblemDetailSchema } from "@/lib/validators/error";
 import { type CongressData } from "@/lib/validators/congress";
 import { formatDateTime } from "@/lib/utils/format";
 import { useToast } from "@/hooks/useToast";
@@ -66,14 +67,8 @@ export function CallsPageClient({
       });
       if (!res.ok) {
         const body: unknown = await res.json();
-        const msg =
-          typeof body === "object" &&
-          body !== null &&
-          "title" in body &&
-          typeof (body as Record<string, unknown>)["title"] === "string"
-            ? (body as Record<string, unknown>)["title"]
-            : "Error al abrir la convocatoria.";
-        toast.error(String(msg));
+        const parsed = ProblemDetailSchema.safeParse(body);
+        toast.error(parsed.success ? parsed.data.detail : "Error al abrir la convocatoria.");
         return;
       }
       toast.success("Convocatoria abierta exitosamente.");
@@ -185,7 +180,7 @@ export function CallsPageClient({
                       <span
                         className={`rounded-full px-2.5 py-0.5 font-sans text-xs font-medium text-white ${
                           call.status === "OPEN"
-                            ? "bg-green-600"
+                            ? "bg-[var(--color-success)]"
                             : "bg-[var(--color-text-secondary)]"
                         }`}
                       >

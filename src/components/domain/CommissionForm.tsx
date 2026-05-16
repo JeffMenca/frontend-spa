@@ -5,6 +5,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { UpdateSystemConfigSchema, type UpdateSystemConfigData } from "@/lib/validators/system-config";
+import { ProblemDetailSchema } from "@/lib/validators/error";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -39,8 +40,9 @@ export function CommissionForm({ currentPercent }: CommissionFormProps): React.R
       setSuccessMessage("Porcentaje de comision actualizado");
       router.refresh();
     } else {
-      const body = await res.json() as { message?: string };
-      setServerError(body.message ?? "Error al actualizar la configuracion.");
+      const body: unknown = await res.json();
+      const parsed = ProblemDetailSchema.safeParse(body);
+      setServerError(parsed.success ? parsed.data.detail : "Error al actualizar la configuracion.");
     }
   };
 
@@ -80,7 +82,7 @@ export function CommissionForm({ currentPercent }: CommissionFormProps): React.R
           <p className="font-secondary text-xs text-[var(--color-error)]">{serverError}</p>
         )}
         {successMessage !== null && (
-          <p className="font-secondary text-xs text-green-700">{successMessage}</p>
+          <p className="font-secondary text-xs text-[var(--color-success-text)]">{successMessage}</p>
         )}
         <div>
           <Button

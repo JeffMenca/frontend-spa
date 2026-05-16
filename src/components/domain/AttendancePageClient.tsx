@@ -13,6 +13,7 @@ import {
   type AttendanceData,
   type RegisterAttendanceData,
 } from "@/lib/validators/attendance";
+import { ProblemDetailSchema } from "@/lib/validators/error";
 import { ActivityListSchema, type ActivityData } from "@/lib/validators/activity";
 import { type CongressData } from "@/lib/validators/congress";
 import { formatDateTime } from "@/lib/utils/format";
@@ -96,14 +97,8 @@ export function AttendancePageClient({
       });
       if (!res.ok) {
         const body: unknown = await res.json();
-        const msg =
-          typeof body === "object" &&
-          body !== null &&
-          "title" in body &&
-          typeof (body as Record<string, unknown>)["title"] === "string"
-            ? String((body as Record<string, unknown>)["title"])
-            : "Error al registrar asistencia.";
-        toast.error(msg);
+        const parsed = ProblemDetailSchema.safeParse(body);
+        toast.error(parsed.success ? parsed.data.detail : "Error al registrar asistencia.");
         return;
       }
       toast.success("Asistencia registrada exitosamente.");

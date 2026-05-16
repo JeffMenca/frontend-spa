@@ -17,9 +17,9 @@ const STATUS_LABEL: Record<ProposalData["status"], string> = {
 };
 
 const STATUS_CLASS: Record<ProposalData["status"], string> = {
-  PENDING: "bg-amber-500 text-white hover:bg-amber-500",
-  APPROVED: "bg-green-600 text-white hover:bg-green-600",
-  REJECTED: "bg-red-600 text-white hover:bg-red-600",
+  PENDING: "bg-[var(--color-warning-bg)] border border-[var(--color-warning)] text-[var(--color-warning-text)] hover:bg-[var(--color-warning-bg)]",
+  APPROVED: "bg-[var(--color-success)] text-white hover:bg-[var(--color-success)]",
+  REJECTED: "bg-[var(--color-error)] text-white hover:bg-[var(--color-error)]",
 };
 
 export default async function ParticipantProposalsPage(): Promise<React.ReactElement> {

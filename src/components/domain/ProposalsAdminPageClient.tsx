@@ -24,9 +24,9 @@ const STATUS_LABELS: Record<ProposalData["status"], string> = {
 };
 
 const STATUS_CLASSES: Record<ProposalData["status"], string> = {
-  PENDING: "bg-amber-500 text-white",
-  APPROVED: "bg-green-600 text-white",
-  REJECTED: "bg-red-600 text-white",
+  PENDING: "bg-[var(--color-warning-bg)] border border-[var(--color-warning)] text-[var(--color-warning-text)]",
+  APPROVED: "bg-[var(--color-success)] text-white",
+  REJECTED: "bg-[var(--color-error)] text-white",
 };
 
 export function ProposalsAdminPageClient({
@@ -235,7 +235,7 @@ export function ProposalsAdminPageClient({
                       <Button
                         onClick={() => void handleEvaluate(proposal.id, "approve")}
                         disabled={mutatingId !== null}
-                        className="min-h-[44px] bg-green-600 text-white hover:bg-green-700 hover:scale-[1.01] active:scale-[0.99]"
+                        className="min-h-[44px] bg-[var(--color-success)] text-white hover:bg-[var(--color-success)]/90 hover:scale-[1.01] active:scale-[0.99]"
                         data-testid="approve-button"
                       >
                         <CheckCircle size={16} strokeWidth={1.5} />
@@ -244,7 +244,7 @@ export function ProposalsAdminPageClient({
                       <Button
                         onClick={() => void handleEvaluate(proposal.id, "reject")}
                         disabled={mutatingId !== null}
-                        className="min-h-[44px] bg-red-600 text-white hover:bg-red-700 hover:scale-[1.01] active:scale-[0.99]"
+                        className="min-h-[44px] bg-[var(--color-error)] text-white hover:bg-[var(--color-error)]/90 hover:scale-[1.01] active:scale-[0.99]"
                         data-testid="reject-button"
                       >
                         <XCircle size={16} strokeWidth={1.5} />

@@ -14,6 +14,8 @@
   --color-warning: #fbbc04;
   --color-warning-bg: #fef7e0;
   --color-warning-text: #8b6914;
+  --color-success: #1e7e34;
+  --color-success-text: #166534;
   --color-hover-blue: #a3c9ff;
   --color-focus-ring: #a8c7fa;
   --color-pale-blue: #e5edff;
@@ -210,6 +212,8 @@
   --color-warning: #fdd663;
   --color-warning-bg: #2a1f00;
   --color-warning-text: #fdd663;
+  --color-success: #22c55e;
+  --color-success-text: #4ade80;
   --shadow-raised: 0 1px 2px rgba(0, 0, 0, 0.3);
   --shadow-elevated: 0 2px 4px rgba(0, 0, 0, 0.4);
   --shadow-high: 0 4px 8px rgba(0, 0, 0, 0.5);

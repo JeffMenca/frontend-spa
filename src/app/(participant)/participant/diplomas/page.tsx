@@ -12,7 +12,7 @@ const BASE = process.env["NEXT_PUBLIC_APP_URL"] ?? "http://localhost:3000";
 function DiplomaBadge({ type }: { type: DiplomaData["type"] }): React.ReactElement {
   if (type === "LEADERSHIP") {
     return (
-      <span className="inline-flex items-center rounded-full bg-amber-600 px-2 py-0.5 font-sans text-xs font-medium text-white">
+      <span className="inline-flex items-center rounded-full bg-[var(--color-warning-bg)] border border-[var(--color-warning)] px-2 py-0.5 font-sans text-xs font-medium text-[var(--color-warning-text)]">
         Ponente
       </span>
     );

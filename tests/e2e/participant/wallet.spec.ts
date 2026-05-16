@@ -86,9 +86,9 @@ test.describe("Enrollment — enroll in congress (flow 5)", () => {
     await expect(page.getByTestId("wallet-transactions-table")).toBeVisible({
       timeout: 10000,
     });
-    // PAYMENT type transaction should exist in mock data
+    // PAYMENT type transaction should exist in mock data (rendered as "Pago" in Spanish UI)
     await expect(
       page.getByTestId("wallet-transactions-table"),
-    ).toContainText("PAYMENT");
+    ).toContainText("Pago");
   });
 });

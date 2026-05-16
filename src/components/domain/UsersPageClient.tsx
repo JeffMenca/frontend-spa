@@ -12,6 +12,7 @@ import {
   type CreateSystemAdminData,
   type CreateCongressAdminData,
 } from "@/lib/validators/user";
+import { ProblemDetailSchema } from "@/lib/validators/error";
 import type { InstitutionData } from "@/lib/validators/institution";
 import { PageHeader } from "@/components/ui/page-header";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -50,7 +51,7 @@ function RoleBadge({ role }: { role: string }): React.ReactElement {
   }
   if (role === "CONGRESS_ADMIN") {
     return (
-      <span className="inline-flex items-center rounded-full bg-amber-600 px-2 py-0.5 text-xs font-medium text-white">
+      <span className="inline-flex items-center rounded-full bg-[var(--color-warning-bg)] border border-[var(--color-warning)] px-2 py-0.5 text-xs font-medium text-[var(--color-warning-text)]">
         {ROLE_LABELS[role] ?? role}
       </span>
     );
@@ -65,7 +66,7 @@ function RoleBadge({ role }: { role: string }): React.ReactElement {
 function StatusBadge({ active }: { active: boolean }): React.ReactElement {
   if (active) {
     return (
-      <span className="inline-flex items-center rounded-full bg-green-600 px-2 py-0.5 text-xs font-medium text-white">
+      <span className="inline-flex items-center rounded-full bg-[var(--color-success)] px-2 py-0.5 text-xs font-medium text-white">
         Activo
       </span>
     );
@@ -109,8 +110,9 @@ function SystemAdminForm({ onSuccess, onCancel }: SystemAdminFormProps): React.R
     if (res.ok) {
       onSuccess();
     } else {
-      const body = await res.json() as { message?: string };
-      setServerError(body.message ?? "Error al crear el administrador del sistema.");
+      const body: unknown = await res.json();
+      const parsed = ProblemDetailSchema.safeParse(body);
+      setServerError(parsed.success ? parsed.data.detail : "Error al crear el administrador del sistema.");
     }
   };
 
@@ -232,8 +234,9 @@ function CongressAdminForm({
     if (res.ok) {
       onSuccess();
     } else {
-      const body = await res.json() as { message?: string };
-      setServerError(body.message ?? "Error al crear el administrador de congreso.");
+      const body: unknown = await res.json();
+      const parsed = ProblemDetailSchema.safeParse(body);
+      setServerError(parsed.success ? parsed.data.detail : "Error al crear el administrador de congreso.");
     }
   };
 
@@ -370,8 +373,9 @@ export function UsersPageClient({
     if (res.ok) {
       router.refresh();
     } else {
-      const body = await res.json() as { message?: string };
-      setActionError(body.message ?? "Error al cambiar el estado del usuario.");
+      const body: unknown = await res.json();
+      const parsed = ProblemDetailSchema.safeParse(body);
+      setActionError(parsed.success ? parsed.data.detail : "Error al cambiar el estado del usuario.");
     }
   };
 
@@ -484,7 +488,7 @@ export function UsersPageClient({
                         size="sm"
                         disabled={actionLoading === user.id}
                         onClick={() => { void toggleUserStatus(user); }}
-                        className="min-h-[44px] border-[var(--color-border)] text-green-700 hover:bg-green-50"
+                        className="min-h-[44px] border-[var(--color-border)] text-[var(--color-success-text)] hover:bg-[var(--color-success)]/10"
                       >
                         {actionLoading === user.id ? "..." : "Activar"}
                       </Button>
