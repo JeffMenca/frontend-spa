@@ -11,6 +11,7 @@ export const CommitteeMemberSchema = z.object({
 export const CommitteeMemberListSchema = z.object({
   items: z.array(CommitteeMemberSchema),
   totalItems: z.number().int().nonnegative(),
+  totalPages: z.number().int().nonnegative(),
 });
 
 export const AddCommitteeMemberSchema = z.object({

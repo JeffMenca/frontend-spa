@@ -7,6 +7,7 @@ import type {
   PaymentData,
 } from "@/lib/validators/wallet";
 import { MOCK_CONGRESS_1_ID } from "./congresses";
+import { MOCK_INSTITUTION_1_ID } from "./institutions";
 import { MOCK_PAYMENT_1_ID } from "./enrollments";
 import { MOCK_PARTICIPANT_4_ID, MOCK_PARTICIPANT_ID } from "./users";
 
@@ -65,6 +66,10 @@ export const MOCK_PAYMENTS: PaymentData[] = [
     id: MOCK_PAYMENT_1_ID,
     userId: MOCK_PARTICIPANT_ID,
     congressId: MOCK_CONGRESS_1_ID,
+    institutionId: MOCK_INSTITUTION_1_ID,
+    congressNameSnapshot: "Congreso de Ingenieria 2026",
+    institutionNameSnapshot: "Universidad de San Carlos de Guatemala",
+    commissionPercentSnapshot: 10,
     amount: 150,
     commissionAmount: 15,
     netAmount: 135,

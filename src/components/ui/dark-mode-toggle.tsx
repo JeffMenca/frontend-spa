@@ -42,24 +42,28 @@ export function DarkModeToggle(): React.ReactElement {
       className={cn(
         "relative flex h-8 w-14 shrink-0 cursor-pointer items-center rounded-full border-2 transition-all duration-300 focus-visible:outline-2 focus-visible:outline-offset-2",
         isDark
-          ? "border-[#3c4043] bg-[#28292d]"
-          : "border-[#d2d2d2] bg-[#f8f9fa]",
+          ? "border-[var(--color-border)] bg-[var(--color-surface)]"
+          : "border-[var(--color-border)] bg-[var(--color-surface)]",
       )}
     >
       {/* Sun icon (left, visible in light mode) */}
       <span
-        className="absolute left-1.5 flex h-4 w-4 items-center justify-center transition-opacity duration-300"
-        style={{ opacity: isDark ? 0 : 1 }}
+        className={cn(
+          "absolute left-1.5 flex h-4 w-4 items-center justify-center transition-opacity duration-300",
+          isDark ? "opacity-0" : "opacity-100",
+        )}
       >
-        <Sun size={12} className="text-[#8b6914]" strokeWidth={2.5} />
+        <Sun size={12} className="text-[var(--color-warning)]" strokeWidth={2.5} />
       </span>
 
       {/* Moon icon (right, visible in dark mode) */}
       <span
-        className="absolute right-1.5 flex h-4 w-4 items-center justify-center transition-opacity duration-300"
-        style={{ opacity: isDark ? 1 : 0 }}
+        className={cn(
+          "absolute right-1.5 flex h-4 w-4 items-center justify-center transition-opacity duration-300",
+          isDark ? "opacity-100" : "opacity-0",
+        )}
       >
-        <Moon size={12} className="text-[#8ab4f8]" strokeWidth={2.5} />
+        <Moon size={12} className="text-[var(--color-primary-text)]" strokeWidth={2.5} />
       </span>
 
       {/* Sliding thumb */}
@@ -67,14 +71,14 @@ export function DarkModeToggle(): React.ReactElement {
         className={cn(
           "absolute flex h-5 w-5 items-center justify-center rounded-full shadow-sm transition-all duration-300",
           isDark
-            ? "translate-x-7 bg-[#8ab4f8]"
-            : "translate-x-0.5 bg-white",
+            ? "translate-x-7 bg-[var(--color-primary-text)]"
+            : "translate-x-0.5 bg-[var(--color-white)]",
         )}
       >
         {isDark ? (
-          <Moon size={10} className="text-[#202124]" strokeWidth={2.5} />
+          <Moon size={10} className="text-[var(--color-white)]" strokeWidth={2.5} />
         ) : (
-          <Sun size={10} className="text-[#8b6914]" strokeWidth={2.5} />
+          <Sun size={10} className="text-[var(--color-warning)]" strokeWidth={2.5} />
         )}
       </span>
     </button>

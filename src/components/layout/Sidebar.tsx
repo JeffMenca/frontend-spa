@@ -65,10 +65,9 @@ export function Sidebar({ role }: SidebarProps): React.ReactElement {
   return (
     <aside
       className={cn(
-        "flex flex-col border-r border-[var(--color-border)] bg-[var(--color-surface)] transition-all duration-300",
+        "flex h-full flex-col border-r border-[var(--color-border)] bg-[var(--color-surface)] transition-all duration-300",
         collapsed ? "w-14" : "w-60",
       )}
-      style={{ height: "100%" }}
       data-testid="sidebar"
       aria-label="Navegacion lateral"
     >

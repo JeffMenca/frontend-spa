@@ -11,6 +11,7 @@ export const CallSchema = z.object({
 export const CallListSchema = z.object({
   items: z.array(CallSchema),
   totalItems: z.number().int().nonnegative(),
+  totalPages: z.number().int().nonnegative(),
 });
 
 export type CallData = z.infer<typeof CallSchema>;
