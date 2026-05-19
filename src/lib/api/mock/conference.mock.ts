@@ -389,7 +389,7 @@ export async function listCalls(
 ): Promise<CallListData> {
   await delay();
   const items = MOCK_CALLS.filter((c) => c.congressId === congressId);
-  return { items, totalItems: items.length };
+  return { items, totalItems: items.length, totalPages: 1 };
 }
 
 export async function createCall(
@@ -419,7 +419,7 @@ export async function getCommitteeMembers(
   const items = MOCK_COMMITTEE_MEMBERS.filter(
     (m) => m.congressId === congressId,
   );
-  return { items, totalItems: items.length };
+  return { items, totalItems: items.length, totalPages: 1 };
 }
 
 export async function addCommitteeMember(

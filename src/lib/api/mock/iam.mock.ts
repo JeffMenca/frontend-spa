@@ -2,6 +2,7 @@
 // Replace with real upstream calls via active-iam.ts wrapper.
 
 import type { AuthResponseData, LoginRequest, RegisterRequest } from "@/lib/validators/auth";
+import { UpdateUserSchema } from "@/lib/validators/user";
 import type { UserData, UserListData } from "@/lib/validators/user";
 import {
   MOCK_USERS,
@@ -111,8 +112,13 @@ export async function updateUser(
   await delay();
   const user = MOCK_USERS.find((u) => u.id === id);
   if (user === undefined) throw new Error("resource.not_found");
-  const update = typeof data === "object" && data !== null ? (data as Partial<UserData>) : {};
-  return { ...user, ...update, updatedAt: new Date().toISOString() };
+  const parsed = UpdateUserSchema.safeParse(data);
+  const patch = parsed.success
+    ? Object.fromEntries(
+        Object.entries(parsed.data).filter(([, v]) => v !== undefined),
+      )
+    : {};
+  return { ...user, ...patch, updatedAt: new Date().toISOString() };
 }
 
 export async function deactivateUser(_id: string, _token: string): Promise<void> {
@@ -130,8 +136,14 @@ export async function listUsers(
   await delay();
   const role = params.get("role");
   const activeParam = params.get("active");
+  const VALID_ROLES: UserData["roles"] = [
+    "SYSTEM_ADMIN",
+    "CONGRESS_ADMIN",
+    "PARTICIPANT",
+    "GUEST_SPEAKER",
+  ];
   let items = MOCK_USERS;
-  if (role !== null) {
+  if (role !== null && VALID_ROLES.includes(role as UserData["roles"][number])) {
     items = items.filter((u) =>
       u.roles.includes(role as UserData["roles"][number]),
     );

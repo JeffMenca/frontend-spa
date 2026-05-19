@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { toast } from "sonner";
+import { useToast } from "@/hooks/useToast";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -15,6 +15,7 @@ import { ERROR_MESSAGES } from "@/lib/utils/error-messages";
 
 export default function RegisterPage(): React.ReactElement {
   const router = useRouter();
+  const toast = useToast();
   const [isLoading, setIsLoading] = useState(false);
 
   const {
@@ -40,7 +41,8 @@ export default function RegisterPage(): React.ReactElement {
         const code = errorBody.code ?? "system.internal_error";
         const message =
           ERROR_MESSAGES[code as keyof typeof ERROR_MESSAGES] ??
-          ERROR_MESSAGES["system.internal_error"];
+          ERROR_MESSAGES["system.internal_error"] ??
+          "Ocurrio un error inesperado.";
         toast.error(message);
         return;
       }
@@ -48,7 +50,7 @@ export default function RegisterPage(): React.ReactElement {
       toast.success("Cuenta creada exitosamente. Inicia sesion para continuar.");
       router.push("/login");
     } catch {
-      toast.error(ERROR_MESSAGES["system.internal_error"]);
+      toast.error(ERROR_MESSAGES["system.internal_error"] ?? "Ocurrio un error inesperado.");
     } finally {
       setIsLoading(false);
     }
