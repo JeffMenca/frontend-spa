@@ -17,6 +17,7 @@ import {
   BarChart2,
   Settings,
   CheckSquare,
+  UserPlus,
 } from "lucide-react";
 import type { Role } from "@/types/auth";
 import { cn } from "@/lib/utils";
@@ -28,14 +29,15 @@ interface SidebarItem {
 }
 
 const CONGRESS_ADMIN_ITEMS: SidebarItem[] = [
-  { href: "/congress-admin/congresses", label: "Mis congresos", icon: <CalendarDays size={20} strokeWidth={1.5} /> },
-  { href: "/congress-admin/rooms",      label: "Salas",          icon: <DoorOpen size={20} strokeWidth={1.5} /> },
-  { href: "/congress-admin/activities", label: "Actividades",    icon: <Activity size={20} strokeWidth={1.5} /> },
-  { href: "/congress-admin/calls",      label: "Convocatorias",  icon: <Megaphone size={20} strokeWidth={1.5} /> },
-  { href: "/congress-admin/proposals",  label: "Propuestas",     icon: <FileText size={20} strokeWidth={1.5} /> },
-  { href: "/congress-admin/committee",  label: "Comite",         icon: <Users size={20} strokeWidth={1.5} /> },
-  { href: "/congress-admin/attendance", label: "Asistencia",     icon: <CheckSquare size={20} strokeWidth={1.5} /> },
-  { href: "/congress-admin/reports",    label: "Reportes",       icon: <BarChart2 size={20} strokeWidth={1.5} /> },
+  { href: "/congress-admin/congresses",     label: "Mis congresos",      icon: <CalendarDays size={20} strokeWidth={1.5} /> },
+  { href: "/congress-admin/rooms",          label: "Salas",              icon: <DoorOpen size={20} strokeWidth={1.5} /> },
+  { href: "/congress-admin/activities",     label: "Actividades",        icon: <Activity size={20} strokeWidth={1.5} /> },
+  { href: "/congress-admin/calls",          label: "Convocatorias",      icon: <Megaphone size={20} strokeWidth={1.5} /> },
+  { href: "/congress-admin/proposals",      label: "Propuestas",         icon: <FileText size={20} strokeWidth={1.5} /> },
+  { href: "/congress-admin/committee",      label: "Comite",             icon: <Users size={20} strokeWidth={1.5} /> },
+  { href: "/congress-admin/guest-speakers", label: "Ponentes invitados", icon: <UserPlus size={20} strokeWidth={1.5} /> },
+  { href: "/congress-admin/attendance",     label: "Asistencia",         icon: <CheckSquare size={20} strokeWidth={1.5} /> },
+  { href: "/congress-admin/reports",        label: "Reportes",           icon: <BarChart2 size={20} strokeWidth={1.5} /> },
 ];
 
 const SYSTEM_ADMIN_ITEMS: SidebarItem[] = [
