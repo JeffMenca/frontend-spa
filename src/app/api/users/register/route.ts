@@ -3,6 +3,7 @@ import "server-only";
 import { NextRequest, NextResponse } from "next/server";
 import { activeIam } from "@/lib/api/active-iam";
 import { activeWallet } from "@/lib/api/active-wallet";
+import { setAuthCookies } from "@/lib/auth/cookies";
 import { RegisterRequestSchema } from "@/lib/validators/auth";
 import { ApplicationError } from "@/types/error";
 
@@ -23,16 +24,17 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       );
     }
 
-    // TODO(backend-swap): iam POST /users/register (port 8081)
-    const user = await activeIam.registerParticipant(parsed.data);
+    // IAM returns tokens + user profile on registration.
+    const authResponse = await activeIam.registerParticipant(parsed.data);
 
-    // GAP-02: create wallet after registration (idempotent, best-effort)
-    // TODO(backend-swap): wallet POST /wallets (port 8083)
-    activeWallet.createWallet(user.id).catch(() => {
-      // Wallet creation failed — retry on next login
-    });
+    // GAP-02: create wallet after registration (idempotent, best-effort).
+    // If this fails, the BFF must retry on the user's first login.
+    activeWallet.createWallet(authResponse.user.id).catch(() => undefined);
 
-    return NextResponse.json(user, { status: 201 });
+    // Log the user in immediately after successful registration.
+    await setAuthCookies(authResponse.accessToken, authResponse.refreshToken);
+
+    return NextResponse.json(authResponse.user, { status: 201 });
   } catch (error) {
     if (error instanceof ApplicationError) {
       return NextResponse.json(
@@ -41,7 +43,12 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       );
     }
     return NextResponse.json(
-      { code: "system.internal_error", status: 500, title: "Internal Server Error", detail: "Unexpected error." },
+      {
+        code: "system.internal_error",
+        status: 500,
+        title: "Internal Server Error",
+        detail: "Unexpected error.",
+      },
       { status: 500 },
     );
   }

@@ -4,7 +4,6 @@ import { NextRequest, NextResponse } from "next/server";
 import { activeIam } from "@/lib/api/active-iam";
 import { setAuthCookies } from "@/lib/auth/cookies";
 import { LoginRequestSchema } from "@/lib/validators/auth";
-import { ProblemDetailSchema } from "@/lib/validators/error";
 import { ApplicationError } from "@/types/error";
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
@@ -24,14 +23,11 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       );
     }
 
-    // TODO(backend-swap): iam POST /auth/login (port 8081)
-    const tokens = await activeIam.loginUser(parsed.data);
-    // TODO(backend-swap): iam GET /users/me (port 8081)
-    const profile = await activeIam.getMe(tokens.accessToken);
+    // IAM returns tokens + user profile in one response — no extra getMe() call needed.
+    const authResponse = await activeIam.loginUser(parsed.data);
+    await setAuthCookies(authResponse.accessToken, authResponse.refreshToken);
 
-    await setAuthCookies(tokens.accessToken, tokens.refreshToken);
-
-    return NextResponse.json(profile, { status: 200 });
+    return NextResponse.json(authResponse.user, { status: 200 });
   } catch (error) {
     if (error instanceof ApplicationError) {
       return NextResponse.json(
@@ -43,11 +39,6 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         },
         { status: error.status },
       );
-    }
-
-    const parsed = ProblemDetailSchema.safeParse(error);
-    if (parsed.success) {
-      return NextResponse.json(parsed.data, { status: parsed.data.status });
     }
 
     return NextResponse.json(

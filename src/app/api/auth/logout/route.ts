@@ -8,16 +8,17 @@ import { cookies } from "next/headers";
 export async function POST(): Promise<NextResponse> {
   try {
     const cookieStore = await cookies();
-    const token = cookieStore.get("access_token")?.value;
+    const accessToken = cookieStore.get("access_token")?.value;
+    const refreshToken = cookieStore.get("refresh_token")?.value;
 
-    if (token !== undefined && token !== "") {
-      // TODO(backend-swap): iam POST /auth/logout (port 8081)
-      await activeIam.logoutUser(token).catch(() => {
-        // Ignore errors from IAM logout — clear cookies regardless
+    if (accessToken !== undefined && refreshToken !== undefined) {
+      // IAM needs both: access token in Authorization header, refresh token in body.
+      await activeIam.logoutUser(accessToken, refreshToken).catch(() => {
+        // Ignore upstream errors — always clear local cookies.
       });
     }
   } catch {
-    // Ignore errors — always clear cookies
+    // Ignore errors — always clear cookies.
   }
 
   await clearAuthCookies();

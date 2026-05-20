@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { TrendingUp, TrendingDown, History } from "lucide-react";
 import { WalletPanel } from "@/components/domain/WalletPanel";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -90,16 +91,23 @@ export function WalletPageClient({ wallet, transactions }: WalletPageClientProps
         <WalletPanel wallet={walletForPanel} onTopUp={openDialog} />
       </div>
 
-      {/* Transactions table */}
+      {/* Transactions section */}
       <section>
-        <h2 className="mb-4 font-sans text-lg font-medium text-[var(--color-text-primary-black)]">
-          Historial de transacciones
-        </h2>
+        <div className="mb-4 flex items-center gap-2">
+          <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-[var(--color-pale-blue)] text-[var(--color-primary-text)]">
+            <History size={16} strokeWidth={1.5} aria-hidden="true" />
+          </span>
+          <h2 className="font-sans text-lg font-medium text-[var(--color-text-primary-black)]">
+            Historial de transacciones
+          </h2>
+        </div>
 
         {transactions.items.length === 0 ? (
-          <p className="font-secondary text-sm text-[var(--color-text-secondary)]">
-            No hay transacciones registradas aun.
-          </p>
+          <div className="rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-white)] p-8 text-center">
+            <p className="font-secondary text-sm text-[var(--color-text-secondary)]">
+              No hay transacciones registradas aun.
+            </p>
+          </div>
         ) : (
           <div className="overflow-x-auto rounded-[var(--radius-md)] border border-[var(--color-border)]">
             <table
@@ -107,7 +115,7 @@ export function WalletPageClient({ wallet, transactions }: WalletPageClientProps
               data-testid="wallet-transactions-table"
             >
               <thead>
-                <tr className="bg-[var(--color-surface)] text-left">
+                <tr className="border-b border-[var(--color-border)] bg-[var(--color-surface)] text-left">
                   <th className="px-4 py-3 font-medium text-[var(--color-text-primary)]">Fecha</th>
                   <th className="px-4 py-3 font-medium text-[var(--color-text-primary)]">Tipo</th>
                   <th className="px-4 py-3 font-medium text-[var(--color-text-primary)]">Monto</th>
@@ -120,7 +128,7 @@ export function WalletPageClient({ wallet, transactions }: WalletPageClientProps
                   return (
                     <tr
                       key={tx.id}
-                      className="animate-fade-in-up border-t border-[var(--color-border)] transition-colors hover:bg-[var(--color-surface)]"
+                      className="animate-fade-in-up border-t border-[var(--color-border)] bg-[var(--color-white)] transition-colors hover:bg-[var(--color-surface)]"
                       style={index > 0 ? { animationDelay: `${Math.min(index * 75, 450)}ms` } : undefined}
                     >
                       <td className="px-4 py-3 text-[var(--color-text-primary)]">
@@ -130,24 +138,29 @@ export function WalletPageClient({ wallet, transactions }: WalletPageClientProps
                         <span
                           className={
                             isTopUp
-                              ? "rounded-full bg-[var(--color-primary)] px-2.5 py-0.5 text-xs font-medium text-white"
-                              : "rounded-full bg-[var(--color-error)] px-2.5 py-0.5 text-xs font-medium text-white"
+                              ? "inline-flex items-center gap-1 rounded-full bg-[var(--color-accent-green-bg)] px-2.5 py-0.5 text-xs font-medium text-[var(--color-accent-green-text)]"
+                              : "inline-flex items-center gap-1 rounded-full bg-[var(--color-error)] px-2.5 py-0.5 text-xs font-medium text-white"
                           }
                         >
+                          {isTopUp ? (
+                            <TrendingUp size={11} strokeWidth={1.5} aria-hidden="true" />
+                          ) : (
+                            <TrendingDown size={11} strokeWidth={1.5} aria-hidden="true" />
+                          )}
                           {isTopUp ? "Recarga" : "Pago"}
                         </span>
                       </td>
                       <td
                         className={
                           isTopUp
-                            ? "px-4 py-3 font-medium text-[var(--color-success-text)]"
+                            ? "px-4 py-3 font-medium text-[var(--color-accent-green-text)]"
                             : "px-4 py-3 font-medium text-[var(--color-error)]"
                         }
                       >
                         {isTopUp ? "+" : ""}
                         {formatCurrency(Math.abs(tx.amount))}
                       </td>
-                      <td className="px-4 py-3 text-[var(--color-text-secondary)]">
+                      <td className="px-4 py-3 font-mono text-xs text-[var(--color-text-secondary)]">
                         {tx.referencePaymentId !== null
                           ? tx.referencePaymentId.slice(0, 8)
                           : "—"}

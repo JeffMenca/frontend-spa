@@ -3,6 +3,7 @@ import { PageHeader } from "@/components/ui/page-header";
 import { WalletPageClient } from "@/components/domain/WalletPageClient";
 import { WalletBalanceSchema, TransactionListSchema } from "@/lib/validators/wallet";
 import { getSession } from "@/lib/auth/session";
+import { serverFetch } from "@/lib/api/server-fetch";
 
 const BASE = process.env["NEXT_PUBLIC_APP_URL"] ?? "http://localhost:3000";
 
@@ -13,8 +14,8 @@ export default async function WalletPage(): Promise<React.ReactElement> {
   }
 
   const [balanceRes, transactionsRes] = await Promise.all([
-    fetch(`${BASE}/api/wallet/balance`, { cache: "no-store" }),
-    fetch(`${BASE}/api/wallet/transactions`, { cache: "no-store" }),
+    serverFetch(`${BASE}/api/wallet/balance`, { cache: "no-store" }),
+    serverFetch(`${BASE}/api/wallet/transactions`, { cache: "no-store" }),
   ]);
 
   if (balanceRes.status === 401 || transactionsRes.status === 401) {
@@ -49,10 +50,7 @@ export default async function WalletPage(): Promise<React.ReactElement> {
         title="Mi cartera"
         description="Gestiona tu saldo y revisa tu historial de transacciones."
       />
-      <WalletPageClient
-        wallet={walletParsed.data}
-        transactions={transactionsParsed.data}
-      />
+      <WalletPageClient wallet={walletParsed.data} transactions={transactionsParsed.data} />
     </div>
   );
 }
