@@ -2,7 +2,7 @@ import "server-only";
 
 import { NextResponse } from "next/server";
 import { activeIam } from "@/lib/api/active-iam";
-import { setAuthCookies } from "@/lib/auth/cookies";
+import { setAccessTokenCookie } from "@/lib/auth/cookies";
 import { ApplicationError } from "@/types/error";
 import { cookies } from "next/headers";
 
@@ -23,9 +23,9 @@ export async function POST(): Promise<NextResponse> {
       );
     }
 
-    // TODO(backend-swap): iam POST /auth/refresh (port 8081)
-    const tokens = await activeIam.refreshToken(existingRefreshToken);
-    await setAuthCookies(tokens.accessToken, tokens.refreshToken);
+    // IAM returns only a new access token — the refresh token stays the same.
+    const refreshed = await activeIam.refreshToken(existingRefreshToken);
+    await setAccessTokenCookie(refreshed.accessToken);
 
     return NextResponse.json({ message: "Token renovado exitosamente." }, { status: 200 });
   } catch (error) {

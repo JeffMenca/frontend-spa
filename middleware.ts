@@ -1,6 +1,13 @@
+import { z } from "zod";
 import { NextRequest, NextResponse } from "next/server";
 
 export const runtime = "edge";
+
+// Minimal schemas needed in edge middleware — defined inline to avoid chain dependencies.
+const JwtPayloadSchema = z.object({ exp: z.number() }).passthrough();
+const RefreshTokenResponseSchema = z
+  .object({ accessToken: z.string().min(1), refreshToken: z.string().min(1) })
+  .passthrough();
 
 const PROTECTED_ROUTE_PREFIXES = ["/participant", "/congress-admin", "/system-admin"];
 
@@ -16,8 +23,8 @@ function getTokenExpiry(token: string): number {
     if (payloadPart === undefined) return 0;
 
     const payloadJson = atob(payloadPart.replace(/-/g, "+").replace(/_/g, "/"));
-    const payload = JSON.parse(payloadJson) as { exp?: number };
-    return payload.exp ?? 0;
+    const parsed = JwtPayloadSchema.safeParse(JSON.parse(payloadJson));
+    return parsed.success ? parsed.data.exp : 0;
   } catch {
     return 0;
   }
@@ -52,21 +59,18 @@ export async function middleware(request: NextRequest): Promise<NextResponse> {
       });
 
       if (refreshResponse.ok) {
-        const data = (await refreshResponse.json()) as {
-          accessToken?: string;
-          refreshToken?: string;
-        };
+        const parsed = RefreshTokenResponseSchema.safeParse(await refreshResponse.json());
 
-        if (data.accessToken !== undefined && data.refreshToken !== undefined) {
+        if (parsed.success) {
           const response = NextResponse.next();
-          response.cookies.set("access_token", data.accessToken, {
+          response.cookies.set("access_token", parsed.data.accessToken, {
             httpOnly: true,
             secure: process.env["NODE_ENV"] === "production",
             sameSite: "lax",
             maxAge: 900,
             path: "/",
           });
-          response.cookies.set("refresh_token", data.refreshToken, {
+          response.cookies.set("refresh_token", parsed.data.refreshToken, {
             httpOnly: true,
             secure: process.env["NODE_ENV"] === "production",
             sameSite: "lax",

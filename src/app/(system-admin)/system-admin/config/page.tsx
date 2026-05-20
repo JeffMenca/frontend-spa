@@ -3,6 +3,7 @@ import { getSession } from "@/lib/auth/session";
 import { SystemConfigSchema } from "@/lib/validators/system-config";
 import { PageHeader } from "@/components/ui/page-header";
 import { CommissionForm } from "@/components/domain/CommissionForm";
+import { serverFetch } from "@/lib/api/server-fetch";
 
 const BASE = process.env["NEXT_PUBLIC_APP_URL"] ?? "http://localhost:3000";
 
@@ -12,13 +13,13 @@ export default async function SystemConfigPage(): Promise<React.ReactElement> {
     redirect("/login");
   }
 
-  const res = await fetch(`${BASE}/api/system/config`, { cache: "no-store" });
+  const res = await serverFetch(`${BASE}/api/system/config`, { cache: "no-store" });
 
   if (res.status === 401) {
     redirect("/login");
   }
 
-  const raw = await res.json() as unknown;
+  const raw = (await res.json()) as unknown;
   const parsed = SystemConfigSchema.safeParse(raw);
   const currentPercent = parsed.success ? parsed.data.commissionPercent : 10;
 

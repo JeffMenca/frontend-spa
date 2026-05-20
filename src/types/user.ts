@@ -9,17 +9,18 @@ export interface User {
   organization: string;
   phone: string;
   personalId: string;
-  photoUrl: string | null;
+  photoUrl?: string | null;
   active: boolean;
   roles: Role[];
   linkedInstitutions: string[];
   participationTypes: ParticipationType[];
-  createdAt: string;
-  updatedAt: string;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface UserList {
   items: User[];
   totalItems: number;
   totalPages: number;
+  currentPage?: number;
 }

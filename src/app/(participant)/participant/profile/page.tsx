@@ -4,6 +4,7 @@ import { PageHeader } from "@/components/ui/page-header";
 import { ProfileForm } from "@/components/domain/ProfileForm";
 import { UserSchema } from "@/lib/validators/user";
 import { getSession } from "@/lib/auth/session";
+import { serverFetch } from "@/lib/api/server-fetch";
 
 const BASE = process.env["NEXT_PUBLIC_APP_URL"] ?? "http://localhost:3000";
 
@@ -13,7 +14,7 @@ export default async function ProfilePage(): Promise<React.ReactElement> {
     redirect("/login");
   }
 
-  const res = await fetch(`${BASE}/api/users/me`, { cache: "no-store" });
+  const res = await serverFetch(`${BASE}/api/users/me`, { cache: "no-store" });
 
   if (res.status === 401) {
     redirect("/login");
@@ -25,10 +26,7 @@ export default async function ProfilePage(): Promise<React.ReactElement> {
   if (!parsed.success) {
     return (
       <div data-testid="profile-page" className="flex flex-col gap-6">
-        <PageHeader
-          title="Mi perfil"
-          description="Gestiona tu informacion personal."
-        />
+        <PageHeader title="Mi perfil" description="Gestiona tu informacion personal." />
         <p className="font-secondary text-sm text-[var(--color-error)]">
           Error al cargar el perfil. Intenta de nuevo mas tarde.
         </p>
