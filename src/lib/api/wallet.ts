@@ -11,16 +11,11 @@ import {
   type TopUpData,
   type PaymentData,
 } from "@/lib/validators/wallet";
-import {
-  SystemConfigSchema,
-  type SystemConfigData,
-} from "@/lib/validators/system-config";
+import { SystemConfigSchema, type SystemConfigData } from "@/lib/validators/system-config";
 import { z } from "zod";
 
-const WALLET_URL =
-  process.env["WALLET_INTERNAL_URL"] ??
-  process.env["NEXT_PUBLIC_WALLET_URL"] ??
-  "http://localhost:8083";
+const GATEWAY = process.env["GATEWAY_URL"] ?? "http://localhost:8080";
+const WALLET_URL = `${GATEWAY}/api/v1`;
 
 // --- Wallet ---
 
@@ -32,11 +27,9 @@ export async function getWalletTransactions(
   token: string,
   params: URLSearchParams,
 ): Promise<TransactionListData> {
-  return apiFetch(
-    `${WALLET_URL}/wallet/transactions?${params.toString()}`,
-    TransactionListSchema,
-    { token },
-  );
+  return apiFetch(`${WALLET_URL}/wallet/transactions?${params.toString()}`, TransactionListSchema, {
+    token,
+  });
 }
 
 export async function topUpWallet(data: TopUpData, token: string): Promise<WalletBalanceData> {

@@ -5,7 +5,8 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Bug, Hexagon, CheckCircle, ShieldCheck } from "lucide-react";
+import { Bug, CheckCircle, ShieldCheck } from "lucide-react";
+import { HexPattern } from "@/components/ui/hex-pattern";
 import { useToast } from "@/hooks/useToast";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -15,9 +16,9 @@ import { ProblemDetailSchema } from "@/lib/validators/error";
 import { ERROR_MESSAGES } from "@/lib/utils/error-messages";
 
 const BENEFITS = [
-  "Inscribete a congresos academicos con un clic",
-  "Reserva talleres y gestiona tu asistencia",
+  "Inscribete a congresos con un solo clic",
   "Recibe diplomas de participacion en PDF",
+  "Gestiona tus actividades y asistencias",
   "Cartera integrada para pagos sin friccion",
 ];
 
@@ -66,56 +67,57 @@ export default function RegisterPage(): React.ReactElement {
 
   return (
     <div className="flex min-h-[calc(100vh-60px)]" data-testid="register-page">
-
       {/* ── Left: brand panel ─────────────────────────────────────────── */}
-      <div className="relative hidden w-[46%] flex-col overflow-hidden bg-[var(--color-primary)] md:flex">
+      <div className="relative hidden w-[55%] flex-col overflow-hidden bg-[var(--color-primary)] md:flex">
+        {/* Dense hex grid */}
+        <HexPattern size={22} opacity={0.12} stroke="white" />
 
-        {/* Hexagon watermarks */}
-        <span className="pointer-events-none absolute -right-10 -top-10 text-white opacity-[0.08]">
-          <Hexagon size={240} strokeWidth={0.5} />
-        </span>
-        <span className="pointer-events-none absolute -bottom-14 -left-14 text-white opacity-[0.06]">
-          <Hexagon size={300} strokeWidth={0.5} />
-        </span>
-        <span className="pointer-events-none absolute right-20 top-1/3 text-white opacity-[0.05]">
-          <Hexagon size={140} strokeWidth={0.5} />
-        </span>
-        <span className="pointer-events-none absolute left-6 top-16 text-white opacity-[0.06]">
-          <Hexagon size={72} strokeWidth={0.5} />
-        </span>
-        <span className="pointer-events-none absolute bottom-32 right-8 text-white opacity-[0.04]">
-          <Hexagon size={96} strokeWidth={0.5} />
-        </span>
+        {/* Depth overlays */}
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_40%_50%,rgba(255,255,255,0.07)_0%,transparent_65%)]" />
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_100%_0%,rgba(0,30,90,0.45)_0%,transparent_60%)]" />
 
         {/* Hero content */}
-        <div className="relative flex flex-1 flex-col justify-center gap-10 px-10 py-12">
-          {/* Logo + title */}
-          <div className="flex flex-col gap-6">
-            <div className="flex h-20 w-20 items-center justify-center rounded-3xl bg-white/15 shadow-[0_8px_32px_rgba(0,0,0,0.2)] backdrop-blur-sm ring-1 ring-white/20">
-              <Bug size={40} strokeWidth={1.25} className="animate-float text-white" />
+        <div className="relative flex flex-1 flex-col justify-center px-14 py-16">
+          {/* Logo + wordmark */}
+          <div className="mb-12 flex flex-col gap-4">
+            <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white/15 shadow-[0_8px_32px_rgba(0,0,0,0.25)] ring-1 ring-white/25">
+              <Bug size={30} strokeWidth={1.25} className="animate-float text-white" />
             </div>
-
-            <div className="flex flex-col gap-3">
-              <h1 className="font-sans text-5xl font-semibold leading-[1.1] tracking-tight text-white">
-                Unete a la<br />comunidad<br />academica
-              </h1>
-              <p className="max-w-[280px] font-secondary text-sm leading-relaxed text-white/70">
-                Crea tu cuenta gratis y accede a todos los congresos y actividades disponibles.
+            <div>
+              <p className="font-sans text-2xl font-semibold tracking-tight text-white">
+                Code n Bugs
+              </p>
+              <p className="mt-0.5 font-secondary text-sm text-white/55">
+                Plataforma de congresos academicos
               </p>
             </div>
           </div>
 
+          {/* Headline */}
+          <div className="mb-14">
+            <h1 className="font-sans text-[2.6rem] font-semibold leading-[1.1] tracking-tight text-white">
+              Unete a la
+              <br />
+              comunidad
+              <br />
+              <span className="text-white/75">academica.</span>
+            </h1>
+            <p className="mt-5 max-w-[300px] font-secondary text-[0.95rem] leading-relaxed text-white/65">
+              Crea tu cuenta gratis y accede a todos los congresos disponibles.
+            </p>
+          </div>
+
           {/* Benefits list */}
-          <div className="flex flex-col gap-2.5">
+          <div className="flex flex-col gap-5">
             {BENEFITS.map((benefit, i) => (
               <div
                 key={benefit}
-                className="animate-fade-in-up flex items-center gap-3"
+                className="animate-fade-in-up flex items-center gap-4"
                 style={{ animationDelay: `${(i + 1) * 80}ms` }}
               >
-                <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-white/20 text-white">
-                  <CheckCircle size={12} strokeWidth={2} />
-                </span>
+                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-white/20 ring-1 ring-white/20">
+                  <CheckCircle size={15} strokeWidth={2} className="text-white" />
+                </div>
                 <span className="font-secondary text-sm text-white/85">{benefit}</span>
               </div>
             ))}
@@ -123,16 +125,18 @@ export default function RegisterPage(): React.ReactElement {
         </div>
 
         {/* Bottom strip */}
-        <div className="relative border-t border-white/10 px-10 py-5">
-          <p className="font-secondary text-xs text-white/50">
-            Al registrarte aceptas los terminos de uso de la plataforma Code n Bugs.
-          </p>
+        <div className="relative border-t border-white/10 px-14 py-5">
+          <div className="flex items-center gap-2">
+            <ShieldCheck size={14} strokeWidth={1.5} className="text-white/50" />
+            <span className="font-secondary text-xs text-white/50">
+              Registro gratuito · Sin tarjeta de credito
+            </span>
+          </div>
         </div>
       </div>
 
       {/* ── Right: form panel ─────────────────────────────────────────── */}
       <div className="flex flex-1 flex-col bg-[var(--color-white)]">
-
         {/* Mobile-only top bar */}
         <div className="flex items-center gap-2.5 border-b border-[var(--color-border)] px-6 py-4 md:hidden">
           <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-[var(--color-primary)] text-white">
@@ -144,28 +148,32 @@ export default function RegisterPage(): React.ReactElement {
         </div>
 
         {/* Form area */}
-        <div className="flex flex-1 items-center justify-center px-8 py-10">
-          <div className="animate-scale-in w-full max-w-[400px]">
-
+        <div className="flex flex-1 items-center justify-center px-10 py-10">
+          <div className="animate-scale-in w-full max-w-[420px]">
             {/* Heading */}
             <div className="mb-7">
-              <h2 className="font-sans text-2xl font-medium text-[var(--color-text-primary-black)]">
+              <h2 className="font-sans text-[1.75rem] font-medium leading-tight text-[var(--color-text-primary-black)]">
                 Crear cuenta
               </h2>
-              <p className="mt-1.5 font-secondary text-sm text-[var(--color-text-secondary)]">
+              <p className="mt-2 font-secondary text-sm text-[var(--color-text-secondary)]">
                 Completa los datos para registrarte como participante
               </p>
             </div>
 
             {/* Form */}
             <form
-              onSubmit={(e) => { void handleSubmit(onSubmit)(e); }}
+              onSubmit={(e) => {
+                void handleSubmit(onSubmit)(e);
+              }}
               noValidate
               className="flex flex-col gap-4"
             >
               {/* Full name */}
               <div className="flex flex-col gap-1.5">
-                <Label htmlFor="fullName" className="font-secondary text-sm font-medium text-[var(--color-text-primary)]">
+                <Label
+                  htmlFor="fullName"
+                  className="font-secondary text-sm font-medium text-[var(--color-text-primary)]"
+                >
                   Nombre completo
                 </Label>
                 <Input
@@ -178,7 +186,11 @@ export default function RegisterPage(): React.ReactElement {
                   {...register("fullName")}
                 />
                 {errors.fullName !== undefined && (
-                  <p className="font-secondary text-xs text-[var(--color-error)]" role="alert" data-testid="register-full-name-error">
+                  <p
+                    className="font-secondary text-xs text-[var(--color-error)]"
+                    role="alert"
+                    data-testid="register-full-name-error"
+                  >
                     {errors.fullName.message}
                   </p>
                 )}
@@ -186,7 +198,10 @@ export default function RegisterPage(): React.ReactElement {
 
               {/* Email */}
               <div className="flex flex-col gap-1.5">
-                <Label htmlFor="email" className="font-secondary text-sm font-medium text-[var(--color-text-primary)]">
+                <Label
+                  htmlFor="email"
+                  className="font-secondary text-sm font-medium text-[var(--color-text-primary)]"
+                >
                   Correo electronico
                 </Label>
                 <Input
@@ -199,7 +214,11 @@ export default function RegisterPage(): React.ReactElement {
                   {...register("email")}
                 />
                 {errors.email !== undefined && (
-                  <p className="font-secondary text-xs text-[var(--color-error)]" role="alert" data-testid="register-email-error">
+                  <p
+                    className="font-secondary text-xs text-[var(--color-error)]"
+                    role="alert"
+                    data-testid="register-email-error"
+                  >
                     {errors.email.message}
                   </p>
                 )}
@@ -207,7 +226,10 @@ export default function RegisterPage(): React.ReactElement {
 
               {/* Password */}
               <div className="flex flex-col gap-1.5">
-                <Label htmlFor="password" className="font-secondary text-sm font-medium text-[var(--color-text-primary)]">
+                <Label
+                  htmlFor="password"
+                  className="font-secondary text-sm font-medium text-[var(--color-text-primary)]"
+                >
                   Contrasena
                 </Label>
                 <Input
@@ -220,7 +242,11 @@ export default function RegisterPage(): React.ReactElement {
                   {...register("password")}
                 />
                 {errors.password !== undefined && (
-                  <p className="font-secondary text-xs text-[var(--color-error)]" role="alert" data-testid="register-password-error">
+                  <p
+                    className="font-secondary text-xs text-[var(--color-error)]"
+                    role="alert"
+                    data-testid="register-password-error"
+                  >
                     {errors.password.message}
                   </p>
                 )}
@@ -229,7 +255,10 @@ export default function RegisterPage(): React.ReactElement {
               {/* Organization + Phone — side by side */}
               <div className="grid grid-cols-2 gap-3">
                 <div className="flex flex-col gap-1.5">
-                  <Label htmlFor="organization" className="font-secondary text-sm font-medium text-[var(--color-text-primary)]">
+                  <Label
+                    htmlFor="organization"
+                    className="font-secondary text-sm font-medium text-[var(--color-text-primary)]"
+                  >
                     Organizacion
                   </Label>
                   <Input
@@ -241,14 +270,21 @@ export default function RegisterPage(): React.ReactElement {
                     {...register("organization")}
                   />
                   {errors.organization !== undefined && (
-                    <p className="font-secondary text-xs text-[var(--color-error)]" role="alert" data-testid="register-organization-error">
+                    <p
+                      className="font-secondary text-xs text-[var(--color-error)]"
+                      role="alert"
+                      data-testid="register-organization-error"
+                    >
                       {errors.organization.message}
                     </p>
                   )}
                 </div>
 
                 <div className="flex flex-col gap-1.5">
-                  <Label htmlFor="phone" className="font-secondary text-sm font-medium text-[var(--color-text-primary)]">
+                  <Label
+                    htmlFor="phone"
+                    className="font-secondary text-sm font-medium text-[var(--color-text-primary)]"
+                  >
                     Telefono
                   </Label>
                   <Input
@@ -261,7 +297,11 @@ export default function RegisterPage(): React.ReactElement {
                     {...register("phone")}
                   />
                   {errors.phone !== undefined && (
-                    <p className="font-secondary text-xs text-[var(--color-error)]" role="alert" data-testid="register-phone-error">
+                    <p
+                      className="font-secondary text-xs text-[var(--color-error)]"
+                      role="alert"
+                      data-testid="register-phone-error"
+                    >
                       {errors.phone.message}
                     </p>
                   )}
@@ -270,7 +310,10 @@ export default function RegisterPage(): React.ReactElement {
 
               {/* Personal ID */}
               <div className="flex flex-col gap-1.5">
-                <Label htmlFor="personalId" className="font-secondary text-sm font-medium text-[var(--color-text-primary)]">
+                <Label
+                  htmlFor="personalId"
+                  className="font-secondary text-sm font-medium text-[var(--color-text-primary)]"
+                >
                   DPI o identificacion
                 </Label>
                 <Input
@@ -282,7 +325,11 @@ export default function RegisterPage(): React.ReactElement {
                   {...register("personalId")}
                 />
                 {errors.personalId !== undefined && (
-                  <p className="font-secondary text-xs text-[var(--color-error)]" role="alert" data-testid="register-personal-id-error">
+                  <p
+                    className="font-secondary text-xs text-[var(--color-error)]"
+                    role="alert"
+                    data-testid="register-personal-id-error"
+                  >
                     {errors.personalId.message}
                   </p>
                 )}
@@ -314,7 +361,12 @@ export default function RegisterPage(): React.ReactElement {
 
         {/* Footer */}
         <div className="flex items-center justify-center gap-1.5 border-t border-[var(--color-border)] px-6 py-4">
-          <ShieldCheck size={13} strokeWidth={1.5} className="text-[var(--color-text-secondary)]" aria-hidden="true" />
+          <ShieldCheck
+            size={13}
+            strokeWidth={1.5}
+            className="text-[var(--color-text-secondary)]"
+            aria-hidden="true"
+          />
           <span className="font-secondary text-xs text-[var(--color-text-secondary)]">
             Conexion segura · Code n Bugs
           </span>

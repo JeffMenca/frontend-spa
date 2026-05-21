@@ -4,27 +4,33 @@ import { useState } from "react";
 import Link from "next/link";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Bug, Hexagon, Zap, Users, Award, ShieldCheck, BookOpen } from "lucide-react";
+import { Bug, BookOpen, Award, Wallet, ShieldCheck } from "lucide-react";
 import { useToast } from "@/hooks/useToast";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { HexPattern } from "@/components/ui/hex-pattern";
 import { LoginRequestSchema, type LoginRequest } from "@/lib/validators/auth";
 import { UserSchema } from "@/lib/validators/user";
 import { ProblemDetailSchema } from "@/lib/validators/error";
 import { ERROR_MESSAGES } from "@/lib/utils/error-messages";
 
-const FEATURES = [
-  { icon: <Users size={15} strokeWidth={2} />, label: "Gestion de participantes" },
-  { icon: <Zap size={15} strokeWidth={2} />, label: "Actividades en tiempo real" },
-  { icon: <Award size={15} strokeWidth={2} />, label: "Diplomas automaticos" },
-  { icon: <BookOpen size={15} strokeWidth={2} />, label: "Propuestas y convocatorias" },
-];
-
-const STATS = [
-  { value: "Multi-tenant", label: "Arquitectura" },
-  { value: "4 roles", label: "De acceso" },
-  { value: "PDF", label: "Diplomas" },
+const BENEFITS = [
+  {
+    icon: <BookOpen size={20} strokeWidth={1.5} className="text-white" />,
+    title: "Congresos academicos",
+    desc: "Explora y participa en los mejores congresos de tu region.",
+  },
+  {
+    icon: <Award size={20} strokeWidth={1.5} className="text-white" />,
+    title: "Diplomas en minutos",
+    desc: "Descarga tu diploma en PDF al completar cada actividad.",
+  },
+  {
+    icon: <Wallet size={20} strokeWidth={1.5} className="text-white" />,
+    title: "Pagos seguros",
+    desc: "Cartera integrada con historial de transacciones transparente.",
+  },
 ];
 
 export default function LoginPage(): React.ReactElement {
@@ -86,78 +92,77 @@ export default function LoginPage(): React.ReactElement {
 
   return (
     <div className="flex min-h-[calc(100vh-60px)]" data-testid="login-page">
-
       {/* ── Left: brand panel ─────────────────────────────────────────── */}
-      <div className="relative hidden w-[46%] flex-col overflow-hidden bg-[var(--color-primary)] md:flex">
+      <div className="relative hidden w-[55%] flex-col overflow-hidden bg-[var(--color-primary)] md:flex">
+        {/* Dense hex grid — the hero visual */}
+        <HexPattern size={22} opacity={0.12} stroke="white" />
 
-        {/* Hexagon watermarks */}
-        <span className="pointer-events-none absolute -right-10 -top-10 text-white opacity-[0.08]">
-          <Hexagon size={240} strokeWidth={0.5} />
-        </span>
-        <span className="pointer-events-none absolute -bottom-14 -left-14 text-white opacity-[0.06]">
-          <Hexagon size={300} strokeWidth={0.5} />
-        </span>
-        <span className="pointer-events-none absolute right-20 top-1/3 text-white opacity-[0.05]">
-          <Hexagon size={140} strokeWidth={0.5} />
-        </span>
-        <span className="pointer-events-none absolute left-6 top-16 text-white opacity-[0.06]">
-          <Hexagon size={72} strokeWidth={0.5} />
-        </span>
-        <span className="pointer-events-none absolute bottom-32 right-8 text-white opacity-[0.04]">
-          <Hexagon size={96} strokeWidth={0.5} />
-        </span>
+        {/* Depth overlays */}
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_40%_50%,rgba(255,255,255,0.07)_0%,transparent_65%)]" />
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_100%_0%,rgba(0,30,90,0.45)_0%,transparent_60%)]" />
 
-        {/* Center: hero content */}
-        <div className="relative flex flex-1 flex-col justify-center gap-10 px-10 py-12">
-          {/* Logo + title */}
-          <div className="flex flex-col gap-6">
-            <div className="flex h-20 w-20 items-center justify-center rounded-3xl bg-white/15 shadow-[0_8px_32px_rgba(0,0,0,0.2)] backdrop-blur-sm ring-1 ring-white/20">
-              <Bug size={40} strokeWidth={1.25} className="animate-float text-white" />
+        {/* Main content */}
+        <div className="relative flex flex-1 flex-col justify-center px-14 py-16">
+          {/* Logo + wordmark */}
+          <div className="mb-12 flex flex-col gap-4">
+            <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white/15 shadow-[0_8px_32px_rgba(0,0,0,0.25)] ring-1 ring-white/25">
+              <Bug size={30} strokeWidth={1.25} className="animate-float text-white" />
             </div>
-
-            <div className="flex flex-col gap-3">
-              <h1 className="font-sans text-5xl font-semibold leading-[1.1] tracking-tight text-white">
-                Plataforma<br />para congresos<br />academicos
-              </h1>
-              <p className="font-secondary text-sm leading-relaxed text-white/70 max-w-[280px]">
-                Gestiona inscripciones, propuestas, asistencias y diplomas desde un solo lugar.
+            <div>
+              <p className="font-sans text-2xl font-semibold tracking-tight text-white">
+                Code n Bugs
+              </p>
+              <p className="mt-0.5 font-secondary text-sm text-white/55">
+                Plataforma de congresos academicos
               </p>
             </div>
           </div>
 
-          {/* Feature chips — 2×2 grid */}
-          <div className="grid grid-cols-2 gap-2.5">
-            {FEATURES.map((feature, i) => (
-              <div
-                key={feature.label}
-                className="animate-fade-in-up flex items-center gap-2.5 rounded-xl bg-white/10 px-3.5 py-3 backdrop-blur-sm ring-1 ring-white/10"
-                style={{ animationDelay: `${(i + 1) * 80}ms` }}
-              >
-                <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-white/20 text-white">
-                  {feature.icon}
-                </span>
-                <span className="font-secondary text-xs leading-snug text-white/90">{feature.label}</span>
+          {/* Headline */}
+          <div className="mb-14">
+            <h1 className="font-sans text-[2.6rem] font-semibold leading-[1.1] tracking-tight text-white">
+              Gestiona tus
+              <br />
+              congresos
+              <br />
+              <span className="text-white/75">en un solo lugar.</span>
+            </h1>
+            <p className="mt-5 max-w-[300px] font-secondary text-[0.95rem] leading-relaxed text-white/65">
+              Inscribete, participa y recibe tu diploma. Sin complicaciones.
+            </p>
+          </div>
+
+          {/* Benefit rows */}
+          <div className="flex flex-col gap-7">
+            {BENEFITS.map((b) => (
+              <div key={b.title} className="flex items-start gap-4">
+                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-white/15 ring-1 ring-white/20 shadow-[0_4px_16px_rgba(0,0,0,0.15)]">
+                  {b.icon}
+                </div>
+                <div className="pt-0.5">
+                  <p className="font-sans text-sm font-semibold text-white">{b.title}</p>
+                  <p className="mt-1 font-secondary text-[0.8rem] leading-snug text-white/60">
+                    {b.desc}
+                  </p>
+                </div>
               </div>
             ))}
           </div>
         </div>
 
-        {/* Bottom: stats strip */}
-        <div className="relative border-t border-white/10 px-10 py-6">
-          <div className="flex items-center justify-around">
-            {STATS.map((stat) => (
-              <div key={stat.label} className="flex flex-col items-center gap-0.5">
-                <span className="font-sans text-base font-medium text-white">{stat.value}</span>
-                <span className="font-secondary text-xs text-white/60">{stat.label}</span>
-              </div>
-            ))}
+        {/* Bottom trust strip */}
+        <div className="relative border-t border-white/10 px-14 py-5">
+          <div className="flex items-center gap-2">
+            <ShieldCheck size={14} strokeWidth={1.5} className="text-white/50" />
+            <span className="font-secondary text-xs text-white/50">
+              Conexion cifrada y datos protegidos
+            </span>
           </div>
         </div>
       </div>
 
       {/* ── Right: form panel ─────────────────────────────────────────── */}
       <div className="flex flex-1 flex-col bg-[var(--color-white)]">
-
         {/* Mobile-only top bar */}
         <div className="flex items-center gap-2.5 border-b border-[var(--color-border)] px-6 py-4 md:hidden">
           <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-[var(--color-primary)] text-white">
@@ -169,16 +174,15 @@ export default function LoginPage(): React.ReactElement {
         </div>
 
         {/* Form area — vertically centered */}
-        <div className="flex flex-1 items-center justify-center px-8 py-12">
-          <div className="animate-scale-in w-full max-w-[360px]">
-
+        <div className="flex flex-1 items-center justify-center px-10 py-12">
+          <div className="animate-scale-in w-full max-w-[380px]">
             {/* Heading */}
-            <div className="mb-8">
-              <h2 className="font-sans text-2xl font-medium text-[var(--color-text-primary-black)]">
+            <div className="mb-9">
+              <h2 className="font-sans text-[1.75rem] font-medium leading-tight text-[var(--color-text-primary-black)]">
                 Bienvenido de nuevo
               </h2>
-              <p className="mt-1.5 font-secondary text-sm text-[var(--color-text-secondary)]">
-                Ingresa tus credenciales para acceder a tu cuenta
+              <p className="mt-2 font-secondary text-sm text-[var(--color-text-secondary)]">
+                Ingresa tus datos para acceder a tu cuenta
               </p>
             </div>
 
@@ -191,7 +195,10 @@ export default function LoginPage(): React.ReactElement {
               className="flex flex-col gap-5"
             >
               <div className="flex flex-col gap-2">
-                <Label htmlFor="email" className="font-secondary text-sm font-medium text-[var(--color-text-primary)]">
+                <Label
+                  htmlFor="email"
+                  className="font-secondary text-sm font-medium text-[var(--color-text-primary)]"
+                >
                   Correo electronico
                 </Label>
                 <Input
@@ -215,7 +222,10 @@ export default function LoginPage(): React.ReactElement {
               </div>
 
               <div className="flex flex-col gap-2">
-                <Label htmlFor="password" className="font-secondary text-sm font-medium text-[var(--color-text-primary)]">
+                <Label
+                  htmlFor="password"
+                  className="font-secondary text-sm font-medium text-[var(--color-text-primary)]"
+                >
                   Contrasena
                 </Label>
                 <Input
@@ -241,7 +251,7 @@ export default function LoginPage(): React.ReactElement {
               <Button
                 type="submit"
                 disabled={isLoading}
-                className="mt-1 min-h-[44px] w-full transition-transform duration-200 hover:scale-[1.01] active:scale-[0.99]"
+                className="mt-2 min-h-[44px] w-full transition-transform duration-200 hover:scale-[1.01] active:scale-[0.99]"
                 data-testid="login-submit"
               >
                 {isLoading ? "Iniciando sesion..." : "Iniciar sesion"}
@@ -249,7 +259,7 @@ export default function LoginPage(): React.ReactElement {
             </form>
 
             {/* Divider */}
-            <div className="my-6 flex items-center gap-3">
+            <div className="my-7 flex items-center gap-3">
               <div className="flex-1 border-t border-[var(--color-border)]" />
               <span className="font-secondary text-xs text-[var(--color-text-secondary)]">o</span>
               <div className="flex-1 border-t border-[var(--color-border)]" />
@@ -271,7 +281,12 @@ export default function LoginPage(): React.ReactElement {
 
         {/* Footer */}
         <div className="flex items-center justify-center gap-1.5 border-t border-[var(--color-border)] px-6 py-4">
-          <ShieldCheck size={13} strokeWidth={1.5} className="text-[var(--color-text-secondary)]" aria-hidden="true" />
+          <ShieldCheck
+            size={13}
+            strokeWidth={1.5}
+            className="text-[var(--color-text-secondary)]"
+            aria-hidden="true"
+          />
           <span className="font-secondary text-xs text-[var(--color-text-secondary)]">
             Conexion segura · Code n Bugs
           </span>
