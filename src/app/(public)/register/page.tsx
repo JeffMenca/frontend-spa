@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Bug, CheckCircle, ShieldCheck } from "lucide-react";
+import { Bug, BookOpen, Award, Wallet, ShieldCheck } from "lucide-react";
 import { HexPattern } from "@/components/ui/hex-pattern";
 import { useToast } from "@/hooks/useToast";
 import { Button } from "@/components/ui/button";
@@ -15,11 +15,22 @@ import { RegisterRequestSchema, type RegisterRequest } from "@/lib/validators/au
 import { ProblemDetailSchema } from "@/lib/validators/error";
 import { ERROR_MESSAGES } from "@/lib/utils/error-messages";
 
-const BENEFITS = [
-  "Inscribete a congresos con un solo clic",
-  "Recibe diplomas de participacion en PDF",
-  "Gestiona tus actividades y asistencias",
-  "Cartera integrada para pagos sin friccion",
+const FEATURES = [
+  {
+    icon: <BookOpen size={15} strokeWidth={1.5} className="text-white" />,
+    title: "Congresos",
+    desc: "Explora y participa",
+  },
+  {
+    icon: <Award size={15} strokeWidth={1.5} className="text-white" />,
+    title: "Diplomas PDF",
+    desc: "Instantaneos al completar",
+  },
+  {
+    icon: <Wallet size={15} strokeWidth={1.5} className="text-white" />,
+    title: "Pagos seguros",
+    desc: "Cartera integrada",
+  },
 ];
 
 export default function RegisterPage(): React.ReactElement {
@@ -69,68 +80,59 @@ export default function RegisterPage(): React.ReactElement {
     <div className="flex min-h-[calc(100vh-60px)]" data-testid="register-page">
       {/* ── Left: brand panel ─────────────────────────────────────────── */}
       <div className="relative hidden w-[55%] flex-col overflow-hidden bg-[var(--color-primary)] md:flex">
-        {/* Dense hex grid */}
-        <HexPattern size={22} opacity={0.12} stroke="white" />
+        {/* Layer 1: subtle hex texture */}
+        <HexPattern size={22} opacity={0.08} stroke="white" />
 
-        {/* Depth overlays */}
-        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_40%_50%,rgba(255,255,255,0.07)_0%,transparent_65%)]" />
-        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_100%_0%,rgba(0,30,90,0.45)_0%,transparent_60%)]" />
+        {/* Layer 2: giant Bug mascot — background art, bottom-right anchor */}
+        <span className="pointer-events-none absolute -bottom-10 -right-16 text-white opacity-[0.065]">
+          <Bug size={400} strokeWidth={0.4} />
+        </span>
 
-        {/* Hero content */}
-        <div className="relative flex flex-1 flex-col justify-center px-14 py-16">
-          {/* Logo + wordmark */}
-          <div className="mb-12 flex flex-col gap-4">
-            <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white/15 shadow-[0_8px_32px_rgba(0,0,0,0.25)] ring-1 ring-white/25">
-              <Bug size={30} strokeWidth={1.25} className="animate-float text-white" />
+        {/* Layer 3: directional gradient for depth and text legibility */}
+        <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(145deg,rgba(5,38,128,0.55)_0%,rgba(5,38,128,0.1)_50%,transparent_100%)]" />
+
+        {/* Content — spread top / middle / bottom */}
+        <div className="relative flex flex-1 flex-col justify-between px-12 py-10">
+          {/* TOP: compact logo strip */}
+          <div className="flex items-center gap-2.5">
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-white/20 ring-1 ring-white/25">
+              <Bug size={18} strokeWidth={1.5} className="animate-float text-white" />
             </div>
-            <div>
-              <p className="font-sans text-2xl font-semibold tracking-tight text-white">
-                Code n Bugs
-              </p>
-              <p className="mt-0.5 font-secondary text-sm text-white/55">
-                Plataforma de congresos academicos
-              </p>
-            </div>
+            <span className="font-sans text-base font-semibold tracking-tight text-white">
+              Code n Bugs
+            </span>
           </div>
 
-          {/* Headline */}
-          <div className="mb-14">
-            <h1 className="font-sans text-[2.6rem] font-semibold leading-[1.1] tracking-tight text-white">
+          {/* MIDDLE: editorial display headline */}
+          <div>
+            <h1 className="font-sans text-[3.75rem] font-semibold leading-[0.95] tracking-tight text-white">
               Unete a la
               <br />
               comunidad
               <br />
-              <span className="text-white/75">academica.</span>
+              <span className="text-white/55">academica.</span>
             </h1>
-            <p className="mt-5 max-w-[300px] font-secondary text-[0.95rem] leading-relaxed text-white/65">
+            <p className="mt-5 max-w-[300px] font-secondary text-sm leading-relaxed text-white/60">
               Crea tu cuenta gratis y accede a todos los congresos disponibles.
             </p>
           </div>
 
-          {/* Benefits list */}
-          <div className="flex flex-col gap-5">
-            {BENEFITS.map((benefit, i) => (
-              <div
-                key={benefit}
-                className="animate-fade-in-up flex items-center gap-4"
-                style={{ animationDelay: `${(i + 1) * 80}ms` }}
-              >
-                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-white/20 ring-1 ring-white/20">
-                  <CheckCircle size={15} strokeWidth={2} className="text-white" />
+          {/* BOTTOM: compact 3-column features strip */}
+          <div>
+            <div className="mb-5 h-px bg-white/15" />
+            <div className="grid grid-cols-3 gap-5">
+              {FEATURES.map((f) => (
+                <div key={f.title} className="flex flex-col gap-2">
+                  <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-white/15 ring-1 ring-white/20">
+                    {f.icon}
+                  </div>
+                  <p className="font-sans text-xs font-semibold text-white">{f.title}</p>
+                  <p className="font-secondary text-[0.7rem] leading-snug text-white/50">
+                    {f.desc}
+                  </p>
                 </div>
-                <span className="font-secondary text-sm text-white/85">{benefit}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Bottom strip */}
-        <div className="relative border-t border-white/10 px-14 py-5">
-          <div className="flex items-center gap-2">
-            <ShieldCheck size={14} strokeWidth={1.5} className="text-white/50" />
-            <span className="font-secondary text-xs text-white/50">
-              Registro gratuito · Sin tarjeta de credito
-            </span>
+              ))}
+            </div>
           </div>
         </div>
       </div>
