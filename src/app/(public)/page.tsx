@@ -74,10 +74,11 @@ export default function LandingPage(): React.ReactElement {
           Plataforma de gestion academica
         </span>
 
-        <h1 className="animate-fade-in-up delay-150 mb-5 max-w-2xl font-sans text-5xl font-medium leading-[1.1] text-[var(--color-text-primary-black)]">
+        <h1 className="animate-fade-in-up delay-150 mb-5 max-w-3xl font-sans text-5xl font-medium leading-[1.1] text-[var(--color-text-primary-black)]">
           Bienvenido a{" "}
           <span className="text-[var(--color-primary-text)]">
-            Code <em className="not-italic font-medium text-[var(--color-primary-text)]">n</em> Bugs
+            Congress <em className="not-italic font-medium text-[var(--color-primary-text)]">n</em>{" "}
+            Bugs
           </span>
         </h1>
 

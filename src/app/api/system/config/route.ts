@@ -5,6 +5,7 @@ import { cookies } from "next/headers";
 import { getSession } from "@/lib/auth/session";
 import { activeWallet } from "@/lib/api/active-wallet";
 import { unauthorizedResponse, internalErrorResponse } from "@/lib/api/responses";
+import { ApplicationError } from "@/types/error";
 import { z } from "zod";
 
 async function getToken(): Promise<string | null> {
@@ -16,16 +17,25 @@ const UpdateConfigSchema = z.object({
   commissionPercent: z.number().min(0).max(100),
 });
 
+function handleError(error: unknown): NextResponse {
+  if (error instanceof ApplicationError) {
+    return NextResponse.json(
+      { code: error.code, status: error.status, title: "Error", detail: error.message },
+      { status: error.status },
+    );
+  }
+  return internalErrorResponse();
+}
+
 export async function GET(): Promise<NextResponse> {
   const session = await getSession();
   if (session === null) return unauthorizedResponse();
   const token = await getToken();
   if (token === null) return unauthorizedResponse();
   try {
-    // TODO(backend-swap): wallet GET /system/config (port 8083)
     return NextResponse.json(await activeWallet.getSystemConfig(token));
-  } catch {
-    return internalErrorResponse();
+  } catch (error) {
+    return handleError(error);
   }
 }
 
@@ -43,11 +53,10 @@ export async function PUT(request: NextRequest): Promise<NextResponse> {
         { status: 400 },
       );
     }
-    // TODO(backend-swap): wallet PUT /system/config (port 8083)
     return NextResponse.json(
       await activeWallet.updateSystemConfig(parsed.data.commissionPercent, token),
     );
-  } catch {
-    return internalErrorResponse();
+  } catch (error) {
+    return handleError(error);
   }
 }

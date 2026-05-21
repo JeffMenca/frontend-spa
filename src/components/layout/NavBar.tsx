@@ -61,7 +61,7 @@ export async function NavBar(): Promise<React.ReactElement> {
             <Bug size={18} strokeWidth={2} />
           </span>
           <span className="font-sans text-xl font-medium">
-            <span className="text-[var(--color-text-primary-black)]">Code </span>
+            <span className="text-[var(--color-text-primary-black)]">Congress </span>
             <span className="text-[var(--color-primary-text)]">n</span>
             <span className="text-[var(--color-text-primary-black)]"> Bugs</span>
           </span>

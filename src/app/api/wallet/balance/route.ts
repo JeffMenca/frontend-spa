@@ -5,6 +5,7 @@ import { cookies } from "next/headers";
 import { getSession } from "@/lib/auth/session";
 import { activeWallet } from "@/lib/api/active-wallet";
 import { unauthorizedResponse, internalErrorResponse } from "@/lib/api/responses";
+import { ApplicationError } from "@/types/error";
 
 async function getToken(): Promise<string | null> {
   const cookieStore = await cookies();
@@ -17,9 +18,14 @@ export async function GET(): Promise<NextResponse> {
   const token = await getToken();
   if (token === null) return unauthorizedResponse();
   try {
-    // TODO(backend-swap): wallet GET /wallet/balance (port 8083)
     return NextResponse.json(await activeWallet.getWalletBalance(token));
-  } catch {
+  } catch (error) {
+    if (error instanceof ApplicationError) {
+      return NextResponse.json(
+        { code: error.code, status: error.status, title: "Error", detail: error.message },
+        { status: error.status },
+      );
+    }
     return internalErrorResponse();
   }
 }

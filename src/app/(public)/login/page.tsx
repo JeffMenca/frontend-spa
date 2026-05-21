@@ -113,7 +113,7 @@ export default function LoginPage(): React.ReactElement {
               <Bug size={18} strokeWidth={1.5} className="animate-float text-white" />
             </div>
             <span className="font-sans text-base font-semibold tracking-tight text-white">
-              Code n Bugs
+              Congress n Bugs
             </span>
           </div>
 
@@ -159,7 +159,7 @@ export default function LoginPage(): React.ReactElement {
             <Bug size={14} strokeWidth={2} />
           </span>
           <span className="font-sans text-sm font-medium text-[var(--color-text-primary)]">
-            Code n Bugs
+            Congress n Bugs
           </span>
         </div>
 
@@ -278,7 +278,7 @@ export default function LoginPage(): React.ReactElement {
             aria-hidden="true"
           />
           <span className="font-secondary text-xs text-[var(--color-text-secondary)]">
-            Conexion segura · Code n Bugs
+            Conexion segura · Congress n Bugs
           </span>
         </div>
       </div>

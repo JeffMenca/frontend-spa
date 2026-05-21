@@ -6,6 +6,7 @@ import { getSession } from "@/lib/auth/session";
 import { activeWallet } from "@/lib/api/active-wallet";
 import { TopUpSchema } from "@/lib/validators/wallet";
 import { unauthorizedResponse, internalErrorResponse } from "@/lib/api/responses";
+import { ApplicationError } from "@/types/error";
 
 async function getToken(): Promise<string | null> {
   const cookieStore = await cookies();
@@ -26,9 +27,14 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         { status: 400 },
       );
     }
-    // TODO(backend-swap): wallet POST /wallet/top-up (port 8083)
     return NextResponse.json(await activeWallet.topUpWallet(parsed.data, token), { status: 200 });
-  } catch {
+  } catch (error) {
+    if (error instanceof ApplicationError) {
+      return NextResponse.json(
+        { code: error.code, status: error.status, title: "Error", detail: error.message },
+        { status: error.status },
+      );
+    }
     return internalErrorResponse();
   }
 }
