@@ -21,7 +21,7 @@ export async function PATCH(
   if (token === null) return unauthorizedResponse();
   const { id } = await params;
   try {
-    // TODO(backend-swap): iam PATCH /users/{id}/activate (port 8081)
+    // TODO(conf-service): swap mock when iam PATCH /users/{id}/activate is deployed - tracked in backlog Lane B
     await activeIam.activateUser(id, token);
     return NextResponse.json({ message: "Usuario activado." }, { status: 200 });
   } catch {

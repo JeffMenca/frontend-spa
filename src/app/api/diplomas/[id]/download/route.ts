@@ -21,7 +21,7 @@ export async function GET(
   if (token === null) return unauthorizedResponse();
   const { id } = await params;
   try {
-    // TODO(backend-swap): conference GET /diplomas/{id}/download (port 8082)
+    // TODO(conf-service): swap mock when conference GET /diplomas/{id}/download is deployed - tracked in backlog Lane B
     const buffer = await activeConference.downloadDiploma(id, token);
     return new NextResponse(buffer, {
       headers: {

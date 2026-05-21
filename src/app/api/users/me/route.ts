@@ -18,7 +18,7 @@ export async function GET(): Promise<NextResponse> {
   const token = await getToken();
   if (token === null) return unauthorizedResponse();
   try {
-    // TODO(backend-swap): iam GET /users/me (port 8081)
+    // TODO(conf-service): swap mock when iam GET /users/me is deployed - tracked in backlog Lane B
     return NextResponse.json(await activeIam.getMe(token));
   } catch {
     return internalErrorResponse();
@@ -39,7 +39,7 @@ export async function PUT(request: NextRequest): Promise<NextResponse> {
         { status: 400 },
       );
     }
-    // TODO(backend-swap): iam PUT /users/{id} (port 8081)
+    // TODO(conf-service): swap mock when iam PUT /users/{id} is deployed - tracked in backlog Lane B
     return NextResponse.json(await activeIam.updateUser(session.userId, parsed.data, token));
   } catch {
     return internalErrorResponse();

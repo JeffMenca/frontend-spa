@@ -21,7 +21,7 @@ export async function DELETE(
   if (token === null) return unauthorizedResponse();
   const { id } = await params;
   try {
-    // TODO(backend-swap): conference DELETE /reservations/{id} (port 8082)
+    // TODO(conf-service): swap mock when conference DELETE /reservations/{id} is deployed - tracked in backlog Lane B
     await activeConference.cancelReservation(id, token);
     return new NextResponse(null, { status: 204 });
   } catch {

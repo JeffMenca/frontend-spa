@@ -18,7 +18,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
   if (token === null) return unauthorizedResponse();
   try {
     const params = new URL(request.url).searchParams;
-    // TODO(backend-swap): iam GET /users (port 8081)
+    // TODO(conf-service): swap mock when iam GET /users is deployed - tracked in backlog Lane B
     return NextResponse.json(await activeIam.listUsers(token, params));
   } catch {
     return internalErrorResponse();

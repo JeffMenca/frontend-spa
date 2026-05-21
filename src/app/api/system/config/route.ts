@@ -4,7 +4,11 @@ import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { getSession } from "@/lib/auth/session";
 import { activeWallet } from "@/lib/api/active-wallet";
-import { unauthorizedResponse, internalErrorResponse } from "@/lib/api/responses";
+import {
+  unauthorizedResponse,
+  internalErrorResponse,
+  forbiddenResponse,
+} from "@/lib/api/responses";
 import { ApplicationError } from "@/types/error";
 import { z } from "zod";
 
@@ -30,6 +34,7 @@ function handleError(error: unknown): NextResponse {
 export async function GET(): Promise<NextResponse> {
   const session = await getSession();
   if (session === null) return unauthorizedResponse();
+  if (!session.roles.includes("SYSTEM_ADMIN")) return forbiddenResponse();
   const token = await getToken();
   if (token === null) return unauthorizedResponse();
   try {
@@ -42,6 +47,7 @@ export async function GET(): Promise<NextResponse> {
 export async function PUT(request: NextRequest): Promise<NextResponse> {
   const session = await getSession();
   if (session === null) return unauthorizedResponse();
+  if (!session.roles.includes("SYSTEM_ADMIN")) return forbiddenResponse();
   const token = await getToken();
   if (token === null) return unauthorizedResponse();
   try {
@@ -49,7 +55,12 @@ export async function PUT(request: NextRequest): Promise<NextResponse> {
     const parsed = UpdateConfigSchema.safeParse(body);
     if (!parsed.success) {
       return NextResponse.json(
-        { code: "validation.failed", status: 400, title: "Validation Failed", detail: parsed.error.message },
+        {
+          code: "validation.failed",
+          status: 400,
+          title: "Validation Failed",
+          detail: parsed.error.message,
+        },
         { status: 400 },
       );
     }

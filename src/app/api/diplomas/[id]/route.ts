@@ -21,7 +21,7 @@ export async function GET(
   if (token === null) return unauthorizedResponse();
   const { id } = await params;
   try {
-    // TODO(backend-swap): conference GET /diplomas/{id} (port 8082)
+    // TODO(conf-service): swap mock when conference GET /diplomas/{id} is deployed - tracked in backlog Lane B
     return NextResponse.json(await activeConference.getDiploma(id, token));
   } catch {
     return internalErrorResponse();

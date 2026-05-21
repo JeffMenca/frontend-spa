@@ -21,7 +21,7 @@ export async function PATCH(
   if (token === null) return unauthorizedResponse();
   const { id } = await params;
   try {
-    // TODO(backend-swap): conference PATCH /proposals/{id}/reject (port 8082)
+    // TODO(conf-service): swap mock when conference PATCH /proposals/{id}/reject is deployed - tracked in backlog Lane B
     return NextResponse.json(await activeConference.rejectProposal(id, token));
   } catch {
     return internalErrorResponse();

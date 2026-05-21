@@ -25,7 +25,7 @@ export function ActivityBadge({ type }: ActivityBadgeProps): React.ReactElement 
         "rounded-full border-none px-2.5 py-0.5 font-sans text-xs font-medium text-white",
         isPonencia
           ? "bg-[var(--color-primary)] hover:bg-[var(--color-primary)]"
-          : "bg-[var(--color-primary-hover)] hover:bg-[var(--color-primary-hover)]",
+          : "bg-[var(--color-primary)] hover:bg-[var(--color-primary)]",
       )}
       data-testid={`activity-badge-${type.toLowerCase()}`}
     >

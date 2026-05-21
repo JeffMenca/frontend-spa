@@ -16,7 +16,7 @@ export const EnrollmentListSchema = z.object({
 });
 
 export const CreateEnrollmentSchema = z.object({
-  paymentDate: z.string().min(1, "La fecha de pago es requerida"),
+  paymentDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "paymentDate must be YYYY-MM-DD"),
 });
 
 export type EnrollmentData = z.infer<typeof EnrollmentSchema>;

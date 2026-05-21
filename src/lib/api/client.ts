@@ -7,6 +7,8 @@ import { ProblemDetailSchema } from "@/lib/validators/error";
 // Wraps any Zod schema in the Spring Boot ApiResponse<T> envelope and extracts `.data`.
 // Uses ZodTypeAny so schemas with _input ≠ _output (default, catch, transform, preprocess)
 // are accepted without breaking TypeScript's type parameter inference.
+// The final `as unknown as ZodSchema<T>` cast is safe: S is constrained to ZodTypeAny and
+// parse() enforces the output type at runtime; TypeScript cannot narrow through the chain.
 export function apiResponseOf<S extends ZodTypeAny>(schema: S): ZodSchema<z.infer<S>> {
   return z
     .object({ data: schema, message: z.string().nullable().optional() })
