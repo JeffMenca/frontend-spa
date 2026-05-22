@@ -17,7 +17,7 @@ export async function GET(
 ): Promise<NextResponse> {
   const { id } = await params;
   try {
-    // TODO(backend-swap): conference GET /institutions/{id} (port 8082)
+    // TODO(conf-service): swap mock when conference GET /institutions/{id} is deployed - tracked in backlog Lane B
     return NextResponse.json(await activeConference.getInstitution(id));
   } catch {
     return internalErrorResponse();
@@ -35,7 +35,7 @@ export async function PUT(
   const { id } = await params;
   try {
     const body: unknown = await request.json();
-    // TODO(backend-swap): conference PUT /institutions/{id} (port 8082)
+    // TODO(conf-service): swap mock when conference PUT /institutions/{id} is deployed - tracked in backlog Lane B
     return NextResponse.json(await activeConference.updateInstitution(id, body, token));
   } catch {
     return internalErrorResponse();
@@ -52,7 +52,7 @@ export async function DELETE(
   if (token === null) return unauthorizedResponse();
   const { id } = await params;
   try {
-    // TODO(backend-swap): conference DELETE /institutions/{id} (port 8082)
+    // TODO(conf-service): swap mock when conference DELETE /institutions/{id} is deployed - tracked in backlog Lane B
     await activeConference.deleteInstitution(id, token);
     return new NextResponse(null, { status: 204 });
   } catch {

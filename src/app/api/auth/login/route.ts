@@ -41,12 +41,18 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       );
     }
 
+    const isNetworkError =
+      error instanceof TypeError &&
+      (error.message.includes("fetch") || error.message.includes("connect"));
+    console.error("[login] Unexpected error:", error);
     return NextResponse.json(
       {
         code: "system.internal_error",
         status: 500,
         title: "Internal Server Error",
-        detail: "An unexpected error occurred.",
+        detail: isNetworkError
+          ? "No se puede conectar al servidor. Verifica que los servicios backend esten corriendo."
+          : "An unexpected error occurred.",
       },
       { status: 500 },
     );

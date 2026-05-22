@@ -22,7 +22,7 @@ export async function GET(
   const { id } = await params;
   try {
     const queryParams = new URL(request.url).searchParams;
-    // TODO(backend-swap): conference GET /calls/{id}/proposals (port 8082)
+    // TODO(conf-service): swap mock when conference GET /calls/{id}/proposals is deployed - tracked in backlog Lane B
     return NextResponse.json(await activeConference.listProposals(id, token, queryParams));
   } catch {
     return internalErrorResponse();
@@ -40,7 +40,7 @@ export async function POST(
   const { id } = await params;
   try {
     const body: unknown = await request.json();
-    // TODO(backend-swap): conference POST /calls/{id}/proposals (port 8082)
+    // TODO(conf-service): swap mock when conference POST /calls/{id}/proposals is deployed - tracked in backlog Lane B
     return NextResponse.json(await activeConference.createProposal(id, body, token), { status: 201 });
   } catch {
     return internalErrorResponse();

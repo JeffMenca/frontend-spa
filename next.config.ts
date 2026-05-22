@@ -4,10 +4,7 @@ const nextConfig: NextConfig = {
   output: "standalone",
   reactStrictMode: true,
   env: {
-    NEXT_PUBLIC_IAM_URL: process.env["NEXT_PUBLIC_IAM_URL"] ?? "http://localhost:8081",
-    NEXT_PUBLIC_CONFERENCE_URL:
-      process.env["NEXT_PUBLIC_CONFERENCE_URL"] ?? "http://localhost:8082",
-    NEXT_PUBLIC_WALLET_URL: process.env["NEXT_PUBLIC_WALLET_URL"] ?? "http://localhost:8083",
+    GATEWAY_URL: process.env["GATEWAY_URL"] ?? "http://localhost:8080",
   },
 };
 

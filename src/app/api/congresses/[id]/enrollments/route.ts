@@ -4,8 +4,13 @@ import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { getSession } from "@/lib/auth/session";
 import { activeConference } from "@/lib/api/active-conference";
-import { unauthorizedResponse, internalErrorResponse } from "@/lib/api/responses";
+import {
+  unauthorizedResponse,
+  internalErrorResponse,
+  forbiddenResponse,
+} from "@/lib/api/responses";
 import { randomUUID } from "crypto";
+import { CreateEnrollmentSchema } from "@/lib/validators/enrollment";
 
 async function getToken(): Promise<string | null> {
   const cookieStore = await cookies();
@@ -22,7 +27,7 @@ export async function GET(
   if (token === null) return unauthorizedResponse();
   const { id } = await params;
   try {
-    // TODO(backend-swap): conference GET /congresses/{id}/enrollments (port 8082)
+    // TODO(conf-service): swap mock when conference GET /congresses/{id}/enrollments is deployed - tracked in backlog Lane B
     return NextResponse.json(await activeConference.getCongressEnrollments(id, token));
   } catch {
     return internalErrorResponse();
@@ -39,12 +44,19 @@ export async function POST(
   if (token === null) return unauthorizedResponse();
   const { id } = await params;
   try {
-    const body: unknown = await request.json();
+    const rawBody: unknown = await request.json();
+    const parsed = CreateEnrollmentSchema.safeParse(rawBody);
+    if (!parsed.success) {
+      return NextResponse.json(
+        { code: "validation.failed", status: 400, errors: parsed.error.flatten() },
+        { status: 400 },
+      );
+    }
     // GAP-10: BFF generates the idempotency key
     const idempotencyKey = randomUUID();
-    // TODO(backend-swap): conference POST /congresses/{id}/enrollments (port 8082)
+    // TODO(conf-service): swap mock when conference-service is deployed - tracked in backlog Lane B
     return NextResponse.json(
-      await activeConference.enrollInCongress(id, body, token, idempotencyKey),
+      await activeConference.enrollInCongress(id, parsed.data, token, idempotencyKey),
       { status: 201 },
     );
   } catch {

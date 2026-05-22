@@ -142,9 +142,11 @@ export async function listUsers(_token: string, params: URLSearchParams): Promis
     "PARTICIPANT",
     "GUEST_SPEAKER",
   ];
+  const isValidRole = (r: string): r is UserData["roles"][number] =>
+    (VALID_ROLES as ReadonlyArray<string>).includes(r);
   let items = MOCK_USERS;
-  if (role !== null && VALID_ROLES.includes(role as UserData["roles"][number])) {
-    items = items.filter((u) => u.roles.includes(role as UserData["roles"][number]));
+  if (role !== null && isValidRole(role)) {
+    items = items.filter((u) => u.roles.includes(role));
   }
   if (activeParam !== null) {
     const isActive = activeParam === "true";

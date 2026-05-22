@@ -18,7 +18,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   if (token === null) return unauthorizedResponse();
   try {
     const body: unknown = await request.json();
-    // TODO(backend-swap): iam POST /users/guest-speakers (port 8081)
+    // TODO(conf-service): swap mock when iam POST /users/guest-speakers is deployed - tracked in backlog Lane B
     return NextResponse.json(await activeIam.createGuestSpeaker(body, token), { status: 201 });
   } catch {
     return internalErrorResponse();

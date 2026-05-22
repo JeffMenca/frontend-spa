@@ -13,7 +13,12 @@ import {
   type CongressData,
   type CongressListData,
 } from "@/lib/validators/congress";
-import { RoomSchema, RoomListSchema, type RoomData, type RoomListData } from "@/lib/validators/room";
+import {
+  RoomSchema,
+  RoomListSchema,
+  type RoomData,
+  type RoomListData,
+} from "@/lib/validators/room";
 import {
   ActivitySchema,
   ActivityListSchema,
@@ -44,7 +49,12 @@ import {
   type AttendanceData,
   type AttendanceListData,
 } from "@/lib/validators/attendance";
-import { CallSchema, CallListSchema, type CallData, type CallListData } from "@/lib/validators/call";
+import {
+  CallSchema,
+  CallListSchema,
+  type CallData,
+  type CallListData,
+} from "@/lib/validators/call";
 import {
   CommitteeMemberSchema,
   CommitteeMemberListSchema,
@@ -73,10 +83,8 @@ import {
 } from "@/lib/validators/reports";
 import { z } from "zod";
 
-const CONFERENCE_URL =
-  process.env["CONFERENCE_INTERNAL_URL"] ??
-  process.env["NEXT_PUBLIC_CONFERENCE_URL"] ??
-  "http://localhost:8082";
+const GATEWAY = process.env["GATEWAY_URL"] ?? "http://localhost:8080";
+const CONFERENCE_URL = `${GATEWAY}/api/v1`;
 
 // --- Institutions ---
 
@@ -154,7 +162,10 @@ export async function deleteCongress(id: string, token: string): Promise<void> {
 
 // --- Rooms ---
 
-export async function listRooms(congressId: string, params: URLSearchParams): Promise<RoomListData> {
+export async function listRooms(
+  congressId: string,
+  params: URLSearchParams,
+): Promise<RoomListData> {
   return apiFetch(
     `${CONFERENCE_URL}/congresses/${congressId}/rooms?${params.toString()}`,
     RoomListSchema,
@@ -165,7 +176,11 @@ export async function getRoom(id: string): Promise<RoomData> {
   return apiFetch(`${CONFERENCE_URL}/rooms/${id}`, RoomSchema);
 }
 
-export async function createRoom(congressId: string, data: unknown, token: string): Promise<RoomData> {
+export async function createRoom(
+  congressId: string,
+  data: unknown,
+  token: string,
+): Promise<RoomData> {
   return apiFetch(`${CONFERENCE_URL}/congresses/${congressId}/rooms`, RoomSchema, {
     method: "POST",
     body: data,
@@ -249,10 +264,7 @@ export async function listProposals(
   );
 }
 
-export async function getUserProposals(
-  userId: string,
-  token: string,
-): Promise<ProposalListData> {
+export async function getUserProposals(userId: string, token: string): Promise<ProposalListData> {
   return apiFetch(`${CONFERENCE_URL}/users/${userId}/proposals`, ProposalListSchema, { token });
 }
 
@@ -290,16 +302,12 @@ export async function enrollInCongress(
   token: string,
   idempotencyKey: string,
 ): Promise<EnrollmentData> {
-  return apiFetch(
-    `${CONFERENCE_URL}/congresses/${congressId}/enrollments`,
-    EnrollmentSchema,
-    {
-      method: "POST",
-      body: data,
-      token,
-      idempotencyKey,
-    },
-  );
+  return apiFetch(`${CONFERENCE_URL}/congresses/${congressId}/enrollments`, EnrollmentSchema, {
+    method: "POST",
+    body: data,
+    token,
+    idempotencyKey,
+  });
 }
 
 export async function getUserEnrollments(
@@ -313,19 +321,14 @@ export async function getCongressEnrollments(
   congressId: string,
   token: string,
 ): Promise<EnrollmentListData> {
-  return apiFetch(
-    `${CONFERENCE_URL}/congresses/${congressId}/enrollments`,
-    EnrollmentListSchema,
-    { token },
-  );
+  return apiFetch(`${CONFERENCE_URL}/congresses/${congressId}/enrollments`, EnrollmentListSchema, {
+    token,
+  });
 }
 
 // --- Reservations ---
 
-export async function reserveActivity(
-  activityId: string,
-  token: string,
-): Promise<ReservationData> {
+export async function reserveActivity(activityId: string, token: string): Promise<ReservationData> {
   return apiFetch(`${CONFERENCE_URL}/activities/${activityId}/reservations`, ReservationSchema, {
     method: "POST",
     token,
@@ -361,10 +364,7 @@ export async function cancelReservation(id: string, token: string): Promise<void
 
 // --- Attendance ---
 
-export async function registerAttendance(
-  data: unknown,
-  token: string,
-): Promise<AttendanceData> {
+export async function registerAttendance(data: unknown, token: string): Promise<AttendanceData> {
   return apiFetch(`${CONFERENCE_URL}/attendance/register`, AttendanceSchema, {
     method: "POST",
     body: data,
@@ -376,11 +376,9 @@ export async function listAttendance(
   token: string,
   params: URLSearchParams,
 ): Promise<AttendanceListData> {
-  return apiFetch(
-    `${CONFERENCE_URL}/attendance?${params.toString()}`,
-    AttendanceListSchema,
-    { token },
-  );
+  return apiFetch(`${CONFERENCE_URL}/attendance?${params.toString()}`, AttendanceListSchema, {
+    token,
+  });
 }
 
 // --- Calls ---
@@ -439,19 +437,15 @@ export async function removeCommitteeMember(
   userId: string,
   token: string,
 ): Promise<void> {
-  await apiFetch(
-    `${CONFERENCE_URL}/congresses/${congressId}/committee/${userId}`,
-    z.unknown(),
-    { method: "DELETE", token },
-  );
+  await apiFetch(`${CONFERENCE_URL}/congresses/${congressId}/committee/${userId}`, z.unknown(), {
+    method: "DELETE",
+    token,
+  });
 }
 
 // --- Diplomas ---
 
-export async function getDiplomasByUser(
-  userId: string,
-  token: string,
-): Promise<DiplomaListData> {
+export async function getDiplomasByUser(userId: string, token: string): Promise<DiplomaListData> {
   return apiFetch(`${CONFERENCE_URL}/users/${userId}/diplomas`, DiplomaListSchema, { token });
 }
 
@@ -515,11 +509,9 @@ export async function getPlatformEarningsReport(
   token: string,
   params: URLSearchParams,
 ): Promise<EarningsReportData> {
-  return apiFetch(
-    `${CONFERENCE_URL}/reports/earnings?${params.toString()}`,
-    EarningsReportSchema,
-    { token },
-  );
+  return apiFetch(`${CONFERENCE_URL}/reports/earnings?${params.toString()}`, EarningsReportSchema, {
+    token,
+  });
 }
 
 export async function getCongressesByInstitutionReport(

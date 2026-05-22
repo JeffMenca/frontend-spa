@@ -22,7 +22,7 @@ export async function GET(
   if (token === null) return unauthorizedResponse();
   const { id } = await params;
   try {
-    // TODO(backend-swap): iam GET /users/{id} (port 8081)
+    // TODO(conf-service): swap mock when iam GET /users/{id} is deployed - tracked in backlog Lane B
     return NextResponse.json(await activeIam.getUserById(id, token));
   } catch {
     return internalErrorResponse();
@@ -47,7 +47,7 @@ export async function PUT(
         { status: 400 },
       );
     }
-    // TODO(backend-swap): iam PUT /users/{id} (port 8081)
+    // TODO(conf-service): swap mock when iam PUT /users/{id} is deployed - tracked in backlog Lane B
     return NextResponse.json(await activeIam.updateUser(id, parsed.data, token));
   } catch {
     return internalErrorResponse();

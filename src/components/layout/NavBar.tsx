@@ -22,22 +22,9 @@ function getNavLinks(session: Session | null): NavLink[] {
 
   const roles: Role[] = session.roles;
 
-  if (roles.includes("SYSTEM_ADMIN")) {
-    return [
-      { href: "/system-admin", label: "Inicio" },
-      { href: "/system-admin/users", label: "Usuarios" },
-      { href: "/system-admin/institutions", label: "Instituciones" },
-      { href: "/system-admin/config", label: "Configuracion" },
-      { href: "/system-admin/reports", label: "Reportes" },
-    ];
-  }
-
-  if (roles.includes("CONGRESS_ADMIN")) {
-    return [
-      { href: "/congress-admin", label: "Inicio" },
-      { href: "/congress-admin/congresses", label: "Mis congresos" },
-      { href: "/congress-admin/reports", label: "Reportes" },
-    ];
+  // Sidebar roles — navigation already covered by the sidebar
+  if (roles.includes("SYSTEM_ADMIN") || roles.includes("CONGRESS_ADMIN")) {
+    return [];
   }
 
   if (roles.includes("PARTICIPANT") || roles.includes("GUEST_SPEAKER")) {
@@ -74,7 +61,7 @@ export async function NavBar(): Promise<React.ReactElement> {
             <Bug size={18} strokeWidth={2} />
           </span>
           <span className="font-sans text-xl font-medium">
-            <span className="text-[var(--color-text-primary-black)]">Code </span>
+            <span className="text-[var(--color-text-primary-black)]">Congress </span>
             <span className="text-[var(--color-primary-text)]">n</span>
             <span className="text-[var(--color-text-primary-black)]"> Bugs</span>
           </span>
