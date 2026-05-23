@@ -14,7 +14,6 @@ async function getToken(): Promise<string | null> {
 export async function GET(request: NextRequest): Promise<NextResponse> {
   try {
     const params = new URL(request.url).searchParams;
-    // TODO(conf-service): swap mock when conference GET /institutions is deployed - tracked in backlog Lane B
     return NextResponse.json(await activeConference.listInstitutions(params));
   } catch {
     return internalErrorResponse();
@@ -28,7 +27,6 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   if (token === null) return unauthorizedResponse();
   try {
     const body: unknown = await request.json();
-    // TODO(conf-service): swap mock when conference POST /institutions is deployed - tracked in backlog Lane B
     return NextResponse.json(await activeConference.createInstitution(body, token), { status: 201 });
   } catch {
     return internalErrorResponse();

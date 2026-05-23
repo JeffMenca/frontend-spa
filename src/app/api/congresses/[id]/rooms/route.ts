@@ -22,7 +22,6 @@ export async function GET(
   const { id } = await params;
   try {
     const queryParams = new URL(request.url).searchParams;
-    // TODO(conf-service): swap mock when conference GET /congresses/{id}/rooms is deployed - tracked in backlog Lane B
     return NextResponse.json(await activeConference.listRooms(id, queryParams));
   } catch {
     return internalErrorResponse();
@@ -41,7 +40,6 @@ export async function POST(
   const { id } = await params;
   try {
     const body: unknown = await request.json();
-    // TODO(conf-service): swap mock when conference POST /congresses/{id}/rooms is deployed - tracked in backlog Lane B
     return NextResponse.json(await activeConference.createRoom(id, body, token), { status: 201 });
   } catch {
     return internalErrorResponse();
