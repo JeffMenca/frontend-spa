@@ -5,6 +5,7 @@ import { cookies } from "next/headers";
 import { getSession } from "@/lib/auth/session";
 import { activeIam } from "@/lib/api/active-iam";
 import { unauthorizedResponse, internalErrorResponse } from "@/lib/api/responses";
+import { ApplicationError } from "@/types/error";
 
 async function getToken(): Promise<string | null> {
   const cookieStore = await cookies();
@@ -18,9 +19,14 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   if (token === null) return unauthorizedResponse();
   try {
     const body: unknown = await request.json();
-    // TODO(conf-service): swap mock when iam POST /users/system-admins is deployed - tracked in backlog Lane B
     return NextResponse.json(await activeIam.createSystemAdmin(body, token), { status: 201 });
-  } catch {
+  } catch (error) {
+    if (error instanceof ApplicationError) {
+      return NextResponse.json(
+        { code: error.code, status: error.status, title: "Error", detail: error.message },
+        { status: error.status },
+      );
+    }
     return internalErrorResponse();
   }
 }

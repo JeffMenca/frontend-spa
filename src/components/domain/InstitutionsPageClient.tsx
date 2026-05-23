@@ -1,12 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
-import { Building2, Pencil, Plus } from "lucide-react";
+import { Building2, Pencil, Plus, Search, X } from "lucide-react";
 import type { InstitutionData } from "@/lib/validators/institution";
 import { PageHeader } from "@/components/ui/page-header";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { InstitutionFormDialog } from "@/components/domain/InstitutionFormDialog";
 import { DeleteInstitutionDialog } from "@/components/domain/DeleteInstitutionDialog";
 
@@ -14,12 +15,35 @@ interface InstitutionsPageClientProps {
   institutions: InstitutionData[];
 }
 
+type StatusFilter = "ALL" | "active" | "inactive";
+
 export function InstitutionsPageClient({
   institutions,
 }: InstitutionsPageClientProps): React.ReactElement {
   const router = useRouter();
   const [createOpen, setCreateOpen] = useState(false);
   const [editTarget, setEditTarget] = useState<InstitutionData | null>(null);
+  const [search, setSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>("ALL");
+
+  const filteredInstitutions = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    return institutions.filter((inst) => {
+      if (q !== "" && !inst.name.toLowerCase().includes(q) && !inst.contactEmail.toLowerCase().includes(q)) {
+        return false;
+      }
+      if (statusFilter === "active" && !inst.active) return false;
+      if (statusFilter === "inactive" && inst.active) return false;
+      return true;
+    });
+  }, [institutions, search, statusFilter]);
+
+  const hasActiveFilters = search !== "" || statusFilter !== "ALL";
+
+  const clearFilters = (): void => {
+    setSearch("");
+    setStatusFilter("ALL");
+  };
 
   const handleSuccess = (): void => {
     setCreateOpen(false);
@@ -44,18 +68,56 @@ export function InstitutionsPageClient({
         }
       />
 
-      {institutions.length === 0 ? (
+      <div className="flex flex-wrap items-center gap-3">
+        <div className="relative flex-1 min-w-[200px] max-w-sm">
+          <Search
+            className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--color-text-secondary)]"
+            strokeWidth={1.5}
+          />
+          <Input
+            data-testid="institutions-search"
+            placeholder="Buscar por nombre o correo..."
+            value={search}
+            onChange={(e) => { setSearch(e.target.value); }}
+            className="pl-9 h-10"
+          />
+        </div>
+        <select
+          data-testid="institutions-status-filter"
+          value={statusFilter}
+          onChange={(e) => { setStatusFilter(e.target.value as StatusFilter); }}
+          className="h-10 rounded-md border border-[var(--color-border)] bg-[var(--color-white)] px-3 font-secondary text-sm text-[var(--color-text-primary)] focus:border-[var(--color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-focus-ring)] cursor-pointer"
+        >
+          <option value="ALL">Todos los estados</option>
+          <option value="active">Activas</option>
+          <option value="inactive">Inactivas</option>
+        </select>
+        {hasActiveFilters && (
+          <button
+            data-testid="institutions-clear-filters"
+            onClick={clearFilters}
+            className="flex cursor-pointer items-center gap-1 rounded-md px-3 h-10 font-secondary text-sm text-[var(--color-text-secondary)] hover:bg-[var(--color-surface)] transition-colors duration-200"
+          >
+            <X className="h-3.5 w-3.5" strokeWidth={2} />
+            Limpiar
+          </button>
+        )}
+      </div>
+
+      {filteredInstitutions.length === 0 ? (
         <EmptyState
           icon={<Building2 className="h-6 w-6" strokeWidth={1.5} />}
-          title="Sin instituciones registradas"
-          description="Crea la primera institucion para comenzar."
+          title={hasActiveFilters ? "Sin resultados" : "Sin instituciones registradas"}
+          description={hasActiveFilters ? "Intenta con otros filtros de busqueda." : "Crea la primera institucion para comenzar."}
           action={
-            <Button
-              onClick={() => { setCreateOpen(true); }}
-              className="bg-[var(--color-primary)] text-white hover:bg-[var(--color-primary)]/90 min-h-[44px]"
-            >
-              Nueva institucion
-            </Button>
+            !hasActiveFilters ? (
+              <Button
+                onClick={() => { setCreateOpen(true); }}
+                className="bg-[var(--color-primary)] text-white hover:bg-[var(--color-primary)]/90 min-h-[44px]"
+              >
+                Nueva institucion
+              </Button>
+            ) : undefined
           }
         />
       ) : (
@@ -81,7 +143,7 @@ export function InstitutionsPageClient({
               </tr>
             </thead>
             <tbody>
-              {institutions.map((inst, idx) => (
+              {filteredInstitutions.map((inst, idx) => (
                 <tr
                   key={inst.id}
                   className={

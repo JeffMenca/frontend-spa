@@ -7,7 +7,6 @@ import { activeConference } from "@/lib/api/active-conference";
 import {
   unauthorizedResponse,
   internalErrorResponse,
-  forbiddenResponse,
 } from "@/lib/api/responses";
 import { randomUUID } from "crypto";
 import { CreateEnrollmentSchema } from "@/lib/validators/enrollment";

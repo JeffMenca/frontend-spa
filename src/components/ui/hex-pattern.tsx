@@ -19,7 +19,7 @@ interface HexPatternProps {
 export function HexPattern({
   size = 24,
   opacity = 0.1,
-  stroke = "white",
+  stroke = "var(--color-white)",
   className,
 }: HexPatternProps): React.ReactElement {
   const id = useId();

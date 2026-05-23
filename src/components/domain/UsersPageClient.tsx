@@ -1,9 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Plus, Users } from "lucide-react";
+import { Plus, Users, Search, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import {
   CreateSystemAdminSchema,
@@ -344,6 +344,9 @@ function CongressAdminForm({
   );
 }
 
+type RoleFilter = "ALL" | "SYSTEM_ADMIN" | "CONGRESS_ADMIN" | "PARTICIPANT" | "GUEST_SPEAKER";
+type StatusFilter = "ALL" | "active" | "inactive";
+
 export function UsersPageClient({
   users,
   institutions,
@@ -352,6 +355,30 @@ export function UsersPageClient({
   const [dialogMode, setDialogMode] = useState<DialogMode>("none");
   const [actionLoading, setActionLoading] = useState<string | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
+  const [search, setSearch] = useState("");
+  const [roleFilter, setRoleFilter] = useState<RoleFilter>("ALL");
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>("ALL");
+
+  const filteredUsers = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    return users.filter((u) => {
+      if (q !== "" && !u.fullName.toLowerCase().includes(q) && !u.email.toLowerCase().includes(q)) {
+        return false;
+      }
+      if (roleFilter !== "ALL" && !u.roles.includes(roleFilter)) return false;
+      if (statusFilter === "active" && !u.active) return false;
+      if (statusFilter === "inactive" && u.active) return false;
+      return true;
+    });
+  }, [users, search, roleFilter, statusFilter]);
+
+  const clearFilters = (): void => {
+    setSearch("");
+    setRoleFilter("ALL");
+    setStatusFilter("ALL");
+  };
+
+  const hasActiveFilters = search !== "" || roleFilter !== "ALL" || statusFilter !== "ALL";
 
   const closeDialog = (): void => {
     setDialogMode("none");
@@ -407,15 +434,63 @@ export function UsersPageClient({
         }
       />
 
+      <div className="flex flex-wrap items-center gap-3">
+        <div className="relative flex-1 min-w-[200px] max-w-sm">
+          <Search
+            className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--color-text-secondary)]"
+            strokeWidth={1.5}
+          />
+          <Input
+            data-testid="users-search"
+            placeholder="Buscar por nombre o correo..."
+            value={search}
+            onChange={(e) => { setSearch(e.target.value); }}
+            className="pl-9 h-10"
+          />
+        </div>
+        <select
+          data-testid="users-role-filter"
+          value={roleFilter}
+          onChange={(e) => { setRoleFilter(e.target.value as RoleFilter); }}
+          className="h-10 rounded-md border border-[var(--color-border)] bg-[var(--color-white)] px-3 font-secondary text-sm text-[var(--color-text-primary)] focus:border-[var(--color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-focus-ring)] cursor-pointer"
+        >
+          <option value="ALL">Todos los roles</option>
+          <option value="SYSTEM_ADMIN">Admin. Sistema</option>
+          <option value="CONGRESS_ADMIN">Admin. Congreso</option>
+          <option value="PARTICIPANT">Participante</option>
+          <option value="GUEST_SPEAKER">Ponente Invitado</option>
+        </select>
+        <select
+          data-testid="users-status-filter"
+          value={statusFilter}
+          onChange={(e) => { setStatusFilter(e.target.value as StatusFilter); }}
+          className="h-10 rounded-md border border-[var(--color-border)] bg-[var(--color-white)] px-3 font-secondary text-sm text-[var(--color-text-primary)] focus:border-[var(--color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-focus-ring)] cursor-pointer"
+        >
+          <option value="ALL">Todos los estados</option>
+          <option value="active">Activos</option>
+          <option value="inactive">Inactivos</option>
+        </select>
+        {hasActiveFilters && (
+          <button
+            data-testid="users-clear-filters"
+            onClick={clearFilters}
+            className="flex cursor-pointer items-center gap-1 rounded-md px-3 h-10 font-secondary text-sm text-[var(--color-text-secondary)] hover:bg-[var(--color-surface)] transition-colors duration-200"
+          >
+            <X className="h-3.5 w-3.5" strokeWidth={2} />
+            Limpiar
+          </button>
+        )}
+      </div>
+
       {actionError !== null && (
         <p className="font-secondary text-sm text-[var(--color-error)]">{actionError}</p>
       )}
 
-      {users.length === 0 ? (
+      {filteredUsers.length === 0 ? (
         <EmptyState
           icon={<Users className="h-6 w-6" strokeWidth={1.5} />}
-          title="Sin usuarios registrados"
-          description="Crea un nuevo administrador para comenzar."
+          title={hasActiveFilters ? "Sin resultados" : "Sin usuarios registrados"}
+          description={hasActiveFilters ? "Intenta con otros filtros de busqueda." : "Crea un nuevo administrador para comenzar."}
         />
       ) : (
         <div
@@ -443,7 +518,7 @@ export function UsersPageClient({
               </tr>
             </thead>
             <tbody>
-              {users.map((user, idx) => (
+              {filteredUsers.map((user, idx) => (
                 <tr
                   key={user.id}
                   data-testid="user-row"
