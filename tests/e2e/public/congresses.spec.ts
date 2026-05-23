@@ -1,11 +1,21 @@
 // Critical flow 3: Browse and view congress detail
 import { test, expect } from "@playwright/test";
+import AxeBuilder from "@axe-core/playwright";
 import { MOCK_IDS } from "../helpers/auth";
 
 test.describe("Public congresses page", () => {
   test("congresses page renders without error", async ({ page }) => {
     await page.goto("/congresses");
     await expect(page.getByTestId("congresses-page")).toBeVisible();
+  });
+
+  test("congresses page has no critical accessibility violations", async ({ page }) => {
+    await page.goto("/congresses");
+    await expect(page.getByTestId("congresses-page")).toBeVisible();
+    const results = await new AxeBuilder({ page })
+      .withTags(["wcag2a", "wcag2aa"])
+      .analyze();
+    expect(results.violations).toEqual([]);
   });
 
   test("congresses page has a heading", async ({ page }) => {

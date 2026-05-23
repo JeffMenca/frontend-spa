@@ -1,10 +1,20 @@
 // Critical flow 1: Self-registration as participant
 import { test, expect } from "@playwright/test";
+import AxeBuilder from "@axe-core/playwright";
 
 test.describe("Self-registration", () => {
   test("register page renders correctly", async ({ page }) => {
     await page.goto("/register");
     await expect(page.getByTestId("register-page")).toBeVisible();
+  });
+
+  test("register page has no critical accessibility violations", async ({ page }) => {
+    await page.goto("/register");
+    await expect(page.getByTestId("register-page")).toBeVisible();
+    const results = await new AxeBuilder({ page })
+      .withTags(["wcag2a", "wcag2aa"])
+      .analyze();
+    expect(results.violations).toEqual([]);
   });
 
   test("shows validation errors when submitting empty form", async ({
