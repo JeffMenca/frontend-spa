@@ -15,15 +15,19 @@ export function PageHeader({ title, description, action, className }: PageHeader
         className,
       )}
     >
-      <div className="flex flex-col gap-1">
-        <h1 className="font-sans text-2xl font-medium text-[var(--color-text-primary-black)]">
-          {title}
-        </h1>
-        {description !== undefined && (
-          <p className="font-secondary text-sm text-[var(--color-text-secondary)]">
-            {description}
-          </p>
-        )}
+      {/* Left accent bar + title block */}
+      <div className="flex gap-3">
+        <div className="w-1 shrink-0 self-stretch rounded-full bg-[var(--color-primary)]" />
+        <div className="flex flex-col gap-1">
+          <h1 className="font-sans text-2xl font-medium text-[var(--color-text-primary-black)]">
+            {title}
+          </h1>
+          {description !== undefined && (
+            <p className="font-secondary text-sm text-[var(--color-text-secondary)]">
+              {description}
+            </p>
+          )}
+        </div>
       </div>
       {action !== undefined && <div className="shrink-0">{action}</div>}
     </div>

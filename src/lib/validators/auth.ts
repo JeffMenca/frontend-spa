@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { UserSchema } from "@/lib/validators/user";
 
 export const LoginRequestSchema = z.object({
   email: z.string().email("Correo electronico invalido"),
@@ -18,6 +19,19 @@ export const RegisterRequestSchema = z.object({
   photoUrl: z.string().url("URL de foto invalida").optional(),
 });
 
+// Used by POST /auth/login and POST /users/register — IAM returns tokens + user profile.
+export const IamAuthResponseSchema = z.object({
+  accessToken: z.string().min(1),
+  refreshToken: z.string().min(1),
+  user: UserSchema,
+});
+
+// Used by POST /auth/refresh — IAM only returns a new access token.
+export const RefreshResponseSchema = z.object({
+  accessToken: z.string().min(1),
+});
+
+// Legacy alias kept for the mock (mock still returns { accessToken, refreshToken }).
 export const AuthResponseSchema = z.object({
   accessToken: z.string().min(1),
   refreshToken: z.string().min(1),
@@ -36,5 +50,7 @@ export const SessionSchema = z.object({
 
 export type LoginRequest = z.infer<typeof LoginRequestSchema>;
 export type RegisterRequest = z.infer<typeof RegisterRequestSchema>;
+export type IamAuthResponseData = z.infer<typeof IamAuthResponseSchema>;
+export type RefreshResponseData = z.infer<typeof RefreshResponseSchema>;
 export type AuthResponseData = z.infer<typeof AuthResponseSchema>;
 export type SessionData = z.infer<typeof SessionSchema>;

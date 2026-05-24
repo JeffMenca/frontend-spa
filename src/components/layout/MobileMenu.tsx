@@ -33,14 +33,10 @@ export function MobileMenu({ links, session }: MobileMenuProps): React.ReactElem
         <Menu size={20} strokeWidth={1.5} />
       </SheetTrigger>
 
-      <SheetContent
-        side="left"
-        className="w-[280px] p-0"
-        data-testid="mobile-menu-content"
-      >
+      <SheetContent side="left" className="w-[280px] p-0" data-testid="mobile-menu-content">
         <SheetHeader className="border-b border-[var(--color-border)] px-6 py-4">
           <SheetTitle className="font-sans text-xl font-medium text-[var(--color-primary-text)]">
-            Code n Bugs
+            Congress n Bugs
           </SheetTitle>
         </SheetHeader>
 
@@ -55,11 +51,7 @@ export function MobileMenu({ links, session }: MobileMenuProps): React.ReactElem
           </div>
         )}
 
-        <nav
-          className="py-2"
-          aria-label="Navegacion movil"
-          data-testid="mobile-menu-nav"
-        >
+        <nav className="py-2" aria-label="Navegacion movil" data-testid="mobile-menu-nav">
           {links.map((link, index) => (
             <Link
               key={link.href}

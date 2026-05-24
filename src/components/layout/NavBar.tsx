@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Bug } from "lucide-react";
 import { getSession } from "@/lib/auth/session";
 import { UserMenu } from "./UserMenu";
 import { MobileMenu } from "./MobileMenu";
@@ -21,22 +22,9 @@ function getNavLinks(session: Session | null): NavLink[] {
 
   const roles: Role[] = session.roles;
 
-  if (roles.includes("SYSTEM_ADMIN")) {
-    return [
-      { href: "/system-admin", label: "Inicio" },
-      { href: "/system-admin/users", label: "Usuarios" },
-      { href: "/system-admin/institutions", label: "Instituciones" },
-      { href: "/system-admin/config", label: "Configuracion" },
-      { href: "/system-admin/reports", label: "Reportes" },
-    ];
-  }
-
-  if (roles.includes("CONGRESS_ADMIN")) {
-    return [
-      { href: "/congress-admin", label: "Inicio" },
-      { href: "/congress-admin/congresses", label: "Mis congresos" },
-      { href: "/congress-admin/reports", label: "Reportes" },
-    ];
+  // Sidebar roles — navigation already covered by the sidebar
+  if (roles.includes("SYSTEM_ADMIN") || roles.includes("CONGRESS_ADMIN")) {
+    return [];
   }
 
   if (roles.includes("PARTICIPANT") || roles.includes("GUEST_SPEAKER")) {
@@ -59,17 +47,24 @@ export async function NavBar(): Promise<React.ReactElement> {
 
   return (
     <header
-      className="sticky top-0 z-50 h-[60px] border-b border-[var(--color-border)] bg-[var(--color-white)] transition-colors duration-300"
+      className="sticky top-0 z-50 h-[60px] border-b border-[var(--color-border)] bg-[var(--color-white)] shadow-[var(--shadow-raised)] transition-colors duration-300"
       data-testid="navbar"
     >
       <div className="mx-auto flex h-full max-w-[var(--container-max)] items-center justify-between px-6">
-        {/* Wordmark */}
+        {/* Wordmark with bug icon */}
         <Link
           href="/"
-          className="font-sans text-xl font-medium text-[var(--color-primary-text)] no-underline transition-opacity duration-200 hover:opacity-80"
+          className="flex items-center gap-2.5 no-underline transition-opacity duration-200 hover:opacity-90"
           data-testid="navbar-wordmark"
         >
-          Code n Bugs
+          <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-[var(--color-primary)] text-white shadow-[var(--shadow-elevated)] transition-transform duration-200 hover:scale-110">
+            <Bug size={18} strokeWidth={2} />
+          </span>
+          <span className="font-sans text-xl font-medium">
+            <span className="text-[var(--color-text-primary-black)]">Congress </span>
+            <span className="text-[var(--color-primary-text)]">n</span>
+            <span className="text-[var(--color-text-primary-black)]"> Bugs</span>
+          </span>
         </Link>
 
         {/* Desktop navigation */}

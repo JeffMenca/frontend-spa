@@ -10,8 +10,12 @@ export default defineConfig({
     setupFiles: ["./tests/unit/setup.ts"],
     include: ["tests/unit/**/*.test.ts", "tests/unit/**/*.test.tsx"],
     coverage: {
+      provider: "v8",
       include: ["src/lib/**", "src/hooks/**", "src/components/domain/**"],
       exclude: ["src/components/ui/**"],
+      thresholds: {
+        lines: 80,
+      },
     },
     server: {
       deps: {

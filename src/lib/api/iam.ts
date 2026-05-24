@@ -1,64 +1,66 @@
 import "server-only";
 
-import { apiFetch } from "./client";
+import { z } from "zod";
+import { apiFetch, apiResponseOf } from "./client";
 import {
-  AuthResponseSchema,
-  type AuthResponseData,
+  IamAuthResponseSchema,
+  RefreshResponseSchema,
+  type IamAuthResponseData,
+  type RefreshResponseData,
   type LoginRequest,
   type RegisterRequest,
 } from "@/lib/validators/auth";
 import { UserSchema, UserListSchema, type UserData, type UserListData } from "@/lib/validators/user";
-import { z } from "zod";
 
-const IAM_URL =
-  process.env["IAM_INTERNAL_URL"] ?? process.env["NEXT_PUBLIC_IAM_URL"] ?? "http://localhost:8081";
+// All traffic goes through the API Gateway at :8080, which load-balances to lb://iam-service.
+// The gateway strips nothing — paths passed here must include the /api/v1 prefix.
+const GATEWAY = process.env["GATEWAY_URL"] ?? "http://localhost:8080";
+const BASE = `${GATEWAY}/api/v1`;
 
 // --- Auth ---
 
-export async function loginUser(data: LoginRequest): Promise<AuthResponseData> {
-  return apiFetch(`${IAM_URL}/auth/login`, AuthResponseSchema, {
+export async function loginUser(data: LoginRequest): Promise<IamAuthResponseData> {
+  return apiFetch(`${BASE}/auth/login`, apiResponseOf(IamAuthResponseSchema), {
     method: "POST",
     body: data,
   });
 }
 
-export async function logoutUser(token: string): Promise<void> {
-  await apiFetch(`${IAM_URL}/auth/logout`, z.unknown(), {
+// IAM requires the refresh token in the request body to invalidate it on the server.
+export async function logoutUser(accessToken: string, refreshToken: string): Promise<void> {
+  await apiFetch(`${BASE}/auth/logout`, apiResponseOf(z.unknown()), {
     method: "POST",
-    token,
+    token: accessToken,
+    body: { refreshToken },
   });
 }
 
-export async function refreshToken(refreshToken: string): Promise<AuthResponseData> {
-  return apiFetch(`${IAM_URL}/auth/refresh`, AuthResponseSchema, {
+export async function refreshToken(token: string): Promise<RefreshResponseData> {
+  return apiFetch(`${BASE}/auth/refresh`, apiResponseOf(RefreshResponseSchema), {
     method: "POST",
-    body: { refreshToken },
+    body: { refreshToken: token },
   });
 }
 
 // --- Users ---
 
-export async function registerParticipant(data: RegisterRequest): Promise<UserData> {
-  return apiFetch(`${IAM_URL}/users/register`, UserSchema, {
+export async function registerParticipant(data: RegisterRequest): Promise<IamAuthResponseData> {
+  return apiFetch(`${BASE}/users/register`, apiResponseOf(IamAuthResponseSchema), {
     method: "POST",
     body: data,
   });
 }
 
 export async function getMe(token: string): Promise<UserData> {
-  return apiFetch(`${IAM_URL}/users/me`, UserSchema, { token });
+  return apiFetch(`${BASE}/users/me`, apiResponseOf(UserSchema), { token });
 }
 
 export async function getUserById(id: string, token: string): Promise<UserData> {
-  return apiFetch(`${IAM_URL}/users/${id}`, UserSchema, { token });
+  return apiFetch(`${BASE}/users/${id}`, apiResponseOf(UserSchema), { token });
 }
 
-export async function updateUser(
-  id: string,
-  data: Partial<UserData>,
-  token: string,
-): Promise<UserData> {
-  return apiFetch(`${IAM_URL}/users/${id}`, UserSchema, {
+export async function updateUser(id: string, data: unknown, token: string): Promise<UserData> {
+  return apiFetch(`${BASE}/users/${id}`, apiResponseOf(UserSchema), {
     method: "PUT",
     body: data,
     token,
@@ -66,28 +68,25 @@ export async function updateUser(
 }
 
 export async function deactivateUser(id: string, token: string): Promise<void> {
-  await apiFetch(`${IAM_URL}/users/${id}/deactivate`, z.unknown(), {
+  await apiFetch(`${BASE}/users/${id}/deactivate`, apiResponseOf(z.unknown()), {
     method: "PATCH",
     token,
   });
 }
 
 export async function activateUser(id: string, token: string): Promise<void> {
-  await apiFetch(`${IAM_URL}/users/${id}/activate`, z.unknown(), {
+  await apiFetch(`${BASE}/users/${id}/activate`, apiResponseOf(z.unknown()), {
     method: "PATCH",
     token,
   });
 }
 
-export async function listUsers(
-  token: string,
-  params: URLSearchParams,
-): Promise<UserListData> {
-  return apiFetch(`${IAM_URL}/users?${params.toString()}`, UserListSchema, { token });
+export async function listUsers(token: string, params: URLSearchParams): Promise<UserListData> {
+  return apiFetch(`${BASE}/users?${params.toString()}`, apiResponseOf(UserListSchema), { token });
 }
 
 export async function createSystemAdmin(data: unknown, token: string): Promise<UserData> {
-  return apiFetch(`${IAM_URL}/users/system-admins`, UserSchema, {
+  return apiFetch(`${BASE}/users/system-admins`, apiResponseOf(UserSchema), {
     method: "POST",
     body: data,
     token,
@@ -95,7 +94,7 @@ export async function createSystemAdmin(data: unknown, token: string): Promise<U
 }
 
 export async function createCongressAdmin(data: unknown, token: string): Promise<UserData> {
-  return apiFetch(`${IAM_URL}/users/congress-admins`, UserSchema, {
+  return apiFetch(`${BASE}/users/congress-admins`, apiResponseOf(UserSchema), {
     method: "POST",
     body: data,
     token,
@@ -103,20 +102,23 @@ export async function createCongressAdmin(data: unknown, token: string): Promise
 }
 
 export async function createGuestSpeaker(data: unknown, token: string): Promise<UserData> {
-  return apiFetch(`${IAM_URL}/users/guest-speakers`, UserSchema, {
+  return apiFetch(`${BASE}/users/guest-speakers`, apiResponseOf(UserSchema), {
     method: "POST",
     body: data,
     token,
   });
 }
 
+// IAM returns { eligible: boolean }; we map to the name used across the frontend.
 export async function canBeCommitteeMember(
   id: string,
   token: string,
 ): Promise<{ canBeCommittee: boolean }> {
-  return apiFetch(
-    `${IAM_URL}/users/${id}/can-be-committee`,
-    z.object({ canBeCommittee: z.boolean() }),
-    { token },
-  );
+  // The transform changes the input shape — cast keeps strict tsconfig happy.
+  const schema = z
+    .object({ eligible: z.boolean() })
+    .transform((r) => ({ canBeCommittee: r.eligible })) as unknown as z.ZodSchema<{
+    canBeCommittee: boolean;
+  }>;
+  return apiFetch(`${BASE}/users/${id}/can-be-committee`, apiResponseOf(schema), { token });
 }

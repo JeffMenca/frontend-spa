@@ -1,8 +1,10 @@
+import "server-only";
+
 import { NextRequest, NextResponse } from "next/server";
-import { loginUser, getMe } from "@/lib/api/iam";
+import { activeIam } from "@/lib/api/active-iam";
+import { activeWallet } from "@/lib/api/active-wallet";
 import { setAuthCookies } from "@/lib/auth/cookies";
 import { LoginRequestSchema } from "@/lib/validators/auth";
-import { ProblemDetailSchema } from "@/lib/validators/error";
 import { ApplicationError } from "@/types/error";
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
@@ -22,12 +24,24 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       );
     }
 
-    const tokens = await loginUser(parsed.data);
-    const profile = await getMe(tokens.accessToken);
+    // IAM returns tokens + user profile in one response — no extra getMe() call needed.
+    const authResponse = await activeIam.loginUser(parsed.data);
+    await setAuthCookies(authResponse.accessToken, authResponse.refreshToken);
 
-    await setAuthCookies(tokens.accessToken, tokens.refreshToken);
+    // GAP-02: if wallet does not exist yet (creation failed at registration), retry now.
+    try {
+      await activeWallet.getWalletBalance(authResponse.accessToken);
+    } catch (err) {
+      if (err instanceof ApplicationError && err.status === 404) {
+        try {
+          await activeWallet.createWallet(authResponse.user.id, authResponse.accessToken);
+        } catch (walletErr) {
+          console.error("[login] Wallet retry failed for userId", authResponse.user.id, walletErr);
+        }
+      }
+    }
 
-    return NextResponse.json(profile, { status: 200 });
+    return NextResponse.json(authResponse.user, { status: 200 });
   } catch (error) {
     if (error instanceof ApplicationError) {
       return NextResponse.json(
@@ -41,17 +55,18 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       );
     }
 
-    const parsed = ProblemDetailSchema.safeParse(error);
-    if (parsed.success) {
-      return NextResponse.json(parsed.data, { status: parsed.data.status });
-    }
-
+    const isNetworkError =
+      error instanceof TypeError &&
+      (error.message.includes("fetch") || error.message.includes("connect"));
+    console.error("[login] Unexpected error:", error);
     return NextResponse.json(
       {
         code: "system.internal_error",
         status: 500,
         title: "Internal Server Error",
-        detail: "An unexpected error occurred.",
+        detail: isNetworkError
+          ? "No se puede conectar al servidor. Verifica que los servicios backend esten corriendo."
+          : "An unexpected error occurred.",
       },
       { status: 500 },
     );

@@ -2,13 +2,6 @@ import { z } from "zod";
 
 const RoleSchema = z.enum(["SYSTEM_ADMIN", "CONGRESS_ADMIN", "PARTICIPANT", "GUEST_SPEAKER"]);
 
-const ParticipationTypeSchema = z.enum([
-  "ATTENDEE",
-  "SPEAKER",
-  "WORKSHOP_LEADER",
-  "GUEST_SPEAKER",
-]);
-
 export const UserSchema = z.object({
   id: z.string().uuid(),
   email: z.string().email(),
@@ -16,19 +9,19 @@ export const UserSchema = z.object({
   organization: z.string(),
   phone: z.string(),
   personalId: z.string(),
-  photoUrl: z.string().nullable(),
+  photoUrl: z.string().nullable().optional(),
   active: z.boolean(),
   roles: z.array(RoleSchema),
-  linkedInstitutions: z.array(z.string().uuid()),
-  participationTypes: z.array(ParticipationTypeSchema),
-  createdAt: z.string(),
-  updatedAt: z.string(),
+  linkedInstitutions: z.array(z.string().uuid()).default([]),
+  createdAt: z.string().optional(),
+  updatedAt: z.string().optional(),
 });
 
 export const UserListSchema = z.object({
   items: z.array(UserSchema),
   totalItems: z.number().int().nonnegative(),
   totalPages: z.number().int().nonnegative(),
+  currentPage: z.number().int().nonnegative().optional(),
 });
 
 export const CreateSystemAdminSchema = z.object({

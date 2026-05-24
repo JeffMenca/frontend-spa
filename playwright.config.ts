@@ -6,7 +6,7 @@ export default defineConfig({
   forbidOnly: process.env["CI"] !== undefined,
   retries: process.env["CI"] !== undefined ? 2 : 0,
   workers: process.env["CI"] !== undefined ? 1 : 4,
-  reporter: "html",
+  reporter: [["html"], ["json", { outputFile: "test-results/e2e-results.json" }]],
   use: {
     baseURL: "http://localhost:3000",
     trace: "on-first-retry",
@@ -15,6 +15,16 @@ export default defineConfig({
     {
       name: "chromium",
       use: { ...devices["Desktop Chrome"] },
+    },
+    {
+      name: "firefox",
+      use: { ...devices["Desktop Firefox"] },
+      testMatch: ["**/auth/**/*.spec.ts"],
+    },
+    {
+      name: "webkit",
+      use: { ...devices["Desktop Safari"] },
+      testMatch: ["**/auth/**/*.spec.ts"],
     },
   ],
   webServer: {

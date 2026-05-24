@@ -14,10 +14,23 @@
   --color-warning: #fbbc04;
   --color-warning-bg: #fef7e0;
   --color-warning-text: #8b6914;
+  --color-success: #1e7e34;
+  --color-success-text: #166534;
   --color-hover-blue: #a3c9ff;
   --color-focus-ring: #a8c7fa;
   --color-pale-blue: #e5edff;
   --color-soft-blue: #d3e3fd;
+
+  /* ── Insect theme accent colors ── */
+  --color-accent-amber: #f59e0b;
+  --color-accent-amber-bg: #fef3c7;
+  --color-accent-amber-text: #92400e;
+  --color-accent-green: #059669;
+  --color-accent-green-bg: #d1fae5;
+  --color-accent-green-text: #065f46;
+  --color-accent-violet: #7c3aed;
+  --color-accent-violet-bg: #ede9fe;
+  --color-accent-violet-text: #4c1d95;
 
   /* ── Neutral scale ── */
   --color-text-primary-black: #1f1f1f;
@@ -78,6 +91,10 @@
   --animate-slide-in-left: slide-in-left 0.3s ease-out both;
   --animate-scale-in: scale-in 0.25s cubic-bezier(0.34, 1.56, 0.64, 1) both;
   --animate-pulse-soft: pulse-soft 2s ease-in-out infinite;
+  --animate-shimmer: shimmer 1.8s ease-in-out infinite;
+  --animate-float: float 3s ease-in-out infinite;
+  --animate-bounce-gentle: bounce-gentle 2s ease-in-out infinite;
+  --animate-spin-slow: spin 3s linear infinite;
 }
 
 /* ── Keyframe definitions ── */
@@ -111,12 +128,41 @@
   50%       { opacity: 0.6; }
 }
 
+@keyframes shimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50%       { transform: translateY(-8px); }
+}
+
+@keyframes bounce-gentle {
+  0%, 100% { transform: translateY(0); }
+  50%       { transform: translateY(-4px); }
+}
+
 /* ── Stagger delay helpers ── */
 .delay-75  { animation-delay: 75ms; }
 .delay-150 { animation-delay: 150ms; }
 .delay-225 { animation-delay: 225ms; }
 .delay-300 { animation-delay: 300ms; }
 .delay-450 { animation-delay: 450ms; }
+
+/* ── Skeleton shimmer utility ── */
+@layer utilities {
+  .skeleton-shimmer {
+    background: linear-gradient(
+      90deg,
+      var(--color-surface) 0%,
+      var(--color-border) 50%,
+      var(--color-surface) 100%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 1.8s ease-in-out infinite;
+  }
+}
 
 @layer base {
   html {
@@ -210,6 +256,17 @@
   --color-warning: #fdd663;
   --color-warning-bg: #2a1f00;
   --color-warning-text: #fdd663;
+  --color-success: #22c55e;
+  --color-success-text: #4ade80;
+  --color-accent-amber: #fcd34d;
+  --color-accent-amber-bg: #292000;
+  --color-accent-amber-text: #fcd34d;
+  --color-accent-green: #34d399;
+  --color-accent-green-bg: #002918;
+  --color-accent-green-text: #34d399;
+  --color-accent-violet: #a78bfa;
+  --color-accent-violet-bg: #1e1040;
+  --color-accent-violet-text: #a78bfa;
   --shadow-raised: 0 1px 2px rgba(0, 0, 0, 0.3);
   --shadow-elevated: 0 2px 4px rgba(0, 0, 0, 0.4);
   --shadow-high: 0 4px 8px rgba(0, 0, 0, 0.5);
