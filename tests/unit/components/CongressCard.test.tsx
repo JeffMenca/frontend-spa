@@ -1,6 +1,5 @@
 import { render, screen } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
-import { describe, it, expect, vi } from "vitest";
+import { describe, it, expect } from "vitest";
 import { CongressCard } from "@/components/domain/CongressCard";
 import type { CongressSummary } from "@/types/congress";
 
@@ -14,9 +13,7 @@ const MOCK_CONGRESS: CongressSummary = {
   price: 150,
   institutionId: "22222222-0000-0000-0000-000000000001",
   institutionName: "Universidad Galileo",
-  createdBy: "33333333-0000-0000-0000-000000000001",
   createdAt: "2026-01-01T00:00:00Z",
-  updatedAt: "2026-01-01T00:00:00Z",
 };
 
 describe("CongressCard", () => {

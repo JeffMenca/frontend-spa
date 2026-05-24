@@ -28,8 +28,11 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     const authResponse = await activeIam.registerParticipant(parsed.data);
 
     // GAP-02: create wallet after registration (idempotent, best-effort).
+    // Pass the access token so the wallet service can authenticate the call.
     // If this fails, the BFF must retry on the user's first login.
-    activeWallet.createWallet(authResponse.user.id).catch(() => undefined);
+    activeWallet.createWallet(authResponse.user.id, authResponse.accessToken).catch((err) => {
+      console.error("[register] Wallet creation failed for userId", authResponse.user.id, err);
+    });
 
     // Log the user in immediately after successful registration.
     await setAuthCookies(authResponse.accessToken, authResponse.refreshToken);

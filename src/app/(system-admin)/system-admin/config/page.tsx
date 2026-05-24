@@ -15,11 +15,18 @@ export default async function SystemConfigPage(): Promise<React.ReactElement> {
 
   const res = await serverFetch(`${BASE}/api/system/config`, { cache: "no-store" });
 
-  if (res.status === 401) {
+  // Only redirect if the BFF itself has no session (cookie absent/invalid).
+  // A 401 from the downstream wallet service uses the fallback default instead of redirecting.
+  if (res.status === 401 && session === null) {
     redirect("/login");
   }
 
-  const raw = (await res.json()) as unknown;
+  let raw: unknown;
+  try {
+    raw = await res.json();
+  } catch {
+    raw = {};
+  }
   const parsed = SystemConfigSchema.safeParse(raw);
   const currentPercent = parsed.success ? parsed.data.commissionPercent : 10;
 

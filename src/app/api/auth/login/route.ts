@@ -2,6 +2,7 @@ import "server-only";
 
 import { NextRequest, NextResponse } from "next/server";
 import { activeIam } from "@/lib/api/active-iam";
+import { activeWallet } from "@/lib/api/active-wallet";
 import { setAuthCookies } from "@/lib/auth/cookies";
 import { LoginRequestSchema } from "@/lib/validators/auth";
 import { ApplicationError } from "@/types/error";
@@ -26,6 +27,19 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     // IAM returns tokens + user profile in one response — no extra getMe() call needed.
     const authResponse = await activeIam.loginUser(parsed.data);
     await setAuthCookies(authResponse.accessToken, authResponse.refreshToken);
+
+    // GAP-02: if wallet does not exist yet (creation failed at registration), retry now.
+    try {
+      await activeWallet.getWalletBalance(authResponse.accessToken);
+    } catch (err) {
+      if (err instanceof ApplicationError && err.status === 404) {
+        try {
+          await activeWallet.createWallet(authResponse.user.id, authResponse.accessToken);
+        } catch (walletErr) {
+          console.error("[login] Wallet retry failed for userId", authResponse.user.id, walletErr);
+        }
+      }
+    }
 
     return NextResponse.json(authResponse.user, { status: 200 });
   } catch (error) {

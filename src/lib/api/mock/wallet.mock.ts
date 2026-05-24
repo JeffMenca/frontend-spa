@@ -114,7 +114,7 @@ export async function registerPayment(
   return payment;
 }
 
-export async function createWallet(userId: string): Promise<WalletBalanceData> {
+export async function createWallet(userId: string, _token?: string): Promise<WalletBalanceData> {
   await delay();
   return { userId, balance: 0 };
 }

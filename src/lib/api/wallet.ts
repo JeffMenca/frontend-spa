@@ -95,9 +95,10 @@ export async function registerPayment(
   });
 }
 
-export async function createWallet(userId: string): Promise<WalletBalanceData> {
+export async function createWallet(userId: string, token?: string): Promise<WalletBalanceData> {
   return apiFetch(`${WALLET_URL}/wallets`, apiResponseOf(WalletBalanceSchema), {
     method: "POST",
     body: { userId },
+    token,
   });
 }

@@ -7,6 +7,7 @@ export interface Session {
   roles: Role[];
   exp: number;
   iat: number;
+  token: string;
 }
 
 export interface AuthResponse {
