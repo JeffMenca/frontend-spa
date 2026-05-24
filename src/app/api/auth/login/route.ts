@@ -35,8 +35,8 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       if (err instanceof ApplicationError && err.status === 404) {
         try {
           await activeWallet.createWallet(authResponse.user.id, authResponse.accessToken);
-        } catch (walletErr) {
-          console.error("[login] Wallet retry failed for userId", authResponse.user.id, walletErr);
+        } catch {
+          // Wallet retry failed silently; will be retried on next login.
         }
       }
     }
@@ -58,7 +58,6 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     const isNetworkError =
       error instanceof TypeError &&
       (error.message.includes("fetch") || error.message.includes("connect"));
-    console.error("[login] Unexpected error:", error);
     return NextResponse.json(
       {
         code: "system.internal_error",

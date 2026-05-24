@@ -2,11 +2,11 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import type { Session } from "@/types/auth";
-import { SessionSchema } from "@/lib/validators/auth";
+import { UserSchema } from "@/lib/validators/user";
+import type { UserData } from "@/lib/validators/user";
 
 interface UseAuthResult {
-  session: Session | null;
+  session: UserData | null;
   isLoading: boolean;
   signOut: () => Promise<void>;
 }
@@ -17,7 +17,7 @@ interface UseAuthResult {
  * For security decisions, always use requireRole() in server layouts.
  */
 export function useAuth(): UseAuthResult {
-  const [session, setSession] = useState<Session | null>(null);
+  const [session, setSession] = useState<UserData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
 
@@ -32,7 +32,7 @@ export function useAuth(): UseAuthResult {
           return;
         }
         const data: unknown = await response.json();
-        const parsed = SessionSchema.safeParse(data);
+        const parsed = UserSchema.safeParse(data);
         if (!cancelled) {
           setSession(parsed.success ? parsed.data : null);
         }

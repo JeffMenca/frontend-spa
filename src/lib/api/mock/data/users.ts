@@ -25,7 +25,7 @@ export const MOCK_USERS: UserData[] = [
     active: true,
     roles: ["PARTICIPANT"],
     linkedInstitutions: [],
-    participationTypes: ["ATTENDEE"],
+
     createdAt: "2026-01-10T08:00:00Z",
     updatedAt: "2026-01-10T08:00:00Z",
   },
@@ -40,7 +40,7 @@ export const MOCK_USERS: UserData[] = [
     active: true,
     roles: ["CONGRESS_ADMIN", "PARTICIPANT"],
     linkedInstitutions: [MOCK_INSTITUTION_1_ID],
-    participationTypes: [],
+
     createdAt: "2026-01-05T08:00:00Z",
     updatedAt: "2026-01-05T08:00:00Z",
   },
@@ -55,7 +55,7 @@ export const MOCK_USERS: UserData[] = [
     active: true,
     roles: ["SYSTEM_ADMIN", "PARTICIPANT"],
     linkedInstitutions: [],
-    participationTypes: [],
+
     createdAt: "2025-12-01T08:00:00Z",
     updatedAt: "2025-12-01T08:00:00Z",
   },
@@ -70,7 +70,7 @@ export const MOCK_USERS: UserData[] = [
     active: true,
     roles: ["GUEST_SPEAKER"],
     linkedInstitutions: [],
-    participationTypes: ["GUEST_SPEAKER"],
+
     createdAt: "2026-02-01T08:00:00Z",
     updatedAt: "2026-02-01T08:00:00Z",
   },
@@ -85,7 +85,7 @@ export const MOCK_USERS: UserData[] = [
     active: true,
     roles: ["PARTICIPANT"],
     linkedInstitutions: [],
-    participationTypes: ["ATTENDEE", "SPEAKER"],
+
     createdAt: "2026-01-15T08:00:00Z",
     updatedAt: "2026-01-15T08:00:00Z",
   },
@@ -100,7 +100,7 @@ export const MOCK_USERS: UserData[] = [
     active: false,
     roles: ["PARTICIPANT"],
     linkedInstitutions: [],
-    participationTypes: [],
+
     createdAt: "2026-01-20T08:00:00Z",
     updatedAt: "2026-03-01T08:00:00Z",
   },
@@ -115,7 +115,7 @@ export const MOCK_USERS: UserData[] = [
     active: true,
     roles: ["PARTICIPANT"],
     linkedInstitutions: [],
-    participationTypes: [],
+
     createdAt: "2026-02-10T08:00:00Z",
     updatedAt: "2026-02-10T08:00:00Z",
   },
