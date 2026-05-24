@@ -58,3 +58,21 @@ test.describe("Workshop reservation (flow 6)", () => {
     expect(response.status()).toBe(401);
   });
 });
+
+test.describe("Workshop reservation — capacity-full guard", () => {
+  // MOCK_ACTIVITY_FULL_ID: workshopCapacity=1, already has 1 reservation
+  const FULL_TALLER_ID = "40000000-0000-0000-0000-000000000005";
+
+  test.beforeEach(async ({ page }) => {
+    await loginAsParticipantAndWait(page);
+  });
+
+  test("reserving a full workshop returns 409 conflict", async ({ page }) => {
+    const response = await page.request.post(
+      `/api/activities/${FULL_TALLER_ID}/reservations`,
+    );
+    expect(response.status()).toBe(409);
+    const body = await response.json() as { code: string };
+    expect(body.code).toBe("resource.conflict");
+  });
+});

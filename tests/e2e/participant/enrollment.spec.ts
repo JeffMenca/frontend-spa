@@ -60,6 +60,30 @@ test.describe("Enrollment — full flow", () => {
   });
 });
 
+test.describe("Enrollment — commission split verification", () => {
+  const MOCK_PAYMENT_ID = "a0000000-0000-0000-0000-000000000001";
+
+  test.beforeEach(async ({ page }) => {
+    await loginAsParticipantAndWait(page);
+  });
+
+  test("payment API returns commission split breakdown for mock enrollment", async ({ page }) => {
+    const response = await page.request.get(`/api/payments/${MOCK_PAYMENT_ID}`);
+    expect(response.status()).toBe(200);
+    const body = await response.json() as {
+      amount: number;
+      commissionAmount: number;
+      netAmount: number;
+      commissionPercentSnapshot: number;
+    };
+    // Mock payment: amount=150, commission=10%, commissionAmount=15, netAmount=135
+    expect(body.amount).toBe(150);
+    expect(body.commissionPercentSnapshot).toBe(10);
+    expect(body.commissionAmount).toBe(15);
+    expect(body.netAmount).toBe(135);
+  });
+});
+
 test.describe("Enrollment — validation errors", () => {
   test.beforeEach(async ({ page }) => {
     await loginAsParticipantAndWait(page);

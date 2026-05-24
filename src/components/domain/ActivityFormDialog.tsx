@@ -314,12 +314,14 @@ export function ActivityFormDialog({
                 type="datetime-local"
                 disabled={isSubmitting}
                 aria-invalid={errors.startTime !== undefined}
+                data-testid="activity-start-input"
                 {...register("startTime")}
               />
               {errors.startTime !== undefined && (
                 <p
                   className="font-secondary text-xs text-[var(--color-error)]"
                   role="alert"
+                  data-testid="activity-start-error"
                 >
                   {errors.startTime.message}
                 </p>
@@ -338,12 +340,14 @@ export function ActivityFormDialog({
                 type="datetime-local"
                 disabled={isSubmitting}
                 aria-invalid={errors.endTime !== undefined}
+                data-testid="activity-end-input"
                 {...register("endTime")}
               />
               {errors.endTime !== undefined && (
                 <p
                   className="font-secondary text-xs text-[var(--color-error)]"
                   role="alert"
+                  data-testid="activity-end-error"
                 >
                   {errors.endTime.message}
                 </p>

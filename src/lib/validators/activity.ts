@@ -49,6 +49,16 @@ export const CreateActivitySchema = z
       message: "La capacidad del taller es requerida",
       path: ["workshopCapacity"],
     },
+  )
+  .refine(
+    (data) => {
+      if (data.startTime.length === 0 || data.endTime.length === 0) return true;
+      return data.startTime < data.endTime;
+    },
+    {
+      message: "La hora de fin debe ser posterior a la hora de inicio",
+      path: ["endTime"],
+    },
   );
 
 export const UpdateActivitySchema = z.object({
