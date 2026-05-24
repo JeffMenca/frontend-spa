@@ -21,7 +21,6 @@ export async function GET(
   if (token === null) return unauthorizedResponse();
   const { id } = await params;
   try {
-    // TODO(conf-service): swap mock when wallet GET /payments/{id} is deployed - tracked in backlog Lane B
     return NextResponse.json(await activeWallet.getPayment(id, token));
   } catch {
     return internalErrorResponse();

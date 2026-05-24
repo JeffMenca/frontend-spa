@@ -78,4 +78,20 @@ test.describe("Attendance registration (flow 8)", () => {
     // Should be 200/201 when authenticated as congress admin
     expect([200, 201]).toContain(response.status());
   });
+
+  test("registering TALLER attendance without prior reservation returns 422", async ({
+    page,
+  }) => {
+    // TALLER_ACTIVITY_3_ID: participant "12345678" has no reservation
+    const TALLER_NO_RESERVATION_ID = "40000000-0000-0000-0000-000000000003";
+    const response = await page.request.post("/api/attendance/register", {
+      data: {
+        activityId: TALLER_NO_RESERVATION_ID,
+        personalId: PARTICIPANT_PERSONAL_ID,
+      },
+    });
+    expect(response.status()).toBe(422);
+    const body = await response.json() as { code: string };
+    expect(body.code).toBe("domain.invariant_violated");
+  });
 });

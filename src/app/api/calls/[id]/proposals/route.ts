@@ -4,7 +4,12 @@ import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { getSession } from "@/lib/auth/session";
 import { activeConference } from "@/lib/api/active-conference";
-import { unauthorizedResponse, internalErrorResponse } from "@/lib/api/responses";
+import {
+  unauthorizedResponse,
+  internalErrorResponse,
+  applicationErrorResponse,
+} from "@/lib/api/responses";
+import { ApplicationError } from "@/types/error";
 
 async function getToken(): Promise<string | null> {
   const cookieStore = await cookies();
@@ -22,9 +27,9 @@ export async function GET(
   const { id } = await params;
   try {
     const queryParams = new URL(request.url).searchParams;
-    // TODO(conf-service): swap mock when conference GET /calls/{id}/proposals is deployed - tracked in backlog Lane B
     return NextResponse.json(await activeConference.listProposals(id, token, queryParams));
-  } catch {
+  } catch (error) {
+    if (error instanceof ApplicationError) return applicationErrorResponse(error);
     return internalErrorResponse();
   }
 }
@@ -40,9 +45,9 @@ export async function POST(
   const { id } = await params;
   try {
     const body: unknown = await request.json();
-    // TODO(conf-service): swap mock when conference POST /calls/{id}/proposals is deployed - tracked in backlog Lane B
     return NextResponse.json(await activeConference.createProposal(id, body, token), { status: 201 });
-  } catch {
+  } catch (error) {
+    if (error instanceof ApplicationError) return applicationErrorResponse(error);
     return internalErrorResponse();
   }
 }

@@ -4,7 +4,13 @@ import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { getSession } from "@/lib/auth/session";
 import { activeIam } from "@/lib/api/active-iam";
-import { unauthorizedResponse, internalErrorResponse } from "@/lib/api/responses";
+import {
+  unauthorizedResponse,
+  forbiddenResponse,
+  internalErrorResponse,
+  applicationErrorResponse,
+} from "@/lib/api/responses";
+import { ApplicationError } from "@/types/error";
 
 async function getToken(): Promise<string | null> {
   const cookieStore = await cookies();
@@ -17,14 +23,15 @@ export async function PATCH(
 ): Promise<NextResponse> {
   const session = await getSession();
   if (session === null) return unauthorizedResponse();
+  if (!session.roles.includes("SYSTEM_ADMIN")) return forbiddenResponse();
   const token = await getToken();
   if (token === null) return unauthorizedResponse();
   const { id } = await params;
   try {
-    // TODO(conf-service): swap mock when iam PATCH /users/{id}/activate is deployed - tracked in backlog Lane B
     await activeIam.activateUser(id, token);
-    return NextResponse.json({ message: "Usuario activado." }, { status: 200 });
-  } catch {
+    return new NextResponse(null, { status: 204 });
+  } catch (error) {
+    if (error instanceof ApplicationError) return applicationErrorResponse(error);
     return internalErrorResponse();
   }
 }

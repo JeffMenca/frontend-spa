@@ -118,4 +118,46 @@ test.describe("Activity management — create activity (flow 7)", () => {
     await page.getByRole("button", { name: /nueva actividad/i }).click();
     await expect(page.getByTestId("activity-name-input")).toBeVisible();
   });
+
+  test("activity form shows error when endTime is before startTime", async ({ page }) => {
+    await page.goto("/congress-admin/activities");
+    await expect(page.getByTestId("activities-list")).toBeVisible({ timeout: 8000 });
+    await page.getByRole("button", { name: /nueva actividad/i }).click();
+    await expect(page.getByTestId("activity-form-dialog")).toBeVisible();
+    // Fill a start time that is after the end time
+    await page.getByTestId("activity-start-input").fill("2026-07-15T14:00");
+    await page.getByTestId("activity-end-input").fill("2026-07-15T13:00");
+    await page.getByTestId("activity-submit-button").click();
+    await expect(page.getByTestId("activity-end-error")).toBeVisible();
+  });
+});
+
+test.describe("Congress form — price validation", () => {
+  test.beforeEach(async ({ page }) => {
+    await loginAsCongressAdminAndWait(page);
+  });
+
+  test("congress form shows error when price is below Q35", async ({ page }) => {
+    await page.goto("/congress-admin/congresses");
+    await page.getByTestId("new-congress-button").click();
+    await expect(page.getByTestId("congress-form-dialog")).toBeVisible();
+    await page.getByTestId("congress-price-input").fill("20");
+    await page.getByTestId("congress-submit-button").click();
+    await expect(page.getByTestId("congress-price-error")).toBeVisible();
+  });
+});
+
+test.describe("Room deletion — conflict guard", () => {
+  test.beforeEach(async ({ page }) => {
+    await loginAsCongressAdminAndWait(page);
+  });
+
+  test("deleting a room with activities returns 409 from API", async ({ page }) => {
+    // MOCK_ROOM_1_ID has activities associated
+    const ROOM_WITH_ACTIVITIES = "30000000-0000-0000-0000-000000000001";
+    const response = await page.request.delete(`/api/rooms/${ROOM_WITH_ACTIVITIES}`);
+    expect(response.status()).toBe(409);
+    const body = await response.json() as { code: string };
+    expect(body.code).toBe("resource.conflict");
+  });
 });

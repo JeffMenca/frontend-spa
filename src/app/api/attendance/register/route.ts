@@ -8,7 +8,9 @@ import {
   unauthorizedResponse,
   internalErrorResponse,
   forbiddenResponse,
+  applicationErrorResponse,
 } from "@/lib/api/responses";
+import { ApplicationError } from "@/types/error";
 
 async function getToken(): Promise<string | null> {
   const cookieStore = await cookies();
@@ -27,7 +29,8 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     return NextResponse.json(await activeConference.registerAttendance(body, token), {
       status: 201,
     });
-  } catch {
+  } catch (error: unknown) {
+    if (error instanceof ApplicationError) return applicationErrorResponse(error);
     return internalErrorResponse();
   }
 }

@@ -1,11 +1,21 @@
 // Critical flow 2: Login and logout
 import { test, expect } from "@playwright/test";
+import AxeBuilder from "@axe-core/playwright";
 import { loginAsParticipantAndWait, loginAsCongressAdminAndWait, loginAsSystemAdminAndWait, MOCK_USERS } from "../helpers/auth";
 
 test.describe("Login flow", () => {
   test("login page renders correctly", async ({ page }) => {
     await page.goto("/login");
     await expect(page.getByTestId("login-page")).toBeVisible();
+  });
+
+  test("login page has no critical accessibility violations", async ({ page }) => {
+    await page.goto("/login");
+    await expect(page.getByTestId("login-page")).toBeVisible();
+    const results = await new AxeBuilder({ page })
+      .withTags(["wcag2a", "wcag2aa"])
+      .analyze();
+    expect(results.violations).toEqual([]);
   });
 
   test("login page has correct heading", async ({ page }) => {

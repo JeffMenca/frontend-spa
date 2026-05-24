@@ -1,6 +1,7 @@
 import "server-only";
 
 import { NextResponse } from "next/server";
+import { ApplicationError } from "@/types/error";
 
 function problemJson(
   status: number,
@@ -40,4 +41,8 @@ export function conflictResponse(code: string, detail: string): NextResponse {
 
 export function internalErrorResponse(): NextResponse {
   return problemJson(500, "system.internal_error", "Error interno del servidor");
+}
+
+export function applicationErrorResponse(error: ApplicationError): NextResponse {
+  return problemJson(error.status, error.code, error.detail, error.detail);
 }

@@ -6,9 +6,12 @@ import { getSession } from "@/lib/auth/session";
 import { activeConference } from "@/lib/api/active-conference";
 import {
   unauthorizedResponse,
-  internalErrorResponse,
   forbiddenResponse,
+  internalErrorResponse,
+  applicationErrorResponse,
 } from "@/lib/api/responses";
+import { ApplicationError } from "@/types/error";
+import { CreateCongressSchema } from "@/lib/validators/congress";
 
 async function getToken(): Promise<string | null> {
   const cookieStore = await cookies();
@@ -18,9 +21,9 @@ async function getToken(): Promise<string | null> {
 export async function GET(request: NextRequest): Promise<NextResponse> {
   try {
     const params = new URL(request.url).searchParams;
-    // TODO(conf-service): swap mock when conference GET /congresses is deployed - tracked in backlog Lane B
     return NextResponse.json(await activeConference.listCongresses(params));
-  } catch {
+  } catch (error) {
+    if (error instanceof ApplicationError) return applicationErrorResponse(error);
     return internalErrorResponse();
   }
 }
@@ -31,11 +34,15 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   if (!session.roles.includes("CONGRESS_ADMIN")) return forbiddenResponse();
   const token = await getToken();
   if (token === null) return unauthorizedResponse();
+  const rawBody: unknown = await request.json();
+  const parsed = CreateCongressSchema.safeParse(rawBody);
+  if (!parsed.success) {
+    return NextResponse.json({ code: "validation.failed", status: 400 }, { status: 400 });
+  }
   try {
-    const body: unknown = await request.json();
-    // TODO(conf-service): swap mock when conference POST /congresses is deployed - tracked in backlog Lane B
-    return NextResponse.json(await activeConference.createCongress(body, token), { status: 201 });
-  } catch {
+    return NextResponse.json(await activeConference.createCongress(parsed.data, token), { status: 201 });
+  } catch (error) {
+    if (error instanceof ApplicationError) return applicationErrorResponse(error);
     return internalErrorResponse();
   }
 }

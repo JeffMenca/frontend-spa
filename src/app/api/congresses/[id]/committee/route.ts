@@ -8,7 +8,9 @@ import {
   unauthorizedResponse,
   internalErrorResponse,
   forbiddenResponse,
+  applicationErrorResponse,
 } from "@/lib/api/responses";
+import { ApplicationError } from "@/types/error";
 
 async function getToken(): Promise<string | null> {
   const cookieStore = await cookies();
@@ -25,9 +27,9 @@ export async function GET(
   if (token === null) return unauthorizedResponse();
   const { id } = await params;
   try {
-    // TODO(conf-service): swap mock when conference GET /congresses/{id}/committee is deployed - tracked in backlog Lane B
     return NextResponse.json(await activeConference.getCommitteeMembers(id, token));
-  } catch {
+  } catch (error) {
+    if (error instanceof ApplicationError) return applicationErrorResponse(error);
     return internalErrorResponse();
   }
 }
@@ -44,11 +46,11 @@ export async function POST(
   const { id } = await params;
   try {
     const body: unknown = await request.json();
-    // TODO(conf-service): swap mock when conference POST /congresses/{id}/committee is deployed - tracked in backlog Lane B
     return NextResponse.json(await activeConference.addCommitteeMember(id, body, token), {
       status: 201,
     });
-  } catch {
+  } catch (error) {
+    if (error instanceof ApplicationError) return applicationErrorResponse(error);
     return internalErrorResponse();
   }
 }

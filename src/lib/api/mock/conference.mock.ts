@@ -1,6 +1,7 @@
 // MOCK: Remove this file when backend is ready.
 // Replace with real upstream calls via active-conference.ts wrapper.
 
+import { ApplicationError } from "@/types/error";
 import type { InstitutionData, InstitutionListData } from "@/lib/validators/institution";
 import type { CongressData, CongressListData } from "@/lib/validators/congress";
 import type { RoomData, RoomListData } from "@/lib/validators/room";
@@ -28,6 +29,7 @@ import { MOCK_PROPOSALS } from "./data/proposals";
 import { MOCK_ENROLLMENTS } from "./data/enrollments";
 import { MOCK_RESERVATIONS } from "./data/reservations";
 import { MOCK_ATTENDANCE } from "./data/attendance";
+import { MOCK_USERS } from "./data/users";
 import { MOCK_CALLS } from "./data/calls";
 import { MOCK_COMMITTEE_MEMBERS } from "./data/committee";
 import { MOCK_DIPLOMAS } from "./data/diplomas";
@@ -179,8 +181,16 @@ export async function updateRoom(
   return item;
 }
 
-export async function deleteRoom(_id: string, _token: string): Promise<void> {
+export async function deleteRoom(id: string, _token: string): Promise<void> {
   await delay();
+  const hasActivities = MOCK_ACTIVITIES.some((a) => a.roomId === id);
+  if (hasActivities) {
+    throw new ApplicationError(
+      "resource.conflict",
+      409,
+      "La sala tiene actividades asociadas y no puede eliminarse",
+    );
+  }
 }
 
 // --- Activities ---
@@ -318,10 +328,23 @@ export async function getCongressEnrollments(
 // --- Reservations ---
 
 export async function reserveActivity(
-  _activityId: string,
+  activityId: string,
   _token: string,
 ): Promise<ReservationData> {
   await delay();
+  const activity = MOCK_ACTIVITIES.find((a) => a.id === activityId);
+  if (activity !== undefined && activity.workshopCapacity !== null) {
+    const reservationCount = MOCK_RESERVATIONS.filter(
+      (r) => r.activityId === activityId,
+    ).length;
+    if (reservationCount >= activity.workshopCapacity) {
+      throw new ApplicationError(
+        "resource.conflict",
+        409,
+        "La actividad ha alcanzado su capacidad maxima",
+      );
+    }
+  }
   const item = MOCK_RESERVATIONS[0];
   if (item === undefined) throw new Error("system.internal_error");
   return item;
@@ -355,10 +378,29 @@ export async function cancelReservation(
 // --- Attendance ---
 
 export async function registerAttendance(
-  _data: unknown,
+  data: unknown,
   _token: string,
 ): Promise<AttendanceData> {
   await delay();
+  const body = data as { activityId?: string; personalId?: string };
+  if (body.activityId !== undefined && body.personalId !== undefined) {
+    const activity = MOCK_ACTIVITIES.find((a) => a.id === body.activityId);
+    if (activity?.type === "TALLER") {
+      const user = MOCK_USERS.find((u) => u.personalId === body.personalId);
+      if (user !== undefined) {
+        const hasReservation = MOCK_RESERVATIONS.some(
+          (r) => r.activityId === body.activityId && r.userId === user.id,
+        );
+        if (!hasReservation) {
+          throw new ApplicationError(
+            "domain.invariant_violated",
+            422,
+            "Se requiere reserva previa para asistir a este taller",
+          );
+        }
+      }
+    }
+  }
   const item = MOCK_ATTENDANCE[0];
   if (item === undefined) throw new Error("system.internal_error");
   return item;

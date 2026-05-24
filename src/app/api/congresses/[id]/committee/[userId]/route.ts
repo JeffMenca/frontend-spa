@@ -8,7 +8,9 @@ import {
   unauthorizedResponse,
   internalErrorResponse,
   forbiddenResponse,
+  applicationErrorResponse,
 } from "@/lib/api/responses";
+import { ApplicationError } from "@/types/error";
 
 async function getToken(): Promise<string | null> {
   const cookieStore = await cookies();
@@ -26,10 +28,10 @@ export async function DELETE(
   if (token === null) return unauthorizedResponse();
   const { id, userId } = await params;
   try {
-    // TODO(conf-service): swap mock when conference DELETE /congresses/{id}/committee/{userId} is deployed - tracked in backlog Lane B
     await activeConference.removeCommitteeMember(id, userId, token);
     return new NextResponse(null, { status: 204 });
-  } catch {
+  } catch (error) {
+    if (error instanceof ApplicationError) return applicationErrorResponse(error);
     return internalErrorResponse();
   }
 }

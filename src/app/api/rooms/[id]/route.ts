@@ -8,7 +8,9 @@ import {
   unauthorizedResponse,
   internalErrorResponse,
   forbiddenResponse,
+  applicationErrorResponse,
 } from "@/lib/api/responses";
+import { ApplicationError } from "@/types/error";
 
 async function getToken(): Promise<string | null> {
   const cookieStore = await cookies();
@@ -21,7 +23,6 @@ export async function GET(
 ): Promise<NextResponse> {
   const { id } = await params;
   try {
-    // TODO(conf-service): swap mock when conference GET /rooms/{id} is deployed - tracked in backlog Lane B
     return NextResponse.json(await activeConference.getRoom(id));
   } catch {
     return internalErrorResponse();
@@ -40,7 +41,6 @@ export async function PUT(
   const { id } = await params;
   try {
     const body: unknown = await request.json();
-    // TODO(conf-service): swap mock when conference PUT /rooms/{id} is deployed - tracked in backlog Lane B
     return NextResponse.json(await activeConference.updateRoom(id, body, token));
   } catch {
     return internalErrorResponse();
@@ -58,10 +58,10 @@ export async function DELETE(
   if (token === null) return unauthorizedResponse();
   const { id } = await params;
   try {
-    // TODO(conf-service): swap mock when conference DELETE /rooms/{id} is deployed - tracked in backlog Lane B
     await activeConference.deleteRoom(id, token);
     return new NextResponse(null, { status: 204 });
-  } catch {
+  } catch (error: unknown) {
+    if (error instanceof ApplicationError) return applicationErrorResponse(error);
     return internalErrorResponse();
   }
 }

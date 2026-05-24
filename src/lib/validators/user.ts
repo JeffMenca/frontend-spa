@@ -2,13 +2,6 @@ import { z } from "zod";
 
 const RoleSchema = z.enum(["SYSTEM_ADMIN", "CONGRESS_ADMIN", "PARTICIPANT", "GUEST_SPEAKER"]);
 
-export const ParticipationTypeSchema = z.enum([
-  "ATTENDEE",
-  "SPEAKER",
-  "WORKSHOP_LEADER",
-  "GUEST_SPEAKER",
-]);
-
 export const UserSchema = z.object({
   id: z.string().uuid(),
   email: z.string().email(),
@@ -19,9 +12,7 @@ export const UserSchema = z.object({
   photoUrl: z.string().nullable().optional(),
   active: z.boolean(),
   roles: z.array(RoleSchema),
-  // IAM may omit these — defaults keep downstream code safe.
   linkedInstitutions: z.array(z.string().uuid()).default([]),
-  participationTypes: z.array(ParticipationTypeSchema).default([]),
   createdAt: z.string().optional(),
   updatedAt: z.string().optional(),
 });

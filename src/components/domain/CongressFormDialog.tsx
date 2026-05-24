@@ -327,12 +327,14 @@ export function CongressFormDialog({
               min="35"
               disabled={isSubmitting}
               aria-invalid={errors.price !== undefined}
+              data-testid="congress-price-input"
               {...register("price", { valueAsNumber: true })}
             />
             {errors.price !== undefined && (
               <p
                 className="font-secondary text-xs text-[var(--color-error)]"
                 role="alert"
+                data-testid="congress-price-error"
               >
                 {errors.price.message}
               </p>

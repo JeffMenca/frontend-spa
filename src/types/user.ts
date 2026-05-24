@@ -1,7 +1,5 @@
 import type { Role } from "./auth";
 
-export type ParticipationType = "ATTENDEE" | "SPEAKER" | "WORKSHOP_LEADER" | "GUEST_SPEAKER";
-
 export interface User {
   id: string;
   email: string;
@@ -13,7 +11,6 @@ export interface User {
   active: boolean;
   roles: Role[];
   linkedInstitutions: string[];
-  participationTypes: ParticipationType[];
   createdAt?: string;
   updatedAt?: string;
 }
