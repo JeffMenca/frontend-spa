@@ -7,7 +7,9 @@ import { activeConference } from "@/lib/api/active-conference";
 import {
   unauthorizedResponse,
   internalErrorResponse,
+  applicationErrorResponse,
 } from "@/lib/api/responses";
+import { ApplicationError } from "@/types/error";
 import { randomUUID } from "crypto";
 import { CreateEnrollmentSchema } from "@/lib/validators/enrollment";
 
@@ -26,9 +28,9 @@ export async function GET(
   if (token === null) return unauthorizedResponse();
   const { id } = await params;
   try {
-    // TODO(conf-service): swap mock when conference GET /congresses/{id}/enrollments is deployed - tracked in backlog Lane B
     return NextResponse.json(await activeConference.getCongressEnrollments(id, token));
-  } catch {
+  } catch (error) {
+    if (error instanceof ApplicationError) return applicationErrorResponse(error);
     return internalErrorResponse();
   }
 }
@@ -53,12 +55,12 @@ export async function POST(
     }
     // GAP-10: BFF generates the idempotency key
     const idempotencyKey = randomUUID();
-    // TODO(conf-service): swap mock when conference-service is deployed - tracked in backlog Lane B
     return NextResponse.json(
       await activeConference.enrollInCongress(id, parsed.data, token, idempotencyKey),
       { status: 201 },
     );
-  } catch {
+  } catch (error) {
+    if (error instanceof ApplicationError) return applicationErrorResponse(error);
     return internalErrorResponse();
   }
 }
