@@ -99,6 +99,6 @@ export async function createWallet(userId: string, token?: string): Promise<Wall
   return apiFetch(`${WALLET_URL}/wallets`, apiResponseOf(WalletBalanceSchema), {
     method: "POST",
     body: { userId },
-    token,
+    ...(token !== undefined && { token }),
   });
 }

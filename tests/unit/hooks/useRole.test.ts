@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from "vitest";
 import { renderHook } from "@testing-library/react";
-import type { Session } from "@/types/auth";
+import type { UserData } from "@/lib/validators/user";
 
 // Mock useAuth hook
 const mockUseAuth = vi.fn();
@@ -16,6 +16,18 @@ vi.mock("next/navigation", () => ({
   })),
 }));
 
+const baseUser: UserData = {
+  id: "550e8400-e29b-41d4-a716-446655440000",
+  email: "test@example.com",
+  fullName: "Test User",
+  organization: "Test Org",
+  phone: "12345678",
+  personalId: "12345678",
+  active: true,
+  roles: ["PARTICIPANT"],
+  linkedInstitutions: [],
+};
+
 describe("useRole", () => {
   it("returns hasRole false for all roles when session is null", async () => {
     mockUseAuth.mockReturnValue({ session: null, isLoading: false, signOut: vi.fn() });
@@ -30,14 +42,7 @@ describe("useRole", () => {
   });
 
   it("returns true for the role included in session", async () => {
-    const session: Session = {
-      userId: "550e8400-e29b-41d4-a716-446655440000",
-      email: "participant@example.com",
-      fullName: "Maria Lopez",
-      roles: ["PARTICIPANT"],
-      exp: Math.floor(Date.now() / 1000) + 3600,
-      iat: Math.floor(Date.now() / 1000),
-    };
+    const session: UserData = { ...baseUser, roles: ["PARTICIPANT"] };
 
     mockUseAuth.mockReturnValue({ session, isLoading: false, signOut: vi.fn() });
 
@@ -57,13 +62,10 @@ describe("useRole", () => {
   });
 
   it("handles multiple roles correctly", async () => {
-    const session: Session = {
-      userId: "550e8400-e29b-41d4-a716-446655440001",
-      email: "admin@example.com",
-      fullName: "Admin User",
+    const session: UserData = {
+      ...baseUser,
+      id: "550e8400-e29b-41d4-a716-446655440001",
       roles: ["SYSTEM_ADMIN", "CONGRESS_ADMIN"],
-      exp: Math.floor(Date.now() / 1000) + 3600,
-      iat: Math.floor(Date.now() / 1000),
     };
 
     mockUseAuth.mockReturnValue({ session, isLoading: false, signOut: vi.fn() });
