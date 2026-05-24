@@ -4,7 +4,14 @@ import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { getSession } from "@/lib/auth/session";
 import { activeConference } from "@/lib/api/active-conference";
-import { unauthorizedResponse, internalErrorResponse } from "@/lib/api/responses";
+import {
+  unauthorizedResponse,
+  forbiddenResponse,
+  internalErrorResponse,
+  applicationErrorResponse,
+} from "@/lib/api/responses";
+import { ApplicationError } from "@/types/error";
+import { CreateInstitutionSchema } from "@/lib/validators/institution";
 
 async function getToken(): Promise<string | null> {
   const cookieStore = await cookies();
@@ -15,7 +22,8 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
   try {
     const params = new URL(request.url).searchParams;
     return NextResponse.json(await activeConference.listInstitutions(params));
-  } catch {
+  } catch (error) {
+    if (error instanceof ApplicationError) return applicationErrorResponse(error);
     return internalErrorResponse();
   }
 }
@@ -23,12 +31,18 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 export async function POST(request: NextRequest): Promise<NextResponse> {
   const session = await getSession();
   if (session === null) return unauthorizedResponse();
+  if (!session.roles.includes("SYSTEM_ADMIN")) return forbiddenResponse();
   const token = await getToken();
   if (token === null) return unauthorizedResponse();
+  const rawBody: unknown = await request.json();
+  const parsed = CreateInstitutionSchema.safeParse(rawBody);
+  if (!parsed.success) {
+    return NextResponse.json({ code: "validation.failed", status: 400 }, { status: 400 });
+  }
   try {
-    const body: unknown = await request.json();
-    return NextResponse.json(await activeConference.createInstitution(body, token), { status: 201 });
-  } catch {
+    return NextResponse.json(await activeConference.createInstitution(parsed.data, token), { status: 201 });
+  } catch (error) {
+    if (error instanceof ApplicationError) return applicationErrorResponse(error);
     return internalErrorResponse();
   }
 }
