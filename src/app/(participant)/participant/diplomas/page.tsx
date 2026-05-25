@@ -111,16 +111,43 @@ export default async function DiplomasPage(): Promise<React.ReactElement> {
     redirect("/login");
   }
 
+  const diplomasHeader = (
+    <PageHeader
+      title="Mis diplomas"
+      description="Certificados obtenidos por tu participacion en congresos."
+    />
+  );
+
+  if (!res.ok) {
+    if (res.status === 404 || res.status >= 500) {
+      return (
+        <div data-testid="diplomas-page" className="flex flex-col gap-6">
+          {diplomasHeader}
+          <EmptyState
+            icon={<Award size={28} strokeWidth={1.5} />}
+            title="Diplomas no disponibles"
+            description="Esta funcionalidad estara disponible pronto. Vuelve a intentarlo mas tarde."
+          />
+        </div>
+      );
+    }
+    return (
+      <div data-testid="diplomas-page" className="flex flex-col gap-6">
+        {diplomasHeader}
+        <p className="font-secondary text-sm text-[var(--color-error)]">
+          Error al cargar los diplomas. Intenta de nuevo mas tarde.
+        </p>
+      </div>
+    );
+  }
+
   const raw: unknown = await res.json();
   const parsed = DiplomaListSchema.safeParse(raw);
 
   if (!parsed.success) {
     return (
       <div data-testid="diplomas-page" className="flex flex-col gap-6">
-        <PageHeader
-          title="Mis diplomas"
-          description="Certificados obtenidos por tu participacion en congresos."
-        />
+        {diplomasHeader}
         <p className="font-secondary text-sm text-[var(--color-error)]">
           Error al cargar los diplomas. Intenta de nuevo mas tarde.
         </p>

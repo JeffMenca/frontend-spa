@@ -24,16 +24,43 @@ export default async function ReservationsPage(): Promise<React.ReactElement> {
     redirect("/login");
   }
 
+  const reservationsHeader = (
+    <PageHeader
+      title="Mis reservas"
+      description="Talleres en los que tienes lugar reservado."
+    />
+  );
+
+  if (!res.ok) {
+    if (res.status === 404 || res.status >= 500) {
+      return (
+        <div data-testid="reservations-page" className="flex flex-col gap-6">
+          {reservationsHeader}
+          <EmptyState
+            icon={<BookmarkX size={28} strokeWidth={1.5} />}
+            title="Reservas no disponibles"
+            description="Esta funcionalidad estara disponible pronto. Vuelve a intentarlo mas tarde."
+          />
+        </div>
+      );
+    }
+    return (
+      <div data-testid="reservations-page" className="flex flex-col gap-6">
+        {reservationsHeader}
+        <p className="font-secondary text-sm text-[var(--color-error)]">
+          Error al cargar las reservas. Intenta de nuevo mas tarde.
+        </p>
+      </div>
+    );
+  }
+
   const raw: unknown = await res.json();
   const parsed = ReservationListSchema.safeParse(raw);
 
   if (!parsed.success) {
     return (
       <div data-testid="reservations-page" className="flex flex-col gap-6">
-        <PageHeader
-          title="Mis reservas"
-          description="Talleres en los que tienes lugar reservado."
-        />
+        {reservationsHeader}
         <p className="font-secondary text-sm text-[var(--color-error)]">
           Error al cargar las reservas. Intenta de nuevo mas tarde.
         </p>
