@@ -6,8 +6,7 @@ import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/ui/page-header";
 import { EmptyState } from "@/components/ui/empty-state";
 import { CreateGuestSpeakerDialog } from "@/components/domain/CreateGuestSpeakerDialog";
-import { UserListSchema, type UserData } from "@/lib/validators/user";
-import { useToast } from "@/hooks/useToast";
+import { type UserData } from "@/lib/validators/user";
 
 interface GuestSpeakersPageClientProps {
   initialGuestSpeakers: UserData[];
@@ -16,23 +15,12 @@ interface GuestSpeakersPageClientProps {
 export function GuestSpeakersPageClient({
   initialGuestSpeakers,
 }: GuestSpeakersPageClientProps): React.ReactElement {
-  const toast = useToast();
   const [guestSpeakers, setGuestSpeakers] = useState<UserData[]>(initialGuestSpeakers);
   const [dialogOpen, setDialogOpen] = useState(false);
 
-  const refreshGuestSpeakers = useCallback(async (): Promise<void> => {
-    try {
-      const res = await fetch("/api/users?role=GUEST_SPEAKER");
-      if (!res.ok) return;
-      const raw: unknown = await res.json();
-      const parsed = UserListSchema.safeParse(raw);
-      if (parsed.success) {
-        setGuestSpeakers(parsed.data.items);
-      }
-    } catch {
-      toast.error("Error al actualizar la lista de ponentes.");
-    }
-  }, [toast]);
+  const handleSpeakerCreated = useCallback((created: UserData): void => {
+    setGuestSpeakers((prev) => [created, ...prev]);
+  }, []);
 
   return (
     <div
@@ -147,9 +135,7 @@ export function GuestSpeakersPageClient({
       <CreateGuestSpeakerDialog
         open={dialogOpen}
         onOpenChange={setDialogOpen}
-        onSuccess={() => {
-          void refreshGuestSpeakers();
-        }}
+        onSuccess={handleSpeakerCreated}
       />
     </div>
   );
