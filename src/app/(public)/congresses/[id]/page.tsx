@@ -3,6 +3,7 @@ import { CalendarDays, MapPin, Building2, Users, Clock } from "lucide-react";
 import { PageHeader } from "@/components/ui/page-header";
 import { ActivityBadge } from "@/components/domain/ActivityBadge";
 import { CongressActions } from "@/components/domain/CongressActions";
+import { ReserveActivityButton } from "@/components/domain/ReserveActivityButton";
 import { CongressSchema } from "@/lib/validators/congress";
 import { ActivityListSchema } from "@/lib/validators/activity";
 import { formatCurrency, formatDate, formatDateTime } from "@/lib/utils/format";
@@ -168,12 +169,18 @@ export default async function CongressDetailPage({
                   {activity.description}
                 </p>
 
-                <div className="flex items-center gap-1 font-secondary text-xs text-[var(--color-text-secondary)]">
-                  <Clock size={12} strokeWidth={1.5} aria-hidden="true" />
-                  <span>
-                    {formatDateTime(activity.startTime)}&nbsp;&ndash;&nbsp;
-                    {formatDateTime(activity.endTime)}
-                  </span>
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  <div className="flex items-center gap-1 font-secondary text-xs text-[var(--color-text-secondary)]">
+                    <Clock size={12} strokeWidth={1.5} aria-hidden="true" />
+                    <span>
+                      {formatDateTime(activity.startTime)}&nbsp;&ndash;&nbsp;
+                      {formatDateTime(activity.endTime)}
+                    </span>
+                  </div>
+
+                  {activity.type === "TALLER" && (
+                    <ReserveActivityButton />
+                  )}
                 </div>
               </li>
             ))}

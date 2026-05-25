@@ -7,6 +7,7 @@ export const EnrollmentSchema = z.object({
   paymentId: z.string().uuid(),
   enrolledAt: z.string(),
   paymentDate: z.string(),
+  congressName: z.string().optional(),
 });
 
 export const EnrollmentListSchema = z.object({
