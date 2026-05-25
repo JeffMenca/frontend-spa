@@ -24,8 +24,11 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   const token = await getToken();
   if (token === null) return unauthorizedResponse();
   try {
-    const body: unknown = await request.json();
-    return NextResponse.json(await activeIam.createCongressAdmin(body, token), { status: 201 });
+    const raw = await request.json() as Record<string, unknown>;
+    // The frontend form uses `linkedInstitutions`; the IAM service expects `institutionIds`.
+    const { linkedInstitutions, ...rest } = raw;
+    const iamBody = { ...rest, institutionIds: linkedInstitutions };
+    return NextResponse.json(await activeIam.createCongressAdmin(iamBody, token), { status: 201 });
   } catch (error) {
     if (error instanceof ApplicationError) return applicationErrorResponse(error);
     return internalErrorResponse();

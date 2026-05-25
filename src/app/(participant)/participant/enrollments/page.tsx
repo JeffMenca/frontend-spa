@@ -24,6 +24,17 @@ export default async function EnrollmentsPage(): Promise<React.ReactElement> {
     redirect("/login");
   }
 
+  if (!res.ok) {
+    return (
+      <div data-testid="enrollments-page" className="flex flex-col gap-6">
+        <PageHeader title="Mis inscripciones" description="Congresos en los que estas inscrito." />
+        <p className="font-secondary text-sm text-[var(--color-error)]">
+          Error al cargar las inscripciones. Intenta de nuevo mas tarde.
+        </p>
+      </div>
+    );
+  }
+
   const raw: unknown = await res.json();
   const parsed = EnrollmentListSchema.safeParse(raw);
 

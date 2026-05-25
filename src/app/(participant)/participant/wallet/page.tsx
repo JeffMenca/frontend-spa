@@ -18,14 +18,30 @@ export default async function WalletPage(): Promise<React.ReactElement> {
     serverFetch(`${BASE}/api/wallet/transactions`, { cache: "no-store" }),
   ]);
 
-  // Only redirect if the BFF itself has no session (cookie absent/invalid).
-  // A 401 from the downstream wallet service (JWT key mismatch or expired token)
-  // shows an error state instead of bouncing the user to login.
-  if (
-    (balanceRes.status === 401 || transactionsRes.status === 401) &&
-    session === null
-  ) {
+  if (balanceRes.status === 401 || transactionsRes.status === 401) {
     redirect("/login");
+  }
+
+  const walletHeader = (
+    <PageHeader
+      title="Mi cartera"
+      description="Gestiona tu saldo y revisa tu historial de transacciones."
+    />
+  );
+
+  if (!balanceRes.ok || !transactionsRes.ok) {
+    const status = !balanceRes.ok ? balanceRes.status : transactionsRes.status;
+    const isNotFound = status === 404;
+    return (
+      <div className="flex flex-col gap-6">
+        {walletHeader}
+        <p className="font-secondary text-sm text-[var(--color-error)]">
+          {isNotFound
+            ? "No se encontro tu cartera. Contacta al soporte si el problema persiste."
+            : "No se pudo conectar con el servicio de cartera. Verifica que el servicio este disponible e intenta de nuevo."}
+        </p>
+      </div>
+    );
   }
 
   let balanceRaw: unknown;
@@ -35,10 +51,7 @@ export default async function WalletPage(): Promise<React.ReactElement> {
   } catch {
     return (
       <div className="flex flex-col gap-6">
-        <PageHeader
-          title="Mi cartera"
-          description="Gestiona tu saldo y revisa tu historial de transacciones."
-        />
+        {walletHeader}
         <p className="font-secondary text-sm text-[var(--color-error)]">
           No se pudo cargar el saldo. Intenta de nuevo.
         </p>
@@ -50,10 +63,7 @@ export default async function WalletPage(): Promise<React.ReactElement> {
   } catch {
     return (
       <div className="flex flex-col gap-6">
-        <PageHeader
-          title="Mi cartera"
-          description="Gestiona tu saldo y revisa tu historial de transacciones."
-        />
+        {walletHeader}
         <p className="font-secondary text-sm text-[var(--color-error)]">
           No se pudo cargar el historial de transacciones. Intenta de nuevo.
         </p>
@@ -67,12 +77,9 @@ export default async function WalletPage(): Promise<React.ReactElement> {
   if (!walletParsed.success || !transactionsParsed.success) {
     return (
       <div className="flex flex-col gap-6">
-        <PageHeader
-          title="Mi cartera"
-          description="Gestiona tu saldo y revisa tu historial de transacciones."
-        />
+        {walletHeader}
         <p className="font-secondary text-sm text-[var(--color-error)]">
-          No se pudo conectar con el servicio de cartera. Verifica que el servicio este disponible e intenta de nuevo.
+          No se pudo leer la respuesta del servicio de cartera. Intenta de nuevo mas tarde.
         </p>
       </div>
     );
