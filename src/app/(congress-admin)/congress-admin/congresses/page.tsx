@@ -3,6 +3,8 @@ import { getSession } from "@/lib/auth/session";
 import { CongressesPageClient } from "@/components/domain/CongressesPageClient";
 import { CongressListSchema } from "@/lib/validators/congress";
 import { InstitutionListSchema } from "@/lib/validators/institution";
+import { UserSchema } from "@/lib/validators/user";
+import { serverFetch } from "@/lib/api/server-fetch";
 
 const BASE = process.env["NEXT_PUBLIC_APP_URL"] ?? "http://localhost:3000";
 
@@ -10,31 +12,52 @@ export default async function CongressesManagementPage(): Promise<React.ReactEle
   const session = await getSession();
   if (session === null) redirect("/login");
 
-  const [congressesRes, institutionsRes] = await Promise.all([
-    fetch(`${BASE}/api/congresses`, { cache: "no-store" }),
-    fetch(`${BASE}/api/institutions`, { cache: "no-store" }),
+  const meRes = await serverFetch(`${BASE}/api/users/me`, { cache: "no-store" });
+  if (meRes.status === 401) redirect("/login");
+
+  const rawMe: unknown = await meRes.json();
+  const parsedMe = UserSchema.safeParse(rawMe);
+  const linkedInstitutions = parsedMe.success ? parsedMe.data.linkedInstitutions : [];
+
+  const congressFetches =
+    linkedInstitutions.length > 0
+      ? linkedInstitutions.map((institutionId) =>
+          serverFetch(`${BASE}/api/congresses?institutionId=${institutionId}&size=100`, {
+            cache: "no-store",
+          }),
+        )
+      : [serverFetch(`${BASE}/api/congresses?size=100`, { cache: "no-store" })];
+
+  const [institutionsRes, ...congressResponses] = await Promise.all([
+    serverFetch(`${BASE}/api/institutions`, { cache: "no-store" }),
+    ...congressFetches,
   ]);
 
-  if (congressesRes.status === 401 || institutionsRes.status === 401) {
-    redirect("/login");
-  }
+  if (institutionsRes.status === 401) redirect("/login");
 
-  const rawCongresses: unknown = await congressesRes.json();
   const rawInstitutions: unknown = await institutionsRes.json();
-
-  const parsedCongresses = CongressListSchema.safeParse(rawCongresses);
   const parsedInstitutions = InstitutionListSchema.safeParse(rawInstitutions);
+  const institutions = parsedInstitutions.success ? parsedInstitutions.data.items : [];
 
-  const congresses = parsedCongresses.success
-    ? parsedCongresses.data.items
-    : [];
-  const institutions = parsedInstitutions.success
-    ? parsedInstitutions.data.items
-    : [];
+  const allCongresses: import("@/lib/validators/congress").CongressData[] = [];
+  const seenIds = new Set<string>();
+  for (const res of congressResponses) {
+    if (res.status === 401) redirect("/login");
+    const raw: unknown = await res.json();
+    const parsed = CongressListSchema.safeParse(raw);
+    if (parsed.success) {
+      for (const c of parsed.data.items) {
+        if (!seenIds.has(c.id)) {
+          seenIds.add(c.id);
+          allCongresses.push(c);
+        }
+      }
+    }
+  }
 
   return (
     <CongressesPageClient
-      congresses={congresses}
+      congresses={allCongresses}
       institutions={institutions}
     />
   );

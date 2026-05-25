@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useForm, type SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -68,6 +68,13 @@ export function CongressFormDialog({
     resolver: zodResolver(CreateCongressSchema),
     defaultValues: editDefaults,
   });
+
+  useEffect(() => {
+    if (open) {
+      reset(editDefaults);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, congress]);
 
   function handleOpenChange(value: boolean): void {
     if (!value) {
