@@ -12,7 +12,7 @@ import type { ReservationData, ReservationListData } from "@/lib/validators/rese
 import type { AttendanceData, AttendanceListData } from "@/lib/validators/attendance";
 import type { CallData, CallListData } from "@/lib/validators/call";
 import type { CommitteeMemberData, CommitteeMemberListData } from "@/lib/validators/committee";
-import type { DiplomaData, DiplomaListData } from "@/lib/validators/diploma";
+import type { DiplomaData, DiplomaListData, DiplomaPrintData } from "@/lib/validators/diploma";
 import type {
   ParticipantReportData,
   AttendanceByActivityReportData,
@@ -501,12 +501,31 @@ export async function getDiploma(id: string, _token: string): Promise<DiplomaDat
   return item;
 }
 
+export async function getDiplomaPrintData(
+  id: string,
+  _token: string,
+): Promise<DiplomaPrintData> {
+  await delay();
+  const item = MOCK_DIPLOMAS.find((d) => d.id === id);
+  if (item === undefined) throw new Error("resource.not_found");
+  return {
+    diplomaId: item.id,
+    userId: item.userId,
+    userFullName: "Usuario de prueba",
+    congressId: item.congressId,
+    congressName: item.congressName,
+    activityId: item.activityId,
+    activityName: item.activityName,
+    type: item.type,
+    issuedAt: item.issuedAt,
+  };
+}
+
 export async function downloadDiploma(
   _id: string,
   _token: string,
 ): Promise<ArrayBuffer> {
   await delay();
-  // Minimal 1-byte ArrayBuffer as placeholder PDF
   return new ArrayBuffer(1);
 }
 
