@@ -6,7 +6,6 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
   Dialog,
@@ -24,7 +23,9 @@ import {
 } from "@/lib/validators/committee";
 import { ProblemDetailSchema } from "@/lib/validators/error";
 import { type CongressData } from "@/lib/validators/congress";
+import { type UserData } from "@/lib/validators/user";
 import { CongressCombobox } from "@/components/domain/CongressCombobox";
+import { UserSearchCombobox } from "@/components/domain/UserSearchCombobox";
 import { formatDate } from "@/lib/utils/format";
 import { useToast } from "@/hooks/useToast";
 
@@ -44,15 +45,22 @@ export function CommitteePageClient({
   const [removeDialogOpen, setRemoveDialogOpen] = useState(false);
   const [memberToRemove, setMemberToRemove] = useState<CommitteeMemberData | null>(null);
   const [mutating, setMutating] = useState(false);
+  const [selectedUser, setSelectedUser] = useState<UserData | null>(null);
 
   const {
     register,
     handleSubmit,
     reset,
+    setValue,
     formState: { errors },
   } = useForm<AddCommitteeMemberData>({
     resolver: zodResolver(AddCommitteeMemberSchema),
   });
+
+  function resetAddDialog(): void {
+    reset();
+    setSelectedUser(null);
+  }
 
   const fetchMembers = useCallback(
     async (congressId: string) => {
@@ -103,7 +111,7 @@ export function CommitteePageClient({
         return;
       }
       toast.success("Miembro agregado al comite.");
-      reset();
+      resetAddDialog();
       setAddDialogOpen(false);
       await fetchMembers(selectedCongressId);
     } catch {
@@ -238,19 +246,31 @@ export function CommitteePageClient({
       )}
 
       {/* Dialog: Agregar miembro */}
-      <Dialog open={addDialogOpen} onOpenChange={setAddDialogOpen}>
+      <Dialog
+        open={addDialogOpen}
+        onOpenChange={(open) => {
+          setAddDialogOpen(open);
+          if (!open) resetAddDialog();
+        }}
+      >
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Agregar miembro al comite</DialogTitle>
           </DialogHeader>
           <form onSubmit={(e) => void handleSubmit(onAddMember)(e)} className="flex flex-col gap-4 mt-2">
+            {/* Hidden field so react-hook-form tracks userId */}
+            <input type="hidden" {...register("userId")} />
+
             <div className="flex flex-col gap-1.5">
-              <Label htmlFor="userId-input">ID del usuario (UUID)</Label>
-              <Input
-                id="userId-input"
-                placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
-                {...register("userId")}
-                className="h-11"
+              <Label>Buscar participante</Label>
+              <UserSearchCombobox
+                selected={selectedUser}
+                onSelect={(user) => {
+                  setSelectedUser(user);
+                  void setValue("userId", user?.id ?? "", { shouldValidate: false });
+                }}
+                placeholder="Buscar por nombre, correo o identificacion..."
+                data-testid="committee-user-search"
               />
               {errors.userId !== undefined && (
                 <p className="font-secondary text-xs text-[var(--color-error)]">
@@ -258,13 +278,14 @@ export function CommitteePageClient({
                 </p>
               )}
             </div>
+
             <DialogFooter>
               <DialogClose asChild>
                 <Button
                   type="button"
                   variant="outline"
                   className="min-h-[44px]"
-                  onClick={() => { reset(); }}
+                  onClick={resetAddDialog}
                 >
                   Cancelar
                 </Button>
