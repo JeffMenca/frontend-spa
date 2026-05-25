@@ -8,6 +8,7 @@ import { UserListSchema, type UserData } from "@/lib/validators/user";
 interface UserSearchComboboxProps {
   onSelect: (user: UserData | null) => void;
   selected: UserData | null;
+  congressId?: string | undefined;
   placeholder?: string;
   "data-testid"?: string;
 }
@@ -15,6 +16,7 @@ interface UserSearchComboboxProps {
 export function UserSearchCombobox({
   onSelect,
   selected,
+  congressId,
   placeholder = "Buscar por nombre, correo o identificacion...",
   "data-testid": testId,
 }: UserSearchComboboxProps): React.ReactElement {
@@ -40,7 +42,11 @@ export function UserSearchCombobox({
     }
     setLoading(true);
     try {
-      const res = await fetch(`/api/users?search=${encodeURIComponent(term.trim())}&size=10`);
+      const url =
+        congressId !== undefined && congressId !== ""
+          ? `/api/congresses/${congressId}/enrollments/participants?search=${encodeURIComponent(term.trim())}&size=20`
+          : `/api/users?search=${encodeURIComponent(term.trim())}&size=10`;
+      const res = await fetch(url);
       if (!res.ok) {
         setResults([]);
         return;
@@ -56,7 +62,7 @@ export function UserSearchCombobox({
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [congressId]);
 
   function handleQueryChange(e: React.ChangeEvent<HTMLInputElement>): void {
     const value = e.target.value;

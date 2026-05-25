@@ -4,6 +4,7 @@ import { PageHeader } from "@/components/ui/page-header";
 import { ActivityBadge } from "@/components/domain/ActivityBadge";
 import { CongressActions } from "@/components/domain/CongressActions";
 import { ReserveActivityButton } from "@/components/domain/ReserveActivityButton";
+import { AttendActivityButton } from "@/components/domain/AttendActivityButton";
 import { SubmitProposalButton } from "@/components/domain/SubmitProposalButton";
 import { CongressSchema } from "@/lib/validators/congress";
 import { ActivityListSchema } from "@/lib/validators/activity";
@@ -204,6 +205,9 @@ export default async function CongressDetailPage({
 
                   {activity.type === "TALLER" && (
                     <ReserveActivityButton activityId={activity.id} />
+                  )}
+                  {activity.type === "PONENCIA" && (
+                    <AttendActivityButton activityId={activity.id} />
                   )}
                 </div>
               </li>

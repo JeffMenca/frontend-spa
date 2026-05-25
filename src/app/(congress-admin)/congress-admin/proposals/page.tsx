@@ -1,10 +1,10 @@
 import { redirect } from "next/navigation";
 import { PageHeader } from "@/components/ui/page-header";
 import { ProposalsAdminPageClient } from "@/components/domain/ProposalsAdminPageClient";
-import { CongressListSchema } from "@/lib/validators/congress";
 import { UserSchema } from "@/lib/validators/user";
 import { getSession } from "@/lib/auth/session";
 import { serverFetch } from "@/lib/api/server-fetch";
+import { fetchAdminCongresses } from "@/lib/api/fetch-admin-congresses";
 
 const BASE = process.env["NEXT_PUBLIC_APP_URL"] ?? "http://localhost:3000";
 
@@ -12,35 +12,16 @@ export default async function ProposalsPage(): Promise<React.ReactElement> {
   const session = await getSession();
   if (session === null) redirect("/login");
 
-  const [congressesRes, meRes] = await Promise.all([
-    serverFetch(`${BASE}/api/congresses`, { cache: "no-store" }),
+  const [congresses, meRes] = await Promise.all([
+    fetchAdminCongresses(),
     serverFetch(`${BASE}/api/users/me`, { cache: "no-store" }),
   ]);
 
-  if (congressesRes.status === 401 || meRes.status === 401) redirect("/login");
+  if (meRes.status === 401) redirect("/login");
 
-  const [congressesRaw, meRaw] = await Promise.all([
-    congressesRes.json() as Promise<unknown>,
-    meRes.json() as Promise<unknown>,
-  ]);
-
-  const congressesParsed = CongressListSchema.safeParse(congressesRaw);
-  const meParsed = UserSchema.safeParse(meRaw);
+  const rawMe: unknown = await meRes.json();
+  const meParsed = UserSchema.safeParse(rawMe);
   const userId = meParsed.success ? meParsed.data.id : session.userId;
-
-  if (!congressesParsed.success) {
-    return (
-      <div className="flex flex-col gap-6" data-testid="congress-admin-proposals-page">
-        <PageHeader
-          title="Propuestas"
-          description="Revisa y evalua las propuestas recibidas."
-        />
-        <p className="font-secondary text-sm text-[var(--color-error)]">
-          Error al cargar los congresos. Intenta de nuevo mas tarde.
-        </p>
-      </div>
-    );
-  }
 
   return (
     <div className="flex flex-col gap-6" data-testid="congress-admin-proposals-page">
@@ -49,7 +30,7 @@ export default async function ProposalsPage(): Promise<React.ReactElement> {
         description="Revisa y evalua las propuestas recibidas."
       />
       <ProposalsAdminPageClient
-        congresses={congressesParsed.data.items}
+        congresses={congresses}
         currentUserId={userId}
       />
     </div>
