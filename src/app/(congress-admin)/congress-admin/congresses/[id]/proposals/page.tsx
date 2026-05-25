@@ -9,6 +9,7 @@ import { CallListSchema, type CallData } from "@/lib/validators/call";
 import { ProposalListSchema, type ProposalData } from "@/lib/validators/proposal";
 import { CommitteeMemberListSchema } from "@/lib/validators/committee";
 import { UserSchema } from "@/lib/validators/user";
+import { serverFetch } from "@/lib/api/server-fetch";
 
 const BASE = process.env["NEXT_PUBLIC_APP_URL"] ?? "http://localhost:3000";
 
@@ -23,10 +24,10 @@ export default async function CongressProposalsPage({
   const { id } = await params;
 
   const [congressRes, callsRes, committeeRes, meRes] = await Promise.all([
-    fetch(`${BASE}/api/congresses/${id}`, { cache: "no-store" }),
-    fetch(`${BASE}/api/congresses/${id}/calls`, { cache: "no-store" }),
-    fetch(`${BASE}/api/congresses/${id}/committee`, { cache: "no-store" }),
-    fetch(`${BASE}/api/users/me`, { cache: "no-store" }),
+    serverFetch(`${BASE}/api/congresses/${id}`, { cache: "no-store" }),
+    serverFetch(`${BASE}/api/congresses/${id}/calls`, { cache: "no-store" }),
+    serverFetch(`${BASE}/api/congresses/${id}/committee`, { cache: "no-store" }),
+    serverFetch(`${BASE}/api/users/me`, { cache: "no-store" }),
   ]);
 
   if (
@@ -68,7 +69,7 @@ export default async function CongressProposalsPage({
 
   let proposals: ProposalData[] = [];
   if (openCall !== null) {
-    const proposalsRes = await fetch(`${BASE}/api/calls/${openCall.id}/proposals`, {
+    const proposalsRes = await serverFetch(`${BASE}/api/calls/${openCall.id}/proposals`, {
       cache: "no-store",
     });
     if (proposalsRes.ok) {

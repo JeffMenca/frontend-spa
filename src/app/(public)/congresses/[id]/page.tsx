@@ -6,6 +6,7 @@ import { CongressActions } from "@/components/domain/CongressActions";
 import { ReserveActivityButton } from "@/components/domain/ReserveActivityButton";
 import { CongressSchema } from "@/lib/validators/congress";
 import { ActivityListSchema } from "@/lib/validators/activity";
+import { CallListSchema } from "@/lib/validators/call";
 import { formatCurrency, formatDate, formatDateTime } from "@/lib/utils/format";
 import type { CongressData } from "@/lib/validators/congress";
 import type { ActivityData } from "@/lib/validators/activity";
@@ -37,14 +38,30 @@ async function fetchActivities(congressId: string): Promise<ActivityData[]> {
   return parsed.success ? parsed.data.items : [];
 }
 
+async function fetchHasOpenCall(congressId: string): Promise<boolean> {
+  try {
+    const res = await fetch(`${BASE}/api/congresses/${congressId}/calls`, {
+      cache: "no-store",
+    });
+    if (!res.ok) return false;
+    const raw: unknown = await res.json();
+    const parsed = CallListSchema.safeParse(raw);
+    if (!parsed.success) return false;
+    return parsed.data.items.some((c) => c.status === "OPEN");
+  } catch {
+    return false;
+  }
+}
+
 export default async function CongressDetailPage({
   params,
 }: CongressDetailPageProps): Promise<React.ReactElement> {
   const { id } = await params;
 
-  const [congress, activities] = await Promise.all([
+  const [congress, activities, hasOpenCall] = await Promise.all([
     fetchCongress(id),
     fetchActivities(id),
+    fetchHasOpenCall(id),
   ]);
 
   if (congress === null) {
@@ -68,7 +85,7 @@ export default async function CongressDetailPage({
             description={congress.institutionName}
             className="mb-0"
           />
-          <CongressActions congressId={congress.id} />
+          <CongressActions congressId={congress.id} hasOpenCall={hasOpenCall} />
         </div>
 
         <p className="mb-6 font-secondary text-sm leading-relaxed text-[var(--color-text-primary)]">

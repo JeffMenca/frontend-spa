@@ -5,6 +5,7 @@ import { getSession } from "@/lib/auth/session";
 import { LoadingPage } from "@/components/ui/loading-spinner";
 import { GuestSpeakersPageClient } from "@/components/domain/GuestSpeakersPageClient";
 import { UserListSchema } from "@/lib/validators/user";
+import { serverFetch } from "@/lib/api/server-fetch";
 
 const BASE = process.env["NEXT_PUBLIC_APP_URL"] ?? "http://localhost:3000";
 
@@ -12,7 +13,7 @@ export default async function GuestSpeakersPage(): Promise<React.ReactElement> {
   const session = await getSession();
   if (session === null) redirect("/login");
 
-  const res = await fetch(`${BASE}/api/users?role=GUEST_SPEAKER`, {
+  const res = await serverFetch(`${BASE}/api/users?role=GUEST_SPEAKER`, {
     cache: "no-store",
   });
 

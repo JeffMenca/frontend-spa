@@ -8,6 +8,7 @@ import { PageHeader } from "@/components/ui/page-header";
 import { EmptyState } from "@/components/ui/empty-state";
 import { ActivityBadge } from "@/components/domain/ActivityBadge";
 import { ActivityFormDialog } from "@/components/domain/ActivityFormDialog";
+import { CongressCombobox } from "@/components/domain/CongressCombobox";
 import {
   Dialog,
   DialogContent,
@@ -17,6 +18,7 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import { ActivityListSchema, type ActivityData } from "@/lib/validators/activity";
+import { RoomListSchema, type RoomData } from "@/lib/validators/room";
 import type { CongressData } from "@/lib/validators/congress";
 import { ProblemDetailSchema } from "@/lib/validators/error";
 import { ERROR_MESSAGES } from "@/lib/utils/error-messages";
@@ -36,6 +38,8 @@ export function ActivitiesPageClient({
   );
   const [activities, setActivities] = useState<ActivityData[]>([]);
   const [isLoadingActivities, setIsLoadingActivities] = useState(false);
+  const [rooms, setRooms] = useState<RoomData[]>([]);
+  const [isLoadingRooms, setIsLoadingRooms] = useState(false);
 
   const [formOpen, setFormOpen] = useState(false);
   const [formMode, setFormMode] = useState<"create" | "edit">("create");
@@ -78,12 +82,35 @@ export function ActivitiesPageClient({
     [toast],
   );
 
-  function handleCongressChange(congressId: string): void {
-    setSelectedCongressId(congressId === "" ? null : congressId);
-    if (congressId !== "") {
+  const loadRooms = useCallback(
+    async (congressId: string): Promise<void> => {
+      setIsLoadingRooms(true);
+      try {
+        const res = await fetch(`/api/congresses/${congressId}/rooms`);
+        if (!res.ok) {
+          setRooms([]);
+          return;
+        }
+        const raw: unknown = await res.json();
+        const parsed = RoomListSchema.safeParse(raw);
+        setRooms(parsed.success ? parsed.data.items : []);
+      } catch {
+        setRooms([]);
+      } finally {
+        setIsLoadingRooms(false);
+      }
+    },
+    [],
+  );
+
+  function handleCongressChange(congressId: string | null): void {
+    setSelectedCongressId(congressId);
+    if (congressId !== null) {
       void loadActivities(congressId);
+      void loadRooms(congressId);
     } else {
       setActivities([]);
+      setRooms([]);
     }
   }
 
@@ -184,19 +211,12 @@ export function ActivitiesPageClient({
             >
               Selecciona un congreso
             </label>
-            <select
+            <CongressCombobox
               id="congress-select-activities"
-              value={selectedCongressId ?? ""}
-              onChange={(e) => handleCongressChange(e.target.value)}
-              className="h-11 w-full max-w-sm rounded-md border border-[var(--color-border)] bg-[var(--color-white)] px-3 font-secondary text-sm text-[var(--color-text-primary-black)] focus-visible:border-ring focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50"
-            >
-              <option value="">-- Selecciona un congreso --</option>
-              {congresses.map((c) => (
-                <option key={c.id} value={c.id}>
-                  {c.name}
-                </option>
-              ))}
-            </select>
+              congresses={congresses}
+              value={selectedCongressId}
+              onChange={handleCongressChange}
+            />
           </div>
 
           {/* Activities list */}
@@ -253,7 +273,7 @@ export function ActivitiesPageClient({
                           </p>
                           <div className="flex flex-wrap items-center gap-4 text-xs text-[var(--color-text-secondary)]">
                             <span className="font-secondary">
-                              Sala: {activity.roomId.slice(0, 8)}...
+                              Sala: {rooms.find((r) => r.id === activity.roomId)?.name ?? activity.roomId.slice(0, 8) + "..."}
                             </span>
                             <span className="font-secondary">
                               {formatDateTime(activity.startTime)} &ndash;{" "}
@@ -326,6 +346,8 @@ export function ActivitiesPageClient({
           mode={formMode}
           activity={editTarget}
           onSuccess={handleActivityFormSuccess}
+          rooms={rooms}
+          loadingRooms={isLoadingRooms}
         />
       )}
 
