@@ -1,6 +1,6 @@
 // Participant: proposal submission flow (US-030, US-032)
 import { test, expect } from "@playwright/test";
-import { loginAsParticipantAndWait, loginAsCongressAdminAndWait, MOCK_IDS } from "../helpers/auth";
+import { loginAsParticipantAndWait } from "../helpers/auth";
 
 const OPEN_CALL_ID = "60000000-0000-0000-0000-000000000001";
 const CLOSED_CALL_ID = "60000000-0000-0000-0000-000000000002";

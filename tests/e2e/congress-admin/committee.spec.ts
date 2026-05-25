@@ -1,6 +1,6 @@
 // CongressAdmin: scientific committee management (US-034, US-035)
 import { test, expect } from "@playwright/test";
-import { loginAsCongressAdminAndWait, loginAsParticipantAndWait, MOCK_IDS } from "../helpers/auth";
+import { loginAsCongressAdminAndWait, loginAsParticipantAndWait } from "../helpers/auth";
 
 const CONGRESS_ID = "20000000-0000-0000-0000-000000000001";
 const VALID_USER_UUID = "10000000-0000-0000-0000-000000000001"; // a participant in mock data

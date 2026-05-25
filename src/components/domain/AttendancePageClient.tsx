@@ -23,8 +23,8 @@ import { useToast } from "@/hooks/useToast";
 
 interface AttendancePageClientProps {
   congresses: CongressData[];
-  initialCongressId?: string;
-  initialActivityId?: string;
+  initialCongressId?: string | undefined;
+  initialActivityId?: string | undefined;
 }
 
 export function AttendancePageClient({

@@ -1,7 +1,7 @@
 // System admin: user management flows
 // Covers: US-004, US-005, US-006, US-007 — critical for the most privileged admin path
 import { test, expect } from "@playwright/test";
-import { loginAsSystemAdminAndWait, MOCK_USERS } from "../helpers/auth";
+import { loginAsSystemAdminAndWait } from "../helpers/auth";
 
 const VALID_UUID = "11111111-0000-0000-0000-000000000001";
 

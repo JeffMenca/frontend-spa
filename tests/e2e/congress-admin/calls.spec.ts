@@ -1,6 +1,6 @@
 // CongressAdmin: calls for proposals management (US-028, US-029)
 import { test, expect } from "@playwright/test";
-import { loginAsCongressAdminAndWait, loginAsParticipantAndWait, MOCK_IDS } from "../helpers/auth";
+import { loginAsCongressAdminAndWait, loginAsParticipantAndWait } from "../helpers/auth";
 
 const CONGRESS_ID = "20000000-0000-0000-0000-000000000001";
 
