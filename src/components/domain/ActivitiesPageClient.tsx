@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useCallback } from "react";
-import { Plus, Building2, Pencil, Trash2 } from "lucide-react";
+import Link from "next/link";
+import { Plus, Building2, Pencil, Trash2, ClipboardCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/ui/page-header";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -267,7 +268,16 @@ export function ActivitiesPageClient({
                         </div>
 
                         {/* Actions */}
-                        <div className="flex shrink-0 items-center gap-2">
+                        <div className="flex shrink-0 flex-wrap items-center gap-2">
+                          <Link
+                            href={`/congress-admin/attendance?congressId=${selectedCongressId ?? ""}&activityId=${activity.id}`}
+                            className="inline-flex min-h-[44px] items-center gap-1.5 rounded-md border border-[var(--color-primary)] px-3 py-2 font-secondary text-sm text-[var(--color-primary-text)] transition-colors duration-200 hover:bg-[var(--color-pale-blue)]"
+                            aria-label={`Registrar asistencia para ${activity.name}`}
+                            data-testid="activity-attendance-link"
+                          >
+                            <ClipboardCheck size={16} strokeWidth={1.5} aria-hidden="true" />
+                            <span>Asistencia</span>
+                          </Link>
                           <Button
                             variant="outline"
                             size="sm"
