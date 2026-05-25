@@ -394,6 +394,17 @@ export async function cancelReservation(id: string, token: string): Promise<void
 
 // --- Attendance ---
 
+export async function getUserAttendance(
+  userId: string,
+  token: string,
+): Promise<AttendanceData[]> {
+  return apiFetch(
+    `${CONFERENCE_URL}/users/${userId}/attendance`,
+    apiResponseOf(z.array(AttendanceSchema)),
+    { token },
+  );
+}
+
 export async function registerAttendance(data: unknown, token: string): Promise<AttendanceData> {
   return apiFetch(
     `${CONFERENCE_URL}/attendance/register`,

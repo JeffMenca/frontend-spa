@@ -34,6 +34,8 @@ function getNavLinks(session: Session | null): NavLink[] {
       { href: "/participant/profile", label: "Mi perfil" },
       { href: "/participant/wallet", label: "Mi cartera" },
       { href: "/participant/enrollments", label: "Mis matriculas" },
+      { href: "/participant/reservations", label: "Mis reservas" },
+      { href: "/participant/attendance", label: "Mi asistencia" },
       { href: "/participant/diplomas", label: "Mis diplomas" },
     ];
   }

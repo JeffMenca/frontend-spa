@@ -10,6 +10,7 @@ import type { ProposalData, ProposalListData } from "@/lib/validators/proposal";
 import type { EnrollmentData, EnrollmentListData } from "@/lib/validators/enrollment";
 import type { ReservationData, ReservationListData } from "@/lib/validators/reservation";
 import type { AttendanceData, AttendanceListData } from "@/lib/validators/attendance";
+// AttendanceData[] is the return type of getUserAttendance — no extra import needed
 import type { CallData, CallListData } from "@/lib/validators/call";
 import type { CommitteeMemberData, CommitteeMemberListData } from "@/lib/validators/committee";
 import type { DiplomaData, DiplomaListData, DiplomaPrintData } from "@/lib/validators/diploma";
@@ -421,6 +422,14 @@ export async function listAttendance(
     items = items.filter((a) => a.personalId === personalId);
   }
   return { items, totalItems: items.length, totalPages: 1 };
+}
+
+export async function getUserAttendance(
+  _userId: string,
+  _token: string,
+): Promise<AttendanceData[]> {
+  await delay();
+  return MOCK_ATTENDANCE;
 }
 
 // --- Calls ---

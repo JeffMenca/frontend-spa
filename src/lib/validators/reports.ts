@@ -3,11 +3,11 @@ import { z } from "zod";
 // --- CongressAdmin reports ---
 
 export const ParticipantReportRowSchema = z.object({
-  personalId: z.string(),
-  fullName: z.string(),
-  organization: z.string(),
-  email: z.string(),
-  phone: z.string(),
+  personalId: z.string().nullable().transform((v) => v ?? ""),
+  fullName: z.string().nullable().transform((v) => v ?? ""),
+  organization: z.string().nullable().transform((v) => v ?? ""),
+  email: z.string().nullable().transform((v) => v ?? ""),
+  phone: z.string().nullable().transform((v) => v ?? ""),
   participationTypes: z.array(z.string()),
 });
 
