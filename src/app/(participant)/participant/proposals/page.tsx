@@ -41,6 +41,20 @@ export default async function ParticipantProposalsPage(): Promise<React.ReactEle
 
   if (res.status === 401) redirect("/login");
 
+  if (!res.ok) {
+    return (
+      <div data-testid="proposals-page" className="flex flex-col gap-6">
+        <PageHeader
+          title="Mis propuestas"
+          description="Propuestas de ponencias y talleres que has enviado."
+        />
+        <p className="font-secondary text-sm text-[var(--color-error)]">
+          Error al cargar las propuestas. Intenta de nuevo mas tarde.
+        </p>
+      </div>
+    );
+  }
+
   const raw: unknown = await res.json();
   const parsed = ProposalListSchema.safeParse(raw);
 
