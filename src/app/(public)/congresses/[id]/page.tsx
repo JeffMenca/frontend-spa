@@ -4,6 +4,7 @@ import { PageHeader } from "@/components/ui/page-header";
 import { ActivityBadge } from "@/components/domain/ActivityBadge";
 import { CongressActions } from "@/components/domain/CongressActions";
 import { ReserveActivityButton } from "@/components/domain/ReserveActivityButton";
+import { SubmitProposalButton } from "@/components/domain/SubmitProposalButton";
 import { CongressSchema } from "@/lib/validators/congress";
 import { ActivityListSchema } from "@/lib/validators/activity";
 import { CallListSchema } from "@/lib/validators/call";
@@ -38,18 +39,19 @@ async function fetchActivities(congressId: string): Promise<ActivityData[]> {
   return parsed.success ? parsed.data.items : [];
 }
 
-async function fetchHasOpenCall(congressId: string): Promise<boolean> {
+async function fetchOpenCall(congressId: string): Promise<{ hasOpenCall: boolean; openCallId: string | null }> {
   try {
     const res = await fetch(`${BASE}/api/congresses/${congressId}/calls`, {
       cache: "no-store",
     });
-    if (!res.ok) return false;
+    if (!res.ok) return { hasOpenCall: false, openCallId: null };
     const raw: unknown = await res.json();
     const parsed = CallListSchema.safeParse(raw);
-    if (!parsed.success) return false;
-    return parsed.data.items.some((c) => c.status === "OPEN");
+    if (!parsed.success) return { hasOpenCall: false, openCallId: null };
+    const open = parsed.data.items.find((c) => c.status === "OPEN");
+    return { hasOpenCall: open !== undefined, openCallId: open?.id ?? null };
   } catch {
-    return false;
+    return { hasOpenCall: false, openCallId: null };
   }
 }
 
@@ -58,10 +60,10 @@ export default async function CongressDetailPage({
 }: CongressDetailPageProps): Promise<React.ReactElement> {
   const { id } = await params;
 
-  const [congress, activities, hasOpenCall] = await Promise.all([
+  const [congress, activities, { hasOpenCall, openCallId }] = await Promise.all([
     fetchCongress(id),
     fetchActivities(id),
-    fetchHasOpenCall(id),
+    fetchOpenCall(id),
   ]);
 
   if (congress === null) {
@@ -85,7 +87,12 @@ export default async function CongressDetailPage({
             description={congress.institutionName}
             className="mb-0"
           />
-          <CongressActions congressId={congress.id} hasOpenCall={hasOpenCall} />
+          <div className="flex flex-wrap items-center gap-2">
+            {openCallId !== null && (
+              <SubmitProposalButton callId={openCallId} />
+            )}
+            <CongressActions congressId={congress.id} hasOpenCall={hasOpenCall} />
+          </div>
         </div>
 
         <p className="mb-6 font-secondary text-sm leading-relaxed text-[var(--color-text-primary)]">
@@ -196,7 +203,7 @@ export default async function CongressDetailPage({
                   </div>
 
                   {activity.type === "TALLER" && (
-                    <ReserveActivityButton />
+                    <ReserveActivityButton activityId={activity.id} />
                   )}
                 </div>
               </li>
