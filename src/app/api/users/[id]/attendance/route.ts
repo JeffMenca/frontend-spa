@@ -4,6 +4,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { getSession } from "@/lib/auth/session";
 import { activeConference } from "@/lib/api/active-conference";
+import { withTokenRefresh } from "@/lib/api/with-token-refresh";
 import {
   unauthorizedResponse,
   forbiddenResponse,
@@ -28,7 +29,9 @@ export async function GET(
   const token = await getToken();
   if (token === null) return unauthorizedResponse();
   try {
-    const items = await activeConference.getUserAttendance(id, token);
+    const items = await withTokenRefresh(token, (t) =>
+      activeConference.getUserAttendance(id, t),
+    );
     return NextResponse.json({ items, totalItems: items.length, totalPages: 1 });
   } catch (error) {
     if (error instanceof ApplicationError) return applicationErrorResponse(error);

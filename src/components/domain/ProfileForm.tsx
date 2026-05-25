@@ -19,6 +19,7 @@ interface ProfileFormProps {
     fullName: string;
     organization: string;
     phone: string;
+    personalId: string;
   };
 }
 
@@ -101,6 +102,25 @@ export function ProfileForm({ userId, initialValues }: ProfileFormProps): React.
             />
             <p className="font-secondary text-xs text-[var(--color-text-secondary)]">
               El correo electronico no se puede modificar.
+            </p>
+          </div>
+
+          {/* Personal ID — read-only */}
+          <div className="flex flex-col gap-2">
+            <Label htmlFor="profile-personalid" className="font-secondary text-sm text-[var(--color-text-primary)]">
+              Identificacion personal
+            </Label>
+            <Input
+              id="profile-personalid"
+              type="text"
+              value={initialValues.personalId}
+              readOnly
+              disabled
+              className="cursor-not-allowed opacity-60"
+              aria-label="Identificacion personal (no editable)"
+            />
+            <p className="font-secondary text-xs text-[var(--color-text-secondary)]">
+              La identificacion personal no se puede modificar.
             </p>
           </div>
 
