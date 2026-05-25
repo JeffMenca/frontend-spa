@@ -4,7 +4,13 @@ import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { getSession } from "@/lib/auth/session";
 import { activeConference } from "@/lib/api/active-conference";
-import { unauthorizedResponse, internalErrorResponse } from "@/lib/api/responses";
+import { withTokenRefresh } from "@/lib/api/with-token-refresh";
+import {
+  unauthorizedResponse,
+  internalErrorResponse,
+  applicationErrorResponse,
+} from "@/lib/api/responses";
+import { ApplicationError } from "@/types/error";
 
 async function getToken(): Promise<string | null> {
   const cookieStore = await cookies();
@@ -18,8 +24,11 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
   if (token === null) return unauthorizedResponse();
   try {
     const params = new URL(request.url).searchParams;
-    return NextResponse.json(await activeConference.listAttendance(token, params));
-  } catch {
+    return NextResponse.json(
+      await withTokenRefresh(token, (t) => activeConference.listAttendance(t, params)),
+    );
+  } catch (error) {
+    if (error instanceof ApplicationError) return applicationErrorResponse(error);
     return internalErrorResponse();
   }
 }

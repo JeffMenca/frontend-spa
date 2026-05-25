@@ -56,6 +56,7 @@ export default async function ProfilePage(): Promise<React.ReactElement> {
             fullName: user.fullName,
             organization: user.organization,
             phone: user.phone,
+            personalId: user.personalId,
           }}
         />
       </div>
