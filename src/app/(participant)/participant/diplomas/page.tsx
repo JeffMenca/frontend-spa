@@ -87,10 +87,15 @@ function DiplomaCard({ diploma, index }: { diploma: DiplomaData; index: number }
               Ver / Imprimir
             </a>
           ) : (
-            <span className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--color-border)] px-4 py-2 font-secondary text-sm text-[var(--color-text-secondary)]">
-              <Lock size={13} strokeWidth={1.5} aria-hidden="true" />
-              No disponible
-            </span>
+            <div className="flex flex-col items-end gap-1">
+              <span className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--color-border)] px-4 py-2 font-secondary text-sm text-[var(--color-text-secondary)]">
+                <Lock size={13} strokeWidth={1.5} aria-hidden="true" />
+                No disponible
+              </span>
+              <p className="font-secondary text-xs text-[var(--color-text-secondary)]">
+                Disponible cuando tu participacion sea validada.
+              </p>
+            </div>
           )}
         </div>
       </div>

@@ -269,7 +269,8 @@ export function CommitteePageClient({
                   setSelectedUser(user);
                   void setValue("userId", user?.id ?? "", { shouldValidate: false });
                 }}
-                placeholder="Buscar por nombre, correo o identificacion..."
+                congressId={selectedCongressId ?? undefined}
+                placeholder="Buscar participantes inscritos..."
                 data-testid="committee-user-search"
               />
               {errors.userId !== undefined && (

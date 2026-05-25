@@ -263,7 +263,8 @@ export function AttendancePageClient({
                   setSelectedParticipant(user);
                   setValue("personalId", user?.personalId ?? "");
                 }}
-                placeholder="Buscar por nombre, correo o identificacion..."
+                congressId={selectedCongressId ?? undefined}
+                placeholder="Buscar participantes inscritos..."
                 data-testid="attendance-participant-search"
               />
               <p className="font-secondary text-xs text-[var(--color-text-secondary)]">

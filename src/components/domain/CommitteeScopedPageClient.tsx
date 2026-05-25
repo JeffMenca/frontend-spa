@@ -234,7 +234,8 @@ export function CommitteeScopedPageClient({
                     setValue("userId", "");
                   }
                 }}
-                placeholder="Buscar por nombre, correo o identificacion..."
+                congressId={congressId}
+                placeholder="Buscar participantes inscritos..."
                 data-testid="committee-user-search"
               />
               {errors.userId !== undefined && (
