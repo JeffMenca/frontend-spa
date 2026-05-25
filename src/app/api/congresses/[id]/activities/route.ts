@@ -8,7 +8,9 @@ import {
   unauthorizedResponse,
   internalErrorResponse,
   forbiddenResponse,
+  applicationErrorResponse,
 } from "@/lib/api/responses";
+import { ApplicationError } from "@/types/error";
 
 async function getToken(): Promise<string | null> {
   const cookieStore = await cookies();
@@ -23,7 +25,8 @@ export async function GET(
   try {
     const queryParams = new URL(request.url).searchParams;
     return NextResponse.json(await activeConference.listActivities(id, queryParams));
-  } catch {
+  } catch (error) {
+    if (error instanceof ApplicationError) return applicationErrorResponse(error);
     return internalErrorResponse();
   }
 }
@@ -43,7 +46,8 @@ export async function POST(
     return NextResponse.json(await activeConference.createActivity(id, body, token), {
       status: 201,
     });
-  } catch {
+  } catch (error) {
+    if (error instanceof ApplicationError) return applicationErrorResponse(error);
     return internalErrorResponse();
   }
 }

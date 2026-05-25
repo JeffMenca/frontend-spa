@@ -16,7 +16,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
   CreateGuestSpeakerSchema,
+  UserSchema,
   type CreateGuestSpeakerData,
+  type UserData,
 } from "@/lib/validators/user";
 import { ProblemDetailSchema } from "@/lib/validators/error";
 import { useToast } from "@/hooks/useToast";
@@ -24,7 +26,7 @@ import { useToast } from "@/hooks/useToast";
 interface CreateGuestSpeakerDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onSuccess: () => void;
+  onSuccess: (created: UserData) => void;
 }
 
 export function CreateGuestSpeakerDialog({
@@ -70,10 +72,17 @@ export function CreateGuestSpeakerDialog({
         return;
       }
 
+      const body: unknown = await response.json();
+      const parsed = UserSchema.safeParse(body);
+      if (!parsed.success) {
+        toast.error("Error al procesar la respuesta del servidor.");
+        return;
+      }
+
       toast.success("Ponente invitado registrado exitosamente.");
       reset();
       onOpenChange(false);
-      onSuccess();
+      onSuccess(parsed.data);
     } catch {
       toast.error("Error de conexion al registrar el ponente invitado.");
     } finally {

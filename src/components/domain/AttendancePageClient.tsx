@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useCallback, useEffect } from "react";
-import { ClipboardCheck, ClipboardList } from "lucide-react";
+import { ClipboardCheck, ClipboardList, Award } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label";
 import { PageHeader } from "@/components/ui/page-header";
 import { EmptyState } from "@/components/ui/empty-state";
 import { CongressCombobox } from "@/components/domain/CongressCombobox";
+import { UserSearchCombobox } from "@/components/domain/UserSearchCombobox";
 import {
   AttendanceListSchema,
   RegisterAttendanceSchema,
@@ -19,6 +20,7 @@ import {
 import { ProblemDetailSchema } from "@/lib/validators/error";
 import { ActivityListSchema, type ActivityData } from "@/lib/validators/activity";
 import { type CongressData } from "@/lib/validators/congress";
+import { type UserData } from "@/lib/validators/user";
 import { formatDateTime } from "@/lib/utils/format";
 import { useToast } from "@/hooks/useToast";
 
@@ -43,6 +45,7 @@ export function AttendancePageClient({
   const [attendanceHistory, setAttendanceHistory] = useState<AttendanceData[]>([]);
   const [loadingHistory, setLoadingHistory] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [selectedParticipant, setSelectedParticipant] = useState<UserData | null>(null);
 
   const {
     register,
@@ -122,6 +125,7 @@ export function AttendancePageClient({
         return;
       }
       toast.success("Asistencia registrada exitosamente.");
+      setSelectedParticipant(null);
       reset({ activityId: data.activityId, personalId: "" });
     } catch {
       toast.error("Error de conexion al registrar asistencia.");
@@ -181,6 +185,20 @@ export function AttendancePageClient({
         description="Registra y consulta la asistencia a actividades."
       />
 
+      {/* Nota sobre diplomas */}
+      <div className="flex items-start gap-3 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] p-4">
+        <Award size={18} strokeWidth={1.5} className="mt-0.5 shrink-0 text-[var(--color-primary-text)]" aria-hidden="true" />
+        <div className="flex flex-col gap-0.5">
+          <p className="font-secondary text-sm font-medium text-[var(--color-text-primary-black)]">
+            Diplomas automaticos
+          </p>
+          <p className="font-secondary text-xs text-[var(--color-text-secondary)]">
+            Los diplomas se generan automaticamente: <strong>Participacion</strong> al registrar 3 o mas asistencias por congreso,
+            y <strong>Liderazgo</strong> al asignar un ponente o tallerista como lider de una actividad. El participante los ve en su seccion de diplomas.
+          </p>
+        </div>
+      </div>
+
       <div className="flex flex-col gap-8">
         {/* Seccion 1: Registro */}
         <div className="rounded-lg border border-[var(--color-border)] bg-[var(--color-white)] p-6">
@@ -205,7 +223,9 @@ export function AttendancePageClient({
                 id="attendance-congress-select"
                 congresses={congresses}
                 value={selectedCongressId}
-                onChange={(id) => { void handleCongressChange(id); }}
+                onChange={(id) => {
+                  void handleCongressChange(id);
+                }}
               />
             </div>
 
@@ -220,9 +240,7 @@ export function AttendancePageClient({
                 data-testid="attendance-activity-select"
               >
                 <option value="">
-                  {loadingActivities
-                    ? "Cargando actividades..."
-                    : "-- Selecciona una actividad --"}
+                  {loadingActivities ? "Cargando actividades..." : "-- Selecciona una actividad --"}
                 </option>
                 {activities.map((activity) => (
                   <option key={activity.id} value={activity.id}>
@@ -238,9 +256,19 @@ export function AttendancePageClient({
             </div>
 
             <div className="flex flex-col gap-2">
-              <Label htmlFor="attendance-personalid-input">
-                Identificacion del participante
-              </Label>
+              <Label htmlFor="attendance-participant-search">Participante</Label>
+              <UserSearchCombobox
+                selected={selectedParticipant}
+                onSelect={(user) => {
+                  setSelectedParticipant(user);
+                  setValue("personalId", user?.personalId ?? "");
+                }}
+                placeholder="Buscar por nombre, correo o identificacion..."
+                data-testid="attendance-participant-search"
+              />
+              <p className="font-secondary text-xs text-[var(--color-text-secondary)]">
+                O ingresa la identificacion directamente:
+              </p>
               <Input
                 id="attendance-personalid-input"
                 placeholder="Ej. 12345678 o ABC123"
@@ -304,9 +332,7 @@ export function AttendancePageClient({
                     <tr
                       key={record.id}
                       className={`border-b border-[var(--color-border)] transition-colors duration-150 ${
-                        idx % 2 === 0
-                          ? "bg-[var(--color-white)]"
-                          : "bg-[var(--color-surface)]"
+                        idx % 2 === 0 ? "bg-[var(--color-white)]" : "bg-[var(--color-surface)]"
                       }`}
                     >
                       <td className="px-4 py-3 text-[var(--color-text-primary)]">

@@ -7,9 +7,9 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { PageHeader } from "@/components/ui/page-header";
+import { UserSearchCombobox } from "@/components/domain/UserSearchCombobox";
 import {
   Dialog,
   DialogContent,
@@ -25,6 +25,7 @@ import {
   type AddCommitteeMemberData,
 } from "@/lib/validators/committee";
 import { ProblemDetailSchema } from "@/lib/validators/error";
+import { type UserData } from "@/lib/validators/user";
 import { formatDate } from "@/lib/utils/format";
 import { useToast } from "@/hooks/useToast";
 
@@ -45,11 +46,13 @@ export function CommitteeScopedPageClient({
   const [removeDialogOpen, setRemoveDialogOpen] = useState(false);
   const [memberToRemove, setMemberToRemove] = useState<CommitteeMemberData | null>(null);
   const [mutating, setMutating] = useState(false);
+  const [selectedUser, setSelectedUser] = useState<UserData | null>(null);
 
   const {
     register,
     handleSubmit,
     reset,
+    setValue,
     formState: { errors },
   } = useForm<AddCommitteeMemberData>({
     resolver: zodResolver(AddCommitteeMemberSchema),
@@ -85,6 +88,7 @@ export function CommitteeScopedPageClient({
       }
       toast.success("Miembro agregado al comite.");
       reset();
+      setSelectedUser(null);
       setAddDialogOpen(false);
       await refreshMembers();
     } catch {
@@ -98,10 +102,9 @@ export function CommitteeScopedPageClient({
     if (memberToRemove === null) return;
     setMutating(true);
     try {
-      const res = await fetch(
-        `/api/congresses/${congressId}/committee/${memberToRemove.userId}`,
-        { method: "DELETE" },
-      );
+      const res = await fetch(`/api/congresses/${congressId}/committee/${memberToRemove.userId}`, {
+        method: "DELETE",
+      });
       if (!res.ok) {
         toast.error("Error al quitar el miembro del comite.");
         return;
@@ -134,7 +137,9 @@ export function CommitteeScopedPageClient({
         description={`Gestiona los miembros del comite del congreso: ${congressName}`}
         action={
           <Button
-            onClick={() => { setAddDialogOpen(true); }}
+            onClick={() => {
+              setAddDialogOpen(true);
+            }}
             className="min-h-[44px] bg-[var(--color-primary)] text-white hover:scale-[1.01] active:scale-[0.99]"
             data-testid="add-member-button"
           >
@@ -151,7 +156,9 @@ export function CommitteeScopedPageClient({
           description="Este congreso no tiene miembros de comite registrados."
           action={
             <Button
-              onClick={() => { setAddDialogOpen(true); }}
+              onClick={() => {
+                setAddDialogOpen(true);
+              }}
               className="min-h-[44px] bg-[var(--color-primary)] text-white hover:scale-[1.01] active:scale-[0.99]"
               data-testid="add-member-button"
             >
@@ -161,10 +168,7 @@ export function CommitteeScopedPageClient({
           }
         />
       ) : (
-        <div
-          className="flex flex-col gap-3 animate-fade-in-up"
-          data-testid="committee-list"
-        >
+        <div className="flex flex-col gap-3 animate-fade-in-up" data-testid="committee-list">
           {members.map((member) => (
             <div
               key={member.userId}
@@ -200,7 +204,16 @@ export function CommitteeScopedPageClient({
       )}
 
       {/* Dialog: Agregar miembro */}
-      <Dialog open={addDialogOpen} onOpenChange={setAddDialogOpen}>
+      <Dialog
+        open={addDialogOpen}
+        onOpenChange={(open) => {
+          setAddDialogOpen(open);
+          if (!open) {
+            reset();
+            setSelectedUser(null);
+          }
+        }}
+      >
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Agregar miembro al comite</DialogTitle>
@@ -210,18 +223,27 @@ export function CommitteeScopedPageClient({
             className="flex flex-col gap-4 mt-2"
           >
             <div className="flex flex-col gap-1.5">
-              <Label htmlFor="userId-input">ID del usuario (UUID)</Label>
-              <Input
-                id="userId-input"
-                placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
-                {...register("userId")}
-                className="h-11"
+              <Label>Buscar participante</Label>
+              <UserSearchCombobox
+                selected={selectedUser}
+                onSelect={(user) => {
+                  setSelectedUser(user);
+                  if (user !== null) {
+                    setValue("userId", user.id);
+                  } else {
+                    setValue("userId", "");
+                  }
+                }}
+                placeholder="Buscar por nombre, correo o identificacion..."
+                data-testid="committee-user-search"
               />
               {errors.userId !== undefined && (
                 <p className="font-secondary text-xs text-[var(--color-error)]">
-                  {errors.userId.message}
+                  {errors.userId.message ?? "Selecciona un participante"}
                 </p>
               )}
+              {/* Hidden input keeps react-hook-form registered */}
+              <input type="hidden" {...register("userId")} />
             </div>
             <DialogFooter>
               <DialogClose asChild>
@@ -229,14 +251,17 @@ export function CommitteeScopedPageClient({
                   type="button"
                   variant="outline"
                   className="min-h-[44px]"
-                  onClick={() => { reset(); }}
+                  onClick={() => {
+                    reset();
+                    setSelectedUser(null);
+                  }}
                 >
                   Cancelar
                 </Button>
               </DialogClose>
               <Button
                 type="submit"
-                disabled={mutating}
+                disabled={mutating || selectedUser === null}
                 className="min-h-[44px] bg-[var(--color-primary)] text-white"
               >
                 Confirmar
@@ -263,7 +288,9 @@ export function CommitteeScopedPageClient({
                 type="button"
                 variant="outline"
                 className="min-h-[44px]"
-                onClick={() => { setMemberToRemove(null); }}
+                onClick={() => {
+                  setMemberToRemove(null);
+                }}
               >
                 Cancelar
               </Button>

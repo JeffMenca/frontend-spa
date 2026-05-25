@@ -8,7 +8,9 @@ import {
   unauthorizedResponse,
   internalErrorResponse,
   forbiddenResponse,
+  applicationErrorResponse,
 } from "@/lib/api/responses";
+import { ApplicationError } from "@/types/error";
 
 async function getToken(): Promise<string | null> {
   const cookieStore = await cookies();
@@ -22,7 +24,8 @@ export async function GET(
   const { id } = await params;
   try {
     return NextResponse.json(await activeConference.getCongress(id));
-  } catch {
+  } catch (error) {
+    if (error instanceof ApplicationError) return applicationErrorResponse(error);
     return internalErrorResponse();
   }
 }
@@ -40,7 +43,8 @@ export async function PUT(
   try {
     const body: unknown = await request.json();
     return NextResponse.json(await activeConference.updateCongress(id, body, token));
-  } catch {
+  } catch (error) {
+    if (error instanceof ApplicationError) return applicationErrorResponse(error);
     return internalErrorResponse();
   }
 }
@@ -58,7 +62,8 @@ export async function DELETE(
   try {
     await activeConference.deleteCongress(id, token);
     return new NextResponse(null, { status: 204 });
-  } catch {
+  } catch (error) {
+    if (error instanceof ApplicationError) return applicationErrorResponse(error);
     return internalErrorResponse();
   }
 }

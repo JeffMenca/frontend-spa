@@ -64,8 +64,10 @@ import {
 import {
   DiplomaSchema,
   DiplomaListSchema,
+  DiplomaPrintDataSchema,
   type DiplomaData,
   type DiplomaListData,
+  type DiplomaPrintData,
 } from "@/lib/validators/diploma";
 import {
   ParticipantReportSchema,
@@ -495,6 +497,12 @@ export async function getDiplomasByUser(userId: string, token: string): Promise<
 
 export async function getDiploma(id: string, token: string): Promise<DiplomaData> {
   return apiFetch(`${CONFERENCE_URL}/diplomas/${id}`, apiResponseOf(DiplomaSchema), { token });
+}
+
+export async function getDiplomaPrintData(id: string, token: string): Promise<DiplomaPrintData> {
+  return apiFetch(`${CONFERENCE_URL}/diplomas/${id}/print-data`, apiResponseOf(DiplomaPrintDataSchema), {
+    token,
+  });
 }
 
 export async function downloadDiploma(id: string, token: string): Promise<ArrayBuffer> {

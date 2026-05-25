@@ -77,13 +77,14 @@ function DiplomaCard({ diploma, index }: { diploma: DiplomaData; index: number }
           {diploma.available ? (
             <a
               href={`/api/diplomas/${diploma.id}/download`}
-              download
+              target="_blank"
+              rel="noopener noreferrer"
               className="inline-flex min-h-[44px] items-center gap-2 rounded-lg bg-[var(--color-primary)] px-4 py-2 font-sans text-sm font-medium text-white transition-transform duration-200 hover:scale-[1.01] active:scale-[0.99]"
               data-testid="diploma-download-button"
-              aria-label={`Descargar diploma de ${diploma.congressName}`}
+              aria-label={`Ver diploma de ${diploma.congressName}`}
             >
               <Download size={15} strokeWidth={1.5} aria-hidden="true" />
-              Descargar
+              Ver / Imprimir
             </a>
           ) : (
             <span className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--color-border)] px-4 py-2 font-secondary text-sm text-[var(--color-text-secondary)]">
