@@ -24,6 +24,7 @@ import {
 } from "@/lib/validators/committee";
 import { ProblemDetailSchema } from "@/lib/validators/error";
 import { type CongressData } from "@/lib/validators/congress";
+import { CongressCombobox } from "@/components/domain/CongressCombobox";
 import { formatDate } from "@/lib/utils/format";
 import { useToast } from "@/hooks/useToast";
 
@@ -36,7 +37,7 @@ export function CommitteePageClient({
 }: CommitteePageClientProps): React.ReactElement {
   const toast = useToast();
 
-  const [selectedCongressId, setSelectedCongressId] = useState<string>("");
+  const [selectedCongressId, setSelectedCongressId] = useState<string | null>(null);
   const [members, setMembers] = useState<CommitteeMemberData[]>([]);
   const [loading, setLoading] = useState(false);
   const [addDialogOpen, setAddDialogOpen] = useState(false);
@@ -78,16 +79,16 @@ export function CommitteePageClient({
     [toast],
   );
 
-  const handleCongressChange = async (congressId: string) => {
+  const handleCongressChange = async (congressId: string | null) => {
     setSelectedCongressId(congressId);
     setMembers([]);
-    if (congressId !== "") {
+    if (congressId !== null) {
       await fetchMembers(congressId);
     }
   };
 
   const onAddMember = async (data: AddCommitteeMemberData) => {
-    if (selectedCongressId === "") return;
+    if (selectedCongressId === null) return;
     setMutating(true);
     try {
       const res = await fetch(`/api/congresses/${selectedCongressId}/committee`, {
@@ -113,7 +114,7 @@ export function CommitteePageClient({
   };
 
   const handleRemoveMember = async () => {
-    if (selectedCongressId === "" || memberToRemove === null) return;
+    if (selectedCongressId === null || memberToRemove === null) return;
     setMutating(true);
     try {
       const res = await fetch(
@@ -144,22 +145,15 @@ export function CommitteePageClient({
         >
           Selecciona un congreso
         </label>
-        <select
+        <CongressCombobox
           id="congress-select-committee"
+          congresses={congresses}
           value={selectedCongressId}
-          onChange={(e) => void handleCongressChange(e.target.value)}
-          className="h-11 w-full max-w-md rounded-lg border border-[var(--color-border)] bg-[var(--color-white)] px-3 font-secondary text-sm text-[var(--color-text-primary)] focus:border-[var(--color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-focus-ring)]"
-        >
-          <option value="">-- Selecciona un congreso --</option>
-          {congresses.map((congress) => (
-            <option key={congress.id} value={congress.id}>
-              {congress.name}
-            </option>
-          ))}
-        </select>
+          onChange={(id) => { void handleCongressChange(id); }}
+        />
       </div>
 
-      {selectedCongressId !== "" && (
+      {selectedCongressId !== null && (
         <div className="flex items-center justify-between">
           <p className="font-secondary text-sm text-[var(--color-text-secondary)]">
             {loading ? "Cargando miembros..." : `${members.length} miembro(s)`}
@@ -176,7 +170,7 @@ export function CommitteePageClient({
         </div>
       )}
 
-      {selectedCongressId !== "" && !loading && (
+      {selectedCongressId !== null && !loading && (
         <>
           {members.length === 0 ? (
             <EmptyState
@@ -235,7 +229,7 @@ export function CommitteePageClient({
         </>
       )}
 
-      {selectedCongressId === "" && (
+      {selectedCongressId === null && (
         <div className="rounded-lg border border-dashed border-[var(--color-border)] bg-[var(--color-surface)] px-8 py-12 text-center">
           <p className="font-secondary text-sm text-[var(--color-text-secondary)]">
             Selecciona un congreso para ver su comite.

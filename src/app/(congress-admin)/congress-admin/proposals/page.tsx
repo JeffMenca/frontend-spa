@@ -4,6 +4,7 @@ import { ProposalsAdminPageClient } from "@/components/domain/ProposalsAdminPage
 import { CongressListSchema } from "@/lib/validators/congress";
 import { UserSchema } from "@/lib/validators/user";
 import { getSession } from "@/lib/auth/session";
+import { serverFetch } from "@/lib/api/server-fetch";
 
 const BASE = process.env["NEXT_PUBLIC_APP_URL"] ?? "http://localhost:3000";
 
@@ -12,8 +13,8 @@ export default async function ProposalsPage(): Promise<React.ReactElement> {
   if (session === null) redirect("/login");
 
   const [congressesRes, meRes] = await Promise.all([
-    fetch(`${BASE}/api/congresses`, { cache: "no-store" }),
-    fetch(`${BASE}/api/users/me`, { cache: "no-store" }),
+    serverFetch(`${BASE}/api/congresses`, { cache: "no-store" }),
+    serverFetch(`${BASE}/api/users/me`, { cache: "no-store" }),
   ]);
 
   if (congressesRes.status === 401 || meRes.status === 401) redirect("/login");

@@ -3,6 +3,7 @@
 import { useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { Megaphone } from "lucide-react";
+import { CongressCombobox } from "@/components/domain/CongressCombobox";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Button } from "@/components/ui/button";
 import { CallListSchema, type CallData } from "@/lib/validators/call";
@@ -21,7 +22,7 @@ export function CallsPageClient({
   const router = useRouter();
   const toast = useToast();
 
-  const [selectedCongressId, setSelectedCongressId] = useState<string>("");
+  const [selectedCongressId, setSelectedCongressId] = useState<string | null>(null);
   const [calls, setCalls] = useState<CallData[]>([]);
   const [loadingCalls, setLoadingCalls] = useState(false);
   const [mutating, setMutating] = useState(false);
@@ -52,17 +53,19 @@ export function CallsPageClient({
     [toast],
   );
 
-  const handleCongressChange = async (congressId: string) => {
+  const handleCongressChange = async (congressId: string | null) => {
     setSelectedCongressId(congressId);
     setCalls([]);
-    await fetchCalls(congressId);
+    if (congressId !== null) {
+      await fetchCalls(congressId);
+    }
   };
 
   const handleOpenCall = async () => {
-    if (selectedCongressId === "") return;
+    if (selectedCongressId === null) return;
     setMutating(true);
     try {
-      const res = await fetch(`/api/congresses/${selectedCongressId}/calls`, {
+      const res = await fetch(`/api/congresses/${selectedCongressId ?? ""}/calls`, {
         method: "POST",
       });
       if (!res.ok) {
@@ -73,7 +76,7 @@ export function CallsPageClient({
       }
       toast.success("Convocatoria abierta exitosamente.");
       router.refresh();
-      await fetchCalls(selectedCongressId);
+      if (selectedCongressId !== null) await fetchCalls(selectedCongressId);
     } catch {
       toast.error("Error de conexion al abrir la convocatoria.");
     } finally {
@@ -93,7 +96,7 @@ export function CallsPageClient({
       }
       toast.success("Convocatoria cerrada exitosamente.");
       router.refresh();
-      await fetchCalls(selectedCongressId);
+      if (selectedCongressId !== null) await fetchCalls(selectedCongressId);
     } catch {
       toast.error("Error de conexion al cerrar la convocatoria.");
     } finally {
@@ -112,22 +115,15 @@ export function CallsPageClient({
         >
           Selecciona un congreso
         </label>
-        <select
+        <CongressCombobox
           id="congress-select-calls"
+          congresses={congresses}
           value={selectedCongressId}
-          onChange={(e) => void handleCongressChange(e.target.value)}
-          className="h-11 w-full max-w-md rounded-lg border border-[var(--color-border)] bg-[var(--color-white)] px-3 font-secondary text-sm text-[var(--color-text-primary)] focus:border-[var(--color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-focus-ring)]"
-        >
-          <option value="">-- Selecciona un congreso --</option>
-          {congresses.map((congress) => (
-            <option key={congress.id} value={congress.id}>
-              {congress.name}
-            </option>
-          ))}
-        </select>
+          onChange={(id) => { void handleCongressChange(id); }}
+        />
       </div>
 
-      {selectedCongressId !== "" && (
+      {selectedCongressId !== null && (
         <div className="flex items-center justify-between">
           <p className="font-secondary text-sm text-[var(--color-text-secondary)]">
             {loadingCalls ? "Cargando convocatorias..." : `${calls.length} convocatoria(s)`}
@@ -146,7 +142,7 @@ export function CallsPageClient({
         </div>
       )}
 
-      {selectedCongressId !== "" && !loadingCalls && (
+      {selectedCongressId !== null && !loadingCalls && (
         <>
           {calls.length === 0 ? (
             <EmptyState
