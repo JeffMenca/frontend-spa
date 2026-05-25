@@ -10,6 +10,8 @@ interface UserSearchComboboxProps {
   selected: UserData | null;
   congressId?: string | undefined;
   placeholder?: string;
+  /** When true, loads the full enrolled list immediately on mount (before any query). */
+  preloadEnrolled?: boolean;
   "data-testid"?: string;
 }
 
@@ -18,10 +20,12 @@ export function UserSearchCombobox({
   selected,
   congressId,
   placeholder = "Buscar por nombre, correo o identificacion...",
+  preloadEnrolled = false,
   "data-testid": testId,
 }: UserSearchComboboxProps): React.ReactElement {
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<UserData[]>([]);
+  const [allEnrolled, setAllEnrolled] = useState<UserData[]>([]);
   const [loading, setLoading] = useState(false);
   const [open, setOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -34,10 +38,39 @@ export function UserSearchCombobox({
     setOpen(false);
   }, [onSelect]);
 
+  const loadAllEnrolled = useCallback(async (): Promise<void> => {
+    if (congressId === undefined || congressId === "") return;
+    setLoading(true);
+    try {
+      const res = await fetch(`/api/congresses/${congressId}/enrollments/participants?size=100`);
+      if (!res.ok) return;
+      const raw: unknown = await res.json();
+      const parsed = UserListSchema.safeParse(raw);
+      if (parsed.success) {
+        setAllEnrolled(parsed.data.items);
+      }
+    } catch {
+      // ignore
+    } finally {
+      setLoading(false);
+    }
+  }, [congressId]);
+
+  useEffect(() => {
+    if (preloadEnrolled && congressId !== undefined && congressId !== "") {
+      void loadAllEnrolled();
+    }
+  }, [preloadEnrolled, congressId, loadAllEnrolled]);
+
   const search = useCallback(async (term: string): Promise<void> => {
     if (term.trim().length < 2) {
-      setResults([]);
-      setOpen(false);
+      if (preloadEnrolled && allEnrolled.length > 0) {
+        setResults(allEnrolled);
+        setOpen(true);
+      } else {
+        setResults([]);
+        setOpen(false);
+      }
       return;
     }
     setLoading(true);
@@ -62,7 +95,7 @@ export function UserSearchCombobox({
     } finally {
       setLoading(false);
     }
-  }, [congressId]);
+  }, [congressId, preloadEnrolled, allEnrolled]);
 
   function handleQueryChange(e: React.ChangeEvent<HTMLInputElement>): void {
     const value = e.target.value;
@@ -78,6 +111,13 @@ export function UserSearchCombobox({
     setQuery("");
     setResults([]);
     setOpen(false);
+  }
+
+  function handleFocus(): void {
+    if (preloadEnrolled && query.trim().length < 2 && allEnrolled.length > 0) {
+      setResults(allEnrolled);
+      setOpen(true);
+    }
   }
 
   useEffect(() => {
@@ -134,6 +174,7 @@ export function UserSearchCombobox({
         <Input
           value={query}
           onChange={handleQueryChange}
+          onFocus={handleFocus}
           placeholder={placeholder}
           className="h-11 pl-9"
           autoComplete="off"

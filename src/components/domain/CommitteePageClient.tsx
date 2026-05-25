@@ -271,6 +271,7 @@ export function CommitteePageClient({
                 }}
                 congressId={selectedCongressId ?? undefined}
                 placeholder="Buscar participantes inscritos..."
+                preloadEnrolled
                 data-testid="committee-user-search"
               />
               {errors.userId !== undefined && (

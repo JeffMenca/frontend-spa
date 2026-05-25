@@ -61,6 +61,29 @@ export function AttendancePageClient({
 
   const selectedActivityId = watch("activityId");
 
+  const fetchAttendanceHistory = useCallback(
+    async (activityId: string) => {
+      if (activityId === "") return;
+      setLoadingHistory(true);
+      try {
+        const res = await fetch(
+          `/api/attendance?activityId=${encodeURIComponent(activityId)}`,
+        );
+        if (!res.ok) return;
+        const raw: unknown = await res.json();
+        const parsed = AttendanceListSchema.safeParse(raw);
+        if (parsed.success) {
+          setAttendanceHistory(parsed.data.items);
+        }
+      } catch {
+        // ignore — history loads silently
+      } finally {
+        setLoadingHistory(false);
+      }
+    },
+    [],
+  );
+
   const fetchActivities = useCallback(
     async (congressId: string, preSelectActivityId?: string) => {
       setLoadingActivities(true);
@@ -82,6 +105,7 @@ export function AttendancePageClient({
         setActivities(parsed.data.items);
         if (preSelectActivityId !== undefined && preSelectActivityId !== "") {
           setValue("activityId", preSelectActivityId);
+          void fetchAttendanceHistory(preSelectActivityId);
         }
       } catch {
         toast.error("Error de conexion al cargar las actividades.");
@@ -89,7 +113,7 @@ export function AttendancePageClient({
         setLoadingActivities(false);
       }
     },
-    [setValue, toast],
+    [setValue, toast, fetchAttendanceHistory],
   );
 
   useEffect(() => {
@@ -127,6 +151,7 @@ export function AttendancePageClient({
       toast.success("Asistencia registrada exitosamente.");
       setSelectedParticipant(null);
       reset({ activityId: data.activityId, personalId: "" });
+      void fetchAttendanceHistory(data.activityId);
     } catch {
       toast.error("Error de conexion al registrar asistencia.");
     } finally {
@@ -139,27 +164,7 @@ export function AttendancePageClient({
       toast.error("Selecciona una actividad para ver el historial.");
       return;
     }
-    setLoadingHistory(true);
-    try {
-      const res = await fetch(
-        `/api/attendance?activityId=${encodeURIComponent(selectedActivityId)}`,
-      );
-      if (!res.ok) {
-        toast.error("Error al cargar el historial de asistencia.");
-        return;
-      }
-      const raw: unknown = await res.json();
-      const parsed = AttendanceListSchema.safeParse(raw);
-      if (!parsed.success) {
-        toast.error("Error al procesar el historial.");
-        return;
-      }
-      setAttendanceHistory(parsed.data.items);
-    } catch {
-      toast.error("Error de conexion al cargar el historial.");
-    } finally {
-      setLoadingHistory(false);
-    }
+    await fetchAttendanceHistory(selectedActivityId);
   };
 
   if (congresses.length === 0) {
@@ -234,7 +239,10 @@ export function AttendancePageClient({
               <select
                 id="attendance-activity-select"
                 value={selectedActivityId}
-                onChange={(e) => setValue("activityId", e.target.value)}
+                onChange={(e) => {
+                  setValue("activityId", e.target.value);
+                  void fetchAttendanceHistory(e.target.value);
+                }}
                 disabled={selectedCongressId === null || loadingActivities}
                 className="h-11 w-full rounded-lg border border-[var(--color-border)] bg-[var(--color-white)] px-3 font-secondary text-sm text-[var(--color-text-primary)] focus:border-[var(--color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-focus-ring)] disabled:cursor-not-allowed disabled:opacity-50"
                 data-testid="attendance-activity-select"
@@ -265,6 +273,7 @@ export function AttendancePageClient({
                 }}
                 congressId={selectedCongressId ?? undefined}
                 placeholder="Buscar participantes inscritos..."
+                preloadEnrolled
                 data-testid="attendance-participant-search"
               />
               <p className="font-secondary text-xs text-[var(--color-text-secondary)]">
