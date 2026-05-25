@@ -8,7 +8,9 @@ import {
   unauthorizedResponse,
   internalErrorResponse,
   forbiddenResponse,
+  applicationErrorResponse,
 } from "@/lib/api/responses";
+import { ApplicationError } from "@/types/error";
 
 async function getToken(): Promise<string | null> {
   const cookieStore = await cookies();
@@ -25,7 +27,8 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     const params = new URL(request.url).searchParams;
     // TODO(conf-service): swap mock when conference GET /reports/workshop-reservations is deployed - tracked in backlog Lane B
     return NextResponse.json(await activeConference.getWorkshopReservationReport(token, params));
-  } catch {
+  } catch (error) {
+    if (error instanceof ApplicationError) return applicationErrorResponse(error);
     return internalErrorResponse();
   }
 }
