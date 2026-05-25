@@ -110,7 +110,7 @@ export default async function EnrollmentsPage(): Promise<React.ReactElement> {
                       className="flex items-center gap-1.5 font-sans text-base font-medium text-[var(--color-primary-text)] hover:underline"
                       aria-label={`Ver detalle del congreso`}
                     >
-                      Congreso inscrito
+                      {enrollment.congressName ?? "Congreso"}
                       <ExternalLink size={13} strokeWidth={1.5} aria-hidden="true" />
                     </Link>
 

@@ -25,7 +25,6 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   if (token === null) return unauthorizedResponse();
   try {
     const body: unknown = await request.json();
-    // TODO(conf-service): swap mock when conference POST /attendance/register is deployed - tracked in backlog Lane B
     return NextResponse.json(await activeConference.registerAttendance(body, token), {
       status: 201,
     });

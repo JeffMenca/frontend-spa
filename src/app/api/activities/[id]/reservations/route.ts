@@ -26,7 +26,6 @@ export async function GET(
   if (token === null) return unauthorizedResponse();
   const { id } = await params;
   try {
-    // TODO(conf-service): swap mock when conference GET /activities/{id}/reservations is deployed - tracked in backlog Lane B
     return NextResponse.json(await activeConference.getActivityReservations(id, token));
   } catch {
     return internalErrorResponse();
@@ -43,7 +42,6 @@ export async function POST(
   if (token === null) return unauthorizedResponse();
   const { id } = await params;
   try {
-    // TODO(conf-service): swap mock when conference POST /activities/{id}/reservations is deployed - tracked in backlog Lane B
     return NextResponse.json(await activeConference.reserveActivity(id, token), { status: 201 });
   } catch (error: unknown) {
     if (error instanceof ApplicationError) return applicationErrorResponse(error);

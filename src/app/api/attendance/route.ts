@@ -18,7 +18,6 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
   if (token === null) return unauthorizedResponse();
   try {
     const params = new URL(request.url).searchParams;
-    // TODO(conf-service): swap mock when conference GET /attendance is deployed - tracked in backlog Lane B
     return NextResponse.json(await activeConference.listAttendance(token, params));
   } catch {
     return internalErrorResponse();

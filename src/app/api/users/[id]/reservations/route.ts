@@ -21,7 +21,6 @@ export async function GET(
   if (token === null) return unauthorizedResponse();
   const { id } = await params;
   try {
-    // TODO(conf-service): swap mock when conference GET /users/{id}/reservations is deployed - tracked in backlog Lane B
     return NextResponse.json(await activeConference.getUserReservations(id, token));
   } catch {
     return internalErrorResponse();
