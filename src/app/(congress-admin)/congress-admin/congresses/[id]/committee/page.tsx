@@ -6,6 +6,7 @@ import { LoadingPage } from "@/components/ui/loading-spinner";
 import { CommitteeScopedPageClient } from "@/components/domain/CommitteeScopedPageClient";
 import { CongressSchema } from "@/lib/validators/congress";
 import { CommitteeMemberListSchema } from "@/lib/validators/committee";
+import { serverFetch } from "@/lib/api/server-fetch";
 
 const BASE = process.env["NEXT_PUBLIC_APP_URL"] ?? "http://localhost:3000";
 
@@ -20,8 +21,8 @@ export default async function CongressCommitteePage({
   const { id } = await params;
 
   const [congressRes, committeeRes] = await Promise.all([
-    fetch(`${BASE}/api/congresses/${id}`, { cache: "no-store" }),
-    fetch(`${BASE}/api/congresses/${id}/committee`, { cache: "no-store" }),
+    serverFetch(`${BASE}/api/congresses/${id}`, { cache: "no-store" }),
+    serverFetch(`${BASE}/api/congresses/${id}/committee`, { cache: "no-store" }),
   ]);
 
   if (congressRes.status === 401 || committeeRes.status === 401) {

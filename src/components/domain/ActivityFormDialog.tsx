@@ -21,6 +21,7 @@ import {
   type CreateActivityData,
   type ActivityData,
 } from "@/lib/validators/activity";
+import { type RoomData } from "@/lib/validators/room";
 import { ProblemDetailSchema } from "@/lib/validators/error";
 import { ERROR_MESSAGES } from "@/lib/utils/error-messages";
 import { useToast } from "@/hooks/useToast";
@@ -32,6 +33,8 @@ interface ActivityFormDialogProps {
   mode: "create" | "edit";
   activity?: ActivityData | undefined;
   onSuccess: () => void;
+  rooms: RoomData[];
+  loadingRooms: boolean;
 }
 
 export function ActivityFormDialog({
@@ -41,6 +44,8 @@ export function ActivityFormDialog({
   mode,
   activity,
   onSuccess,
+  rooms,
+  loadingRooms,
 }: ActivityFormDialogProps): React.ReactElement {
   const router = useRouter();
   const toast = useToast();
@@ -274,22 +279,31 @@ export function ActivityFormDialog({
             </div>
           )}
 
-          {/* Room ID */}
+          {/* Room selector */}
           <div className="flex flex-col gap-2">
             <Label
               htmlFor="activity-room"
               className="font-secondary text-sm text-[var(--color-text-primary)]"
             >
-              ID de sala (UUID)
+              Sala
             </Label>
-            <Input
+            <select
               id="activity-room"
-              type="text"
-              disabled={isSubmitting}
+              disabled={isSubmitting || loadingRooms}
               aria-invalid={errors.roomId !== undefined}
-              placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+              className="h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 font-secondary text-sm text-[var(--color-text-primary-black)] focus-visible:border-ring focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50"
               {...register("roomId")}
-            />
+            >
+              <option value="">
+                {loadingRooms ? "Cargando salas..." : "Selecciona una sala"}
+              </option>
+              {rooms.map((room) => (
+                <option key={room.id} value={room.id}>
+                  {room.name}
+                  {room.capacity !== null ? ` (cap. ${room.capacity})` : ""}
+                </option>
+              ))}
+            </select>
             {errors.roomId !== undefined && (
               <p
                 className="font-secondary text-xs text-[var(--color-error)]"

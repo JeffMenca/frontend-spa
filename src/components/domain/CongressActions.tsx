@@ -22,9 +22,10 @@ import { ERROR_MESSAGES } from "@/lib/utils/error-messages";
 
 interface CongressActionsProps {
   congressId: string;
+  hasOpenCall: boolean;
 }
 
-export function CongressActions({ congressId }: CongressActionsProps): React.ReactElement {
+export function CongressActions({ congressId, hasOpenCall }: CongressActionsProps): React.ReactElement {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const router = useRouter();
@@ -104,13 +105,22 @@ export function CongressActions({ congressId }: CongressActionsProps): React.Rea
 
   return (
     <>
-      <Button
-        onClick={() => { void handleEnrollClick(); }}
-        className="min-h-[44px] bg-[var(--color-primary)] text-white transition-transform duration-200 hover:scale-[1.01] hover:bg-[var(--color-primary-hover)] active:scale-[0.99]"
-        data-testid="enroll-button"
-      >
-        Inscribirse
-      </Button>
+      {hasOpenCall ? (
+        <Button
+          onClick={() => { void handleEnrollClick(); }}
+          className="min-h-[44px] bg-[var(--color-primary)] text-white transition-transform duration-200 hover:scale-[1.01] hover:bg-[var(--color-primary-hover)] active:scale-[0.99]"
+          data-testid="enroll-button"
+        >
+          Inscribirse
+        </Button>
+      ) : (
+        <span
+          className="inline-flex min-h-[44px] items-center rounded-lg border border-[var(--color-border)] px-4 py-2 font-secondary text-sm text-[var(--color-text-secondary)]"
+          data-testid="enroll-closed-badge"
+        >
+          Convocatoria cerrada
+        </span>
+      )}
 
       <Dialog open={isDialogOpen} onOpenChange={handleDialogClose}>
         <DialogContent

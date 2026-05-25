@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/ui/page-header";
 import { EmptyState } from "@/components/ui/empty-state";
 import { RoomFormDialog } from "@/components/domain/RoomFormDialog";
+import { CongressCombobox } from "@/components/domain/CongressCombobox";
 import {
   Dialog,
   DialogContent,
@@ -71,9 +72,9 @@ export function RoomsPageClient({
     [toast],
   );
 
-  function handleCongressChange(congressId: string): void {
-    setSelectedCongressId(congressId === "" ? null : congressId);
-    if (congressId !== "") {
+  function handleCongressChange(congressId: string | null): void {
+    setSelectedCongressId(congressId);
+    if (congressId !== null) {
       void loadRooms(congressId);
     } else {
       setRooms([]);
@@ -175,19 +176,12 @@ export function RoomsPageClient({
             >
               Selecciona un congreso
             </label>
-            <select
+            <CongressCombobox
               id="congress-select"
-              value={selectedCongressId ?? ""}
-              onChange={(e) => handleCongressChange(e.target.value)}
-              className="h-11 w-full max-w-sm rounded-md border border-[var(--color-border)] bg-[var(--color-white)] px-3 font-secondary text-sm text-[var(--color-text-primary-black)] focus-visible:border-ring focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50"
-            >
-              <option value="">-- Selecciona un congreso --</option>
-              {congresses.map((c) => (
-                <option key={c.id} value={c.id}>
-                  {c.name}
-                </option>
-              ))}
-            </select>
+              congresses={congresses}
+              value={selectedCongressId}
+              onChange={handleCongressChange}
+            />
           </div>
 
           {/* Rooms list */}

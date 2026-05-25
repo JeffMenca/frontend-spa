@@ -17,6 +17,7 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import { ActivityListSchema, type ActivityData } from "@/lib/validators/activity";
+import { RoomListSchema, type RoomData } from "@/lib/validators/room";
 import { ProblemDetailSchema } from "@/lib/validators/error";
 import { ERROR_MESSAGES } from "@/lib/utils/error-messages";
 import { formatDateTime } from "@/lib/utils/format";
@@ -35,6 +36,25 @@ export function ActivitiesScopedPageClient({
 }: ActivitiesScopedPageClientProps): React.ReactElement {
   const toast = useToast();
   const [activities, setActivities] = useState<ActivityData[]>(initialActivities);
+  const [rooms, setRooms] = useState<RoomData[]>([]);
+  const [isLoadingRooms, setIsLoadingRooms] = useState(false);
+
+  const loadRooms = useCallback(async (): Promise<void> => {
+    setIsLoadingRooms(true);
+    try {
+      const res = await fetch(`/api/congresses/${congressId}/rooms`);
+      if (!res.ok) return;
+      const raw: unknown = await res.json();
+      const parsed = RoomListSchema.safeParse(raw);
+      if (parsed.success) {
+        setRooms(parsed.data.items);
+      }
+    } catch {
+      /* silent */
+    } finally {
+      setIsLoadingRooms(false);
+    }
+  }, [congressId]);
 
   const [formOpen, setFormOpen] = useState(false);
   const [formMode, setFormMode] = useState<"create" | "edit">("create");
@@ -61,12 +81,14 @@ export function ActivitiesScopedPageClient({
   function openCreate(): void {
     setEditTarget(undefined);
     setFormMode("create");
+    void loadRooms();
     setFormOpen(true);
   }
 
   function openEdit(activity: ActivityData): void {
     setEditTarget(activity);
     setFormMode("edit");
+    void loadRooms();
     setFormOpen(true);
   }
 
@@ -223,6 +245,8 @@ export function ActivitiesScopedPageClient({
         onSuccess={() => {
           void refreshActivities();
         }}
+        rooms={rooms}
+        loadingRooms={isLoadingRooms}
       />
 
       <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>

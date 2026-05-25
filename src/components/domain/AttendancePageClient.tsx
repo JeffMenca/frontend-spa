@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { PageHeader } from "@/components/ui/page-header";
 import { EmptyState } from "@/components/ui/empty-state";
+import { CongressCombobox } from "@/components/domain/CongressCombobox";
 import {
   AttendanceListSchema,
   RegisterAttendanceSchema,
@@ -34,8 +35,8 @@ export function AttendancePageClient({
 }: AttendancePageClientProps): React.ReactElement {
   const toast = useToast();
 
-  const [selectedCongressId, setSelectedCongressId] = useState<string>(
-    initialCongressId ?? "",
+  const [selectedCongressId, setSelectedCongressId] = useState<string | null>(
+    initialCongressId ?? null,
   );
   const [activities, setActivities] = useState<ActivityData[]>([]);
   const [loadingActivities, setLoadingActivities] = useState(false);
@@ -96,9 +97,9 @@ export function AttendancePageClient({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const handleCongressChange = async (congressId: string) => {
+  const handleCongressChange = async (congressId: string | null) => {
     setSelectedCongressId(congressId);
-    if (congressId !== "") {
+    if (congressId !== null) {
       await fetchActivities(congressId);
     } else {
       setActivities([]);
@@ -200,20 +201,12 @@ export function AttendancePageClient({
           >
             <div className="flex flex-col gap-2">
               <Label htmlFor="attendance-congress-select">Congreso</Label>
-              <select
+              <CongressCombobox
                 id="attendance-congress-select"
+                congresses={congresses}
                 value={selectedCongressId}
-                onChange={(e) => void handleCongressChange(e.target.value)}
-                className="h-11 w-full rounded-lg border border-[var(--color-border)] bg-[var(--color-white)] px-3 font-secondary text-sm text-[var(--color-text-primary)] focus:border-[var(--color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-focus-ring)]"
-                data-testid="attendance-congress-select"
-              >
-                <option value="">-- Selecciona un congreso --</option>
-                {congresses.map((congress) => (
-                  <option key={congress.id} value={congress.id}>
-                    {congress.name}
-                  </option>
-                ))}
-              </select>
+                onChange={(id) => { void handleCongressChange(id); }}
+              />
             </div>
 
             <div className="flex flex-col gap-2">
@@ -222,7 +215,7 @@ export function AttendancePageClient({
                 id="attendance-activity-select"
                 value={selectedActivityId}
                 onChange={(e) => setValue("activityId", e.target.value)}
-                disabled={selectedCongressId === "" || loadingActivities}
+                disabled={selectedCongressId === null || loadingActivities}
                 className="h-11 w-full rounded-lg border border-[var(--color-border)] bg-[var(--color-white)] px-3 font-secondary text-sm text-[var(--color-text-primary)] focus:border-[var(--color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-focus-ring)] disabled:cursor-not-allowed disabled:opacity-50"
                 data-testid="attendance-activity-select"
               >
@@ -265,7 +258,7 @@ export function AttendancePageClient({
             <div className="flex gap-3 pt-2">
               <Button
                 type="submit"
-                disabled={submitting || selectedCongressId === ""}
+                disabled={submitting || selectedCongressId === null}
                 className="min-h-[44px] bg-[var(--color-primary)] text-white hover:scale-[1.01] active:scale-[0.99]"
                 data-testid="attendance-register-button"
               >

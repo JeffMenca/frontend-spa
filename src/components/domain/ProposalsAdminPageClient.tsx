@@ -5,6 +5,7 @@ import { FileText, CheckCircle, XCircle } from "lucide-react";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Button } from "@/components/ui/button";
 import { ActivityBadge } from "@/components/domain/ActivityBadge";
+import { CongressCombobox } from "@/components/domain/CongressCombobox";
 import { CallListSchema, type CallData } from "@/lib/validators/call";
 import { ProposalListSchema, type ProposalData } from "@/lib/validators/proposal";
 import { CommitteeMemberListSchema } from "@/lib/validators/committee";
@@ -35,7 +36,7 @@ export function ProposalsAdminPageClient({
 }: ProposalsAdminPageClientProps): React.ReactElement {
   const toast = useToast();
 
-  const [selectedCongressId, setSelectedCongressId] = useState<string>("");
+  const [selectedCongressId, setSelectedCongressId] = useState<string | null>(null);
   const [proposals, setProposals] = useState<ProposalData[]>([]);
   const [openCall, setOpenCall] = useState<CallData | null>(null);
   const [isCommitteeMember, setIsCommitteeMember] = useState(false);
@@ -44,7 +45,6 @@ export function ProposalsAdminPageClient({
 
   const fetchCongressData = useCallback(
     async (congressId: string) => {
-      if (congressId === "") return;
       setLoading(true);
       setProposals([]);
       setOpenCall(null);
@@ -146,31 +146,29 @@ export function ProposalsAdminPageClient({
         >
           Selecciona un congreso
         </label>
-        <select
+        <CongressCombobox
           id="congress-select-proposals"
+          congresses={congresses}
           value={selectedCongressId}
-          onChange={(e) => {
-            setSelectedCongressId(e.target.value);
-            void fetchCongressData(e.target.value);
+          onChange={(id) => {
+            setSelectedCongressId(id);
+            if (id !== null) void fetchCongressData(id);
+            else {
+              setProposals([]);
+              setOpenCall(null);
+              setIsCommitteeMember(false);
+            }
           }}
-          className="h-11 w-full max-w-md rounded-lg border border-[var(--color-border)] bg-[var(--color-white)] px-3 font-secondary text-sm text-[var(--color-text-primary)] focus:border-[var(--color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-focus-ring)]"
-        >
-          <option value="">-- Selecciona un congreso --</option>
-          {congresses.map((congress) => (
-            <option key={congress.id} value={congress.id}>
-              {congress.name}
-            </option>
-          ))}
-        </select>
+        />
       </div>
 
-      {selectedCongressId !== "" && loading && (
+      {selectedCongressId !== null && loading && (
         <p className="font-secondary text-sm text-[var(--color-text-secondary)]">
           Cargando propuestas...
         </p>
       )}
 
-      {selectedCongressId !== "" && !loading && openCall === null && (
+      {selectedCongressId !== null && !loading && openCall === null && (
         <div className="rounded-lg border border-dashed border-[var(--color-border)] bg-[var(--color-surface)] px-8 py-12 text-center">
           <p className="font-secondary text-sm text-[var(--color-text-secondary)]">
             No hay una convocatoria abierta para este congreso.
@@ -178,7 +176,7 @@ export function ProposalsAdminPageClient({
         </div>
       )}
 
-      {selectedCongressId !== "" && !loading && openCall !== null && (
+      {selectedCongressId !== null && !loading && openCall !== null && (
         <>
           {isCommitteeMember && (
             <div className="rounded-lg border border-[var(--color-border)] bg-[var(--color-pale-blue)] px-4 py-3">
@@ -259,7 +257,7 @@ export function ProposalsAdminPageClient({
         </>
       )}
 
-      {selectedCongressId === "" && (
+      {selectedCongressId === null && (
         <div className="rounded-lg border border-dashed border-[var(--color-border)] bg-[var(--color-surface)] px-8 py-12 text-center">
           <p className="font-secondary text-sm text-[var(--color-text-secondary)]">
             Selecciona un congreso para ver sus propuestas.
